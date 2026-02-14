@@ -1,0 +1,45 @@
+.navbar {
+    background-color: #1A2129;
+    padding: 12px 24px;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #F9FAFB;
+}
+
+.logo .go {
+    color: #A5F505;
+}
+
+.nav-links {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 6px 14px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.login-btn {
+    background: transparent;
+    color: #F9FAFB;
+    border: 1px solid #F9FAFB;
+}
+
+.signup-btn {
+    background: #A5F505;
+    color: #1A2129;
+}
