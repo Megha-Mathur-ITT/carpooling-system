@@ -1,1 +1,4 @@
-<router-outlet></router-outlet>
+<app-splash *ngIf="showSplash" (splashFinished)="onSplashFinished()">
+</app-splash>
+
+<router-outlet *ngIf="!showSplash"></router-outlet>
