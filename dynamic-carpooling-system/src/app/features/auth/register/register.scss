@@ -1,0 +1,43 @@
+.register-container {
+  padding-top: 40px;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(circle at top left, #A5F50F22, transparent 30%),
+    linear-gradient(120deg, #1A2129 0%, #1A2129 35%, #F9FAFB 35%);
+}
+
+.register-card {
+  width: 500px;
+  border-radius: 14px;
+  border: none;
+  background: #ffffff;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+
+  animation: cardFade 0.4s ease;
+
+  h3 {
+    font-weight: 700;
+    color: #1A2129;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+}
+
+@keyframes cardFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

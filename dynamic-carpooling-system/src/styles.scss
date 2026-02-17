@@ -1,1 +1,24 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
+
+body {
+  font-family: 'Satoshi', sans-serif;
+  background: #F9FAFB;
+  color: #1A2129;
+}
+
+.btn-primary {
+  background-color: #A5F50F;
+  border-color: #A5F50F;
+  color: #1A2129;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #92dd0d;
+  border-color: #92dd0d;
+}
+
+.form-control:focus {
+  border-color: #A5F50F;
+  box-shadow: 0 0 0 0.2rem rgba(165,245,15,0.25);
+}
