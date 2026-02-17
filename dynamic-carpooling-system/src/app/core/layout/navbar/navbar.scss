@@ -1,0 +1,29 @@
+.custom-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background-color: #1A2129;
+  padding: 12px 24px;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #F9FAFB;
+  cursor: pointer;
+
+  .go {
+    color: #A5F505;
+  }
+}
+
+.btn-accent {
+  background-color: #A5F505;
+  color: #1A2129;
+  border: none;
+
+  &:hover {
+    background-color: #8ed404;
+  }
+}
