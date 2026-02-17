@@ -1,1 +1,10 @@
-<p>form-input works!</p>
+<div class="mb-3">
+    <label class="form-label">{{ label }}</label>
+    <input class="form-control" [type]="type" [formControl]="control" [placeholder]="placeholder">
+
+    @if(control.touched && control.errors && firstError()) {
+    <div class="text-danger mt-1">
+        {{errorMessages[firstError() ?? '']}}
+    </div>
+    }
+</div>

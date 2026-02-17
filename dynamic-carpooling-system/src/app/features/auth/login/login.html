@@ -1,1 +1,34 @@
-<p>login works!</p>
+<div class="login-container vh-100 d-flex align-items-center justify-content-center">
+    <div class="card shadow p-4 login-card">
+        <h3 class="text-center mb-4">
+            Login
+        </h3>
+
+        <div class="text-center mb-2">
+            <h2 class="fw-bold text-center mb-2">
+                Welcome back
+            </h2>
+
+            <p class="text-center text-muted mb-4">
+                Don’t have an account?
+                <a routerLink="/auth/register" class="fw-semibold text-decoration-none ms-1">
+                    Register here
+                </a>
+            </p>
+        </div>
+
+        <form action="" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+            <!-- Email section -->
+            <app-form-input label="Email" type="email" [formGroup]="loginForm" controlName="email"
+                placeholder="Enter your email" [errorMessages]="ValidationMessages.email"></app-form-input>
+
+            <!-- Password section -->
+            <app-form-input label="Password" type="password" [formGroup]="loginForm" controlName="password"
+                placeholder="Enter your password" [errorMessages]="ValidationMessages.password"></app-form-input>
+
+            <button class="btn btn-primary w-100">
+                Login
+            </button>
+        </form>
+    </div>
+</div>
