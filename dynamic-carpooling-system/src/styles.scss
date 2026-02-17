@@ -22,3 +22,12 @@ body {
   border-color: #A5F50F;
   box-shadow: 0 0 0 0.2rem rgba(165,245,15,0.25);
 }
+@use "sass:color";
+
+$primary-dark: #1A2129;
+$accent-green: #A5F505;
+$text-light: #F9FAFB;
+$text-muted: #9CA3AF;
+$accent-hover: color.adjust($accent-green, $lightness: -8%);
+
+@use "bootstrap" as *;
