@@ -1,20 +1,20 @@
-<header class="navbar">
-    <div class="container">
+<nav class="navbar navbar-expand-lg custom-navbar">
+  <div class="container-fluid px-20">
 
-        <div class="logo" routerLink="/">
-            <span class="go">Go</span>
-            <span class="brand">सफ़र</span>
-        </div>
+    <a class="navbar-brand logo" routerLink="/">
+      <span class="go">Go</span>
+      <span class="brand">सफ़र</span>
+    </a>
 
-        <nav class="nav-links">
-            <button class="btn login-btn" (click)="navigateToLogin()">
-                Login
-            </button>
+    <div class="ms-auto d-flex gap-2">
+      <button class="btn btn-outline-light" (click)="navigateToLogin()">
+        Login
+      </button>
 
-            <button class="btn signup-btn" (click)="navigateToRegister()">
-                Sign Up
-            </button>
-        </nav>
-
+      <button class="btn btn-accent" (click)="navigateToRegister()">
+        Sign Up
+      </button>
     </div>
-</header>
+
+  </div>
+</nav>

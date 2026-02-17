@@ -1,1 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
+@use "sass:color";
+
+$primary-dark: #1A2129;
+$accent-green: #A5F505;
+$text-light: #F9FAFB;
+$text-muted: #9CA3AF;
+$accent-hover: color.adjust($accent-green, $lightness: -8%);
+
+@use "bootstrap" as *;

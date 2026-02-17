@@ -1,4 +1,5 @@
-<app-splash *ngIf="showSplash" (splashFinished)="onSplashFinished()">
-</app-splash>
+<app-splash *ngIf="showSplash" (splashFinished)="onSplashFinished()"></app-splash>
 
-<router-outlet *ngIf="!showSplash"></router-outlet>
+<ng-container *ngIf="!showSplash">
+  <router-outlet></router-outlet>
+</ng-container>
