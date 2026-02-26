@@ -2,8 +2,6 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { EmailValidators } from '../../../shared/Validators/email-validators';
 import { PasswordValidators } from '../../../shared/Validators/password-validators';
-import { UsernameValidators } from '../../../shared/Validators/username-validators';
-import { VehicleValidators } from '../../../shared/Validators/vehicle-validators';
 import { ValidationMessages } from '../../../shared/constants/validation-messages';
 import { FormInput } from '../../../shared/ui/form-input/form-input';
 import { RouterModule } from '@angular/router';

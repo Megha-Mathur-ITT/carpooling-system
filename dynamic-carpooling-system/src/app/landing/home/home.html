@@ -1,3 +1,8 @@
+<app-splash *ngIf="showSplash" (splashFinished)="onSplashFinished()"></app-splash>
+
+<ng-container *ngIf="!showSplash">
+    <router-outlet></router-outlet>
+</ng-container>
 <app-navbar></app-navbar>
 <app-hero></app-hero>
 <app-how-it-works></app-how-it-works>

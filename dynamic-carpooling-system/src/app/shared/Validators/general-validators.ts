@@ -15,14 +15,4 @@ export class GeneralValidators {
 
         return null;
     }
-
-    static required(control: AbstractControl): ValidationErrors | null {
-        const inputFieldValue = control.value.trim();
-
-        if (!inputFieldValue) {
-            return null;
-        }
-
-        return null;
-    }
 }

@@ -1,20 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NgIf, CommonModule } from '@angular/common';
-import { Splash } from './landing/splash/splash';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [NgIf, RouterOutlet, CommonModule, Splash],
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
 export class App {
   protected readonly title = signal('dynamic-carpooling-system');
-  showSplash = true;
-
-  onSplashFinished() {
-    this.showSplash = false;
-  }
 }

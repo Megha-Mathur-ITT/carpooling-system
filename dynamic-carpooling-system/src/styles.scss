@@ -1,33 +1,32 @@
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
-
-body {
-  font-family: 'Satoshi', sans-serif;
-  background: #F9FAFB;
-  color: #1A2129;
-}
-
-.btn-primary {
-  background-color: #A5F50F;
-  border-color: #A5F50F;
-  color: #1A2129;
-  font-weight: 600;
-}
-
-.btn-primary:hover {
-  background-color: #92dd0d;
-  border-color: #92dd0d;
-}
-
-.form-control:focus {
-  border-color: #A5F50F;
-  box-shadow: 0 0 0 0.2rem rgba(165,245,15,0.25);
-}
 @use "sass:color";
-
+@use "bootstrap" as *;
+ 
 $primary-dark: #1A2129;
 $accent-green: #A5F505;
 $text-light: #F9FAFB;
 $text-muted: #9CA3AF;
 $accent-hover: color.adjust($accent-green, $lightness: -8%);
 
-@use "bootstrap" as *;
+body {
+  font-family: 'Satoshi', sans-serif;
+  background: $text-light;
+  color: $primary-dark;
+}
+ 
+.btn-primary {
+  background-color: $accent-green;
+  border-color: $accent-green;
+  color: $primary-dark;
+  font-weight: 600;
+}
+ 
+.btn-primary:hover {
+  background-color: $accent-hover;
+  border-color: $accent-hover;
+}
+ 
+.form-control:focus {
+  border-color: $accent-green;
+  box-shadow: 0 0 0 0.2rem rgba(165, 245, 15, 0.25);
+}
+ 

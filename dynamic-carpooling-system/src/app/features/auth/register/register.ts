@@ -8,7 +8,7 @@ import { GeneralValidators } from '../../../shared/Validators/general-validators
 import { FormInput } from '../../../shared/ui/form-input/form-input';
 import { NgIf } from '@angular/common';
 import { ValidationMessages } from '../../../shared/constants/validation-messages';
-import { RouterModule } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -17,7 +17,7 @@ import { RouterModule } from '@angular/router';
     ReactiveFormsModule,
     FormInput,
     NgIf,
-    RouterModule
+    RouterLink
   ],
 
   templateUrl: './register.html',
