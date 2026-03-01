@@ -23,15 +23,15 @@ export class VehicleValidators {
     static maxSeats(
         control: AbstractControl
     ): ValidationErrors | null {
-        const maxSeatsFieldValue = control.value;
+        const maxSeatsFieldValue = Number(control.value);
 
         if (!maxSeatsFieldValue) {
             return null;
         }
 
         const isValidMaxSeats = Number.isInteger(maxSeatsFieldValue) &&
-            maxSeatsFieldValue > 0 &&
-            maxSeatsFieldValue <= 10;
+            maxSeatsFieldValue >= 1 &&
+            maxSeatsFieldValue <= 6;
 
         if (!isValidMaxSeats) {
             return {
