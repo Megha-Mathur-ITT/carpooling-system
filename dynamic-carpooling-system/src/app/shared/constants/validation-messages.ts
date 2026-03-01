@@ -26,7 +26,7 @@ export const ValidationMessages = {
 
     maxSeats: {
         required: 'Seat count required',
-        invalidSeats: 'Seats must be between 1 and 10'
+        invalidSeats: 'Seats must be between 1 and 6'
     },
 
     vehicleLicense: {

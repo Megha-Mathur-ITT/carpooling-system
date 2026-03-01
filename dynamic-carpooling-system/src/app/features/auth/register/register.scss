@@ -1,3 +1,5 @@
+@use '../../../../styles/variables' as *;
+
 .register-container {
   padding-top: 40px;
   min-height: 100vh;
@@ -21,11 +23,30 @@
     color: #1A2129;
   }
 
-  button {
+  .btn-primary {
+    background-color: $accent-green;
+    border-color: $accent-green;
+    color: $primary-dark;
+    font-weight: 600;
     margin-top: 10px;
     padding: 12px;
     border-radius: 8px;
   }
+
+  .btn-primary:hover {
+    background-color: $accent-hover;
+    border-color: $accent-hover;
+  }
+}
+
+.success-snackbar {
+  background-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #c62828 !important;
+  color: white !important;
 }
 
 @keyframes cardFade {

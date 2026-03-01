@@ -1,5 +1,7 @@
+@use '../../../../styles/variables' as *;
+
 .login-container {
-    background:linear-gradient(120deg, #1A2129 0%, #1A2129 35%, #F9FAFB 35%);
+    background: linear-gradient(120deg, #1A2129 0%, #1A2129 35%, #F9FAFB 35%);
 }
 
 .login-card {
@@ -14,10 +16,19 @@
 
     animation: cardFade 0.4s ease;
 
-    button {
+    .btn-primary {
+        background-color: $accent-green;
+        border-color: $accent-green;
+        color: $primary-dark;
+        font-weight: 600;
         margin-top: 10px;
         padding: 12px;
         border-radius: 8px;
+    }
+
+    .btn-primary:hover {
+        background-color: $accent-hover;
+        border-color: $accent-hover;
     }
 }
 
