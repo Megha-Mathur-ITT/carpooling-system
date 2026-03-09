@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EmailValidators } from '../../../shared/Validators/email-validators';
@@ -22,7 +22,6 @@ import { RegisterRequest, UserRole } from '../../../core/models/auth-model';
     FormInput,
     NgIf,
     CommonModule,
-    RouterLink,
     MatSnackBarModule
   ],
 
@@ -139,5 +138,9 @@ export class Register {
 
   get getFormControls() {
     return this.registrationForm.controls;
+  }
+
+  goToLogin() {
+    this.router.navigate(['/auth/login'], {replaceUrl: true});
   }
 }

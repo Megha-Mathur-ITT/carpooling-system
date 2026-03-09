@@ -87,4 +87,8 @@ export class Login {
   get getFormControls() {
     return this.loginForm.controls;
   }
+
+  goToRegister() {
+    this.router.navigate(['/auth/register'], { replaceUrl: true });
+  }
 }
