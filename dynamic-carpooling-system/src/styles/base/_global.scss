@@ -1,0 +1,10 @@
+@use '../abstracts/_variables' as *;
+
+body {
+    font-family: $font-family;
+    background: $text-light;
+    color: $primary-dark;
+    color-scheme: light;
+    margin: 0;
+    height: 100%;
+}

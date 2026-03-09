@@ -1,6 +1,8 @@
+@use 'abstracts/_variables' as *;
+
 .footer {
-  background: #1A2129;
-  color: #F9FAFB;
+  background: $primary-dark;
+  color: $text-light;
   padding: 80px 60px 30px;
 
   .footer-container {
@@ -15,7 +17,7 @@
     margin-bottom: 15px;
 
     .accent {
-      color: #A5F505;
+      color: $accent-green;
     }
   }
 
@@ -46,7 +48,7 @@
       transition: 0.3s ease;
 
       &:hover {
-        color: #A5F505;
+        color: $accent-green;
       }
     }
   }
@@ -66,8 +68,8 @@
       }
 
       button {
-        background: #A5F505;
-        color: #1A2129;
+        background: $accent-green;
+        color: $primary-dark;
         border: none;
         padding: 10px 16px;
         border-radius: 0 6px 6px 0;

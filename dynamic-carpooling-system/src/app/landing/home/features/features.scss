@@ -1,3 +1,5 @@
+@use 'abstracts/_variables' as *;
+
 .features {
   background: linear-gradient(135deg,
       #f5f7f9 0%,
@@ -6,10 +8,10 @@
   .section-title {
     font-size: 36px;
     font-weight: 700;
-    color: #1A2129;
+    color: $primary-dark;
 
     .accent {
-      color: #A5F505;
+      color: $accent-green;
     }
   }
 

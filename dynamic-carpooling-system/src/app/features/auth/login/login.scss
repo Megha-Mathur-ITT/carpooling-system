@@ -1,7 +1,7 @@
-@use '../../../../styles/variables' as *;
+@use 'abstracts/_variables' as *;
 
 .login-container {
-    background: linear-gradient(120deg, #1A2129 0%, #1A2129 35%, #F9FAFB 35%);
+    background: linear-gradient(120deg, $primary-dark 0%, $primary-dark 35%, $text-light 35%);
 }
 
 .login-card {
