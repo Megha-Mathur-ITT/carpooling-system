@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
-import { LoginRequest, LoginResponse, RegisterRequest } from '../models/auth-model';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { LoginRequest, LoginResponse, RegisterRequest, UserRole, JwtPayload } from '../models/auth-model';
 import { environment } from '../environments/environment';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +14,18 @@ export class AuthService {
 
   private readonly baseUrl = `${environment.apiBaseUrl}/Auth`
   private readonly TOKEN_KEY = "auth_token";
+  private userRoleSubject = new BehaviorSubject<UserRole | null>(null);
+  loggedInUserRole = this.userRoleSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadUserFromToken();
+    }
+  }
+
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
 
   login(data: LoginRequest) {
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, data)
@@ -29,18 +41,76 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    if (this.isBrowser()) {
+      localStorage.removeItem(this.TOKEN_KEY);
+      this.userRoleSubject.next(null);
+    }
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
+  getToken(): string | null {
+    if (!this.isBrowser()) {
+      return null;
+    }
+
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
   storeToken(token: string) {
-    localStorage.setItem(this.TOKEN_KEY, token);
+    if (this.isBrowser()) {
+      localStorage.setItem(this.TOKEN_KEY, token);
+    }
+  }
+
+  decodeToken(token: string): JwtPayload | null {
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const decodedToken = jwtDecode<JwtPayload>(token);
+      console.log('Decoded Token:', decodedToken);
+      return decodedToken;
+    } catch (Error) {
+      console.error('Error decoding token:', Error);
+      return null;
+    }
+  }
+
+  loadUserFromToken() {
+    const token = this.getToken();
+
+    if (!token) {
+      return;
+    }
+
+    const payload = this.decodeToken(token);
+
+    if (payload && payload.role) {
+      console.log("PAYLOAD role type: ", typeof payload.role);
+      console.log("PAYLOAD role : ", payload.role);
+      console.log("UserRole.Passenger type: ", typeof UserRole.Passenger);
+      let roleEnum: UserRole;
+
+      switch (payload.role) {
+        case 'Passenger':
+          roleEnum = UserRole.Passenger;
+          break;
+        case 'Driver':
+          roleEnum = UserRole.Driver;
+          break;
+        default:
+          return;
+      }
+
+      this.userRoleSubject.next(roleEnum);
+    }
+  }
+
+  getUserRole() {
+    return this.userRoleSubject.getValue();
   }
 }
