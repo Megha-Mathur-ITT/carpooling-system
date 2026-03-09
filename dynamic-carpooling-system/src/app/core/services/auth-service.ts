@@ -72,7 +72,6 @@ export class AuthService {
 
     try {
       const decodedToken = jwtDecode<JwtPayload>(token);
-      console.log('Decoded Token:', decodedToken);
       return decodedToken;
     } catch (Error) {
       console.error('Error decoding token:', Error);
@@ -90,9 +89,6 @@ export class AuthService {
     const payload = this.decodeToken(token);
 
     if (payload && payload.role) {
-      console.log("PAYLOAD role type: ", typeof payload.role);
-      console.log("PAYLOAD role : ", payload.role);
-      console.log("UserRole.Passenger type: ", typeof UserRole.Passenger);
       let roleEnum: UserRole;
 
       switch (payload.role) {
