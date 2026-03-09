@@ -1,26 +1,28 @@
+@use 'abstracts/_variables' as *;
+
 .custom-navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
 
-  background-color: #1A2129;
+  background-color: $primary-dark;
   padding: 12px 24px;
 }
 
 .logo {
   font-size: 22px;
   font-weight: bold;
-  color: #F9FAFB;
+  color: $text-light;
   cursor: pointer;
 
   .go {
-    color: #A5F505;
+    color: $accent-green;
   }
 }
 
-.btn-accent {
-  background-color: #A5F505;
-  color: #1A2129;
+.signup-button {
+  background-color: $accent-green;
+  color: $primary-dark;
   border: none;
 
   &:hover {

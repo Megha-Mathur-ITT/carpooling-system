@@ -1,10 +1,10 @@
-@use '../../../../styles/variables' as *;
+@use 'abstracts/_variables' as *;
 
 .register-container {
   padding-top: 40px;
   min-height: 100vh;
 
-  background: linear-gradient(120deg, #1A2129 0%, #1A2129 35%, #F9FAFB 35%);
+  background: linear-gradient(120deg, $primary-dark 0%, $primary-dark 35%, $text-light 35%);
 }
 
 .register-card {
@@ -20,22 +20,7 @@
 
   h3 {
     font-weight: 700;
-    color: #1A2129;
-  }
-
-  .btn-primary {
-    background-color: $accent-green;
-    border-color: $accent-green;
     color: $primary-dark;
-    font-weight: 600;
-    margin-top: 10px;
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .btn-primary:hover {
-    background-color: $accent-hover;
-    border-color: $accent-hover;
   }
 }
 
