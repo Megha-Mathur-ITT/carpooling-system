@@ -1,5 +1,7 @@
+@use 'abstracts/_variables' as *;
+
 .notfound-page {
-  background: #F9FAFB;
+  background: $text-light;
 
   .notfound-gif {
     max-width: 450px;
@@ -7,11 +9,11 @@
     border-radius: 50%;
   }
 
-  h1 {
-    color: #A5F50F;
+  .heading-404 {
+    color: $accent-green;
   }
 
   h4 {
-    color: #1A2129;
+    color: $primary-dark;
   }
 }

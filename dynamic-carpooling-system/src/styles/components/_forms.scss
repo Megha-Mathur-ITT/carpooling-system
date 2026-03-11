@@ -1,0 +1,21 @@
+@use '../abstracts/variables' as *;
+
+.form-control:focus {
+    border-color: $accent-green;
+    box-shadow: 0 0 0 0.2rem rgba(165, 245, 15, 0.25);
+}
+
+.btn-primary {
+    background-color: $accent-green;
+    border-color: $accent-green;
+    color: $primary-dark;
+    font-weight: 600;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.btn-primary:hover {
+    background-color: $accent-hover;
+    border-color: $accent-hover;
+}

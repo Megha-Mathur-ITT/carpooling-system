@@ -1,0 +1,37 @@
+@use 'abstracts/_variables' as *;
+
+.ride-selection-wrapper {
+    margin-top: 60px;
+}
+
+.landing-row {
+    min-height: 500px;
+}
+
+.left-section {
+    padding-right: 40px;
+}
+
+.passenger-heading, .driver-list-heading {
+    font-size: 46px;
+    font-weight: 700;
+    color: $primary-dark;
+    margin: 10px 0 24px 0;
+}
+
+.right-section {
+    display: flex;
+    justify-content: center;
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 420px;
+    background: #f3f4f6;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-muted;
+    font-size: 14px;
+}

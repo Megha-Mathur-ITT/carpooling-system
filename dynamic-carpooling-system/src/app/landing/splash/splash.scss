@@ -1,7 +1,9 @@
+@use 'abstracts/_variables' as *;
+
 .splash-screen {
     position: fixed;
     inset: 0;
-    background: #1A2129;
+    background: $primary-dark;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -9,7 +11,7 @@
 }
 
 .logo-wrapper {
-    font-family: "Satoshi Variable", sans-serif;
+    font-family: $font-family;
     font-weight: 700;
     font-size: 48px;
     position: relative;
@@ -20,19 +22,19 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    color: #F9FAFB;
+    color: $text-light;
     opacity: 0;
     display: inline-block;
 }
 
 .hindi-logo::first-letter,
 .english-logo::first-letter {
-    color: #A5F50F;
+    color: $accent-green;
     text-shadow: 0 0 25px rgba(165, 245, 15, 0.8);
 }
 
 .neon {
-    color: #A5F50F;
+    color: $accent-green;
     text-shadow: 0 0 25px rgba(165, 245, 15, 0.8);
 }
 

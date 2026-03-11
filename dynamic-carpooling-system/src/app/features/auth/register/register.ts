@@ -2,6 +2,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Component } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EmailValidators } from '../../../shared/Validators/email-validators';
 import { UsernameValidators } from '../../../shared/Validators/username-validators';
@@ -22,7 +23,6 @@ import { RegisterRequest, UserRole } from '../../../core/models/auth-model';
     FormInput,
     NgIf,
     CommonModule,
-    RouterLink,
     MatSnackBarModule
   ],
   providers: [MatSnackBar],
@@ -119,17 +119,12 @@ export class Register {
 
     this.authService.register(payload).subscribe({
       next: () => {
-        this.snackBar.open(
-          "Registration successful! Redirecting to login...",
-          "close",
-          {
-            duration: 3000,
-            horizontalPosition: "center",
-            verticalPosition: "top",
-            panelClass: ['error-snackbar']
-          }
-        );
-
+        this.snackBar.open("Registration successful! Redirecting to login...", 'close', {
+          duration: 3000,
+          horizontalPosition: "center",
+          verticalPosition: "top",
+          panelClass: ['success-snackbar']
+        });
         setTimeout(() => {
           this.router.navigate(['/auth/login']);
         }, 5000);
@@ -177,5 +172,7 @@ export class Register {
     input.value = '';
     this.selectedFile = null;
     this.base64File = null;
+  goToLogin() {
+    this.router.navigate(['/auth/login'], {replaceUrl: true});
   }
 }

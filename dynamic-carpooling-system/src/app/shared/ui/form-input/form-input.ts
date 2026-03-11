@@ -15,6 +15,8 @@ export class FormInput {
   @Input() controlName!: string;
   @Input() placeholder: string = "";
   @Input() errorMessages: { [key: string]: string } = {};
+  @Input() min?: number;
+  @Input() max?: number;
 
   ObjectKeys = Object.keys;
 

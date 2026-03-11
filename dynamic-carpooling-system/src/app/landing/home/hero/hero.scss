@@ -1,3 +1,5 @@
+@use 'abstracts/_variables' as *;
+
 .hero {
   background: linear-gradient(135deg,
       #f5f7f9 0%,
@@ -12,11 +14,11 @@
   h1 {
     font-size: 52px;
     font-weight: 700;
-    color: #1A2129;
+    color: $primary-dark;
     line-height: 1.2;
 
     .accent {
-      color: #A5F505;
+      color: $accent-green;
     }
   }
 
@@ -35,8 +37,8 @@
 }
 
 .btn-accent {
-  background-color: #A5F505;
-  color: #1A2129;
+  background-color: $accent-green;
+  color: $primary-dark;
   font-weight: 600;
   padding: 12px 24px;
   border-radius: 8px;
@@ -48,16 +50,16 @@
 }
 
 .btn-outline-dark-custom {
-  border: 2px solid #1A2129;
-  color: #1A2129;
+  border: 2px solid $primary-dark;
+  color: $primary-dark;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
   background: transparent;
 
   &:hover {
-    background: #1A2129;
-    color: #F9FAFB;
+    background: $primary-dark;
+    color: $text-light;
   }
 }
 
