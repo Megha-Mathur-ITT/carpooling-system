@@ -20,6 +20,8 @@ export interface RegisterRequest {
     vehicleName?: string;
     maxSeats?: number;
     vehicleLicense?: string;
+    driverLicenseFile?: string | null;
+    driverLicenseFileName?: string | undefined;
 };
 
 export interface JwtPayload {

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
+import { DRIVER_ROUTES } from './features/driver/driver.routes';
 
 export const routes: Routes = [
     {
@@ -17,6 +18,7 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./features/auth/register/register').then(module => module.Register)
     },
+    ...DRIVER_ROUTES,
     {
         path: 'passenger/landing',
         loadComponent: () => 

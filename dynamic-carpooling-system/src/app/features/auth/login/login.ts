@@ -16,7 +16,8 @@ import { AuthService } from '../../../core/services/auth-service';
     ReactiveFormsModule,
     FormInput,
     RouterModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',

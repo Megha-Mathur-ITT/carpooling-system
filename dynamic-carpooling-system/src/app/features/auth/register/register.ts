@@ -1,6 +1,7 @@
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Component } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EmailValidators } from '../../../shared/Validators/email-validators';
@@ -24,7 +25,7 @@ import { RegisterRequest, UserRole } from '../../../core/models/auth-model';
     CommonModule,
     MatSnackBarModule
   ],
-
+  providers: [MatSnackBar],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -90,7 +91,9 @@ export class Register {
         password: formValue.password,
         vehicleName: formValue.vehicleName,
         maxSeats: Number(formValue.maxSeats),
-        vehicleLicense: formValue.vehicleLicense
+        vehicleLicense: formValue.vehicleLicense,
+        driverLicenseFile : this.base64File ?? "",
+        driverLicenseFileName : this.selectedFile?.name ?? ""
       };
     }
     else {
@@ -104,6 +107,7 @@ export class Register {
   }
 
   onSubmit(): void {
+
     this.registrationFormSubmitted = true;
 
     if (this.registrationForm.invalid) {
@@ -126,20 +130,48 @@ export class Register {
         }, 5000);
       },
       error: (error) => {
-        this.snackBar.open(error?.error?.error || "Registration failed.", "close", {
-          duration: 3000,
-          horizontalPosition: "center",
-          verticalPosition: "top",
-          panelClass: ['error-snackbar']
-        });
+        this.snackBar.open(
+          error?.error?.error || "Registration failed.",
+          "close",
+          {
+            duration: 3000,
+            horizontalPosition: "center",
+            verticalPosition: "top",
+            panelClass: ['error-snackbar']
+          }
+        );
       }
-    })
+    });
   }
 
   get getFormControls() {
     return this.registrationForm.controls;
   }
 
+  selectedFile: File | null = null;
+  base64File: string | null = null;
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        this.base64File = base64String.split(',')[1];
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+  }
+
+  clearFile(input: HTMLInputElement) {
+    input.value = '';
+    this.selectedFile = null;
+    this.base64File = null;
   goToLogin() {
     this.router.navigate(['/auth/login'], {replaceUrl: true});
   }

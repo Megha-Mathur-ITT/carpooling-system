@@ -1,0 +1,29 @@
+<div class="search-container position-relative">
+
+  <input type="text" class="form-control" [placeholder]="placeholder" [value]="query" (input)="onInput($event)"
+    (blur)="clearResults()" autocomplete="off" />
+
+  <div *ngIf="isLoading" class="loading-indicator position-absolute bg-white border rounded px-3 py-2 shadow-sm">
+    Searching...
+  </div>
+
+  <ul *ngIf="results.length > 0" class="list-group position-absolute w-100 mt-1 shadow">
+
+    <li *ngFor="let place of results" class="list-group-item list-group-item-action"
+      (mousedown)="selectLocation(place)">
+      <div class="d-flex align-items-start">
+
+        <span class="result-icon me-2 text-primary">
+          &#128205;
+        </span>
+
+        <small class="result-text text-muted">
+          {{ place.display_name }}
+        </small>
+
+      </div>
+    </li>
+
+  </ul>
+
+</div>

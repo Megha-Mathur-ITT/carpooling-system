@@ -59,6 +59,29 @@
             <app-form-input label="Vehicle License" type="text" [formGroup]="registrationForm"
                 controlName="vehicleLicense" placeholder="Enter vehicle license"
                 [errorMessages]="ValidationMessages.vehicleLicense"></app-form-input>
+
+            <div class="mb-3 position-relative">
+
+  <label class="form-label">Upload Driver's License</label>
+
+  <input
+    type="file"
+    class="form-control"
+    accept=".pdf"
+    #fileInput
+    (change)="onFileSelected($event)"
+  />
+
+  <!-- Clear button -->
+  <button
+    *ngIf="selectedFile"
+    type="button"
+    class="clear-file-btn"
+    (click)="clearFile(fileInput)">
+    ✖
+  </button>
+
+</div>
             }
 
             <button type="submit" class="btn btn-primary w-100 mt-3">

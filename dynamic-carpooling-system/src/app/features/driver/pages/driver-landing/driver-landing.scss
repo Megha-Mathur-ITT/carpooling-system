@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+app-map {
+  display: flex;
+  justify-content: flex-end; 
+  padding: 20px;
+  flex: 1;
+}
