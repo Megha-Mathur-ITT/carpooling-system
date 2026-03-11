@@ -1,0 +1,40 @@
+<app-navbar></app-navbar>
+
+<div class="container passenger-landing-wrapper">
+    <div class="row align-items-center landing-row">
+        <div class="col-md-5 left-section border p-3">
+            <p class="location-display">
+                <span class="location-details">
+                    <i class="fa-sharp fa-solid fa-location-dot fa-location-dot location-icon"></i>
+                    {{ city }}
+                    , {{ state }}
+                </span>
+            </p>
+
+            <h1 class="passenger-heading">
+                Request a <span class="accent-text">Ride</span>
+            </h1>
+
+            <div class="input-placeholder">
+                Pickup component here
+            </div>
+
+            <div class="input-placeholder">
+                Drop component here
+            </div>
+
+            <button class="primary-btn see-prices-button" (click)="goToRideSelectionPage()">See prices</button>
+        </div>
+
+        <div class="col-lg-7 right-section">
+
+            <div class="map-placeholder">
+                Map / Image component here
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<app-footer></app-footer>

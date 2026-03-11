@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth-service';
 import { UserRole } from '../../../core/models/auth-model';
 import { NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hero',
@@ -12,7 +13,7 @@ import { NgIf } from '@angular/common';
 export class Hero {
   userRole: UserRole | null = null;
 
-  constructor(public authService: AuthService) {
+  constructor(public authService: AuthService, private router: Router) {
 
   }
 
@@ -20,5 +21,13 @@ export class Hero {
     this.authService.loggedInUserRole.subscribe(role => {
       this.userRole = role;
     });
+  }
+
+  goToPassengerPage() {
+    this.router.navigate(['/passenger/landing'])
+  }
+
+  goToDriver() {
+
   }
 }

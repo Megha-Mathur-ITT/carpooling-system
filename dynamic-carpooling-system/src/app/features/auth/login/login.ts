@@ -85,7 +85,7 @@ export class Login {
   }
 
   get getFormControls() {
-    return this.loginForm.controls;
+    return this.loginForm.controls; 
   }
 
   goToRegister() {

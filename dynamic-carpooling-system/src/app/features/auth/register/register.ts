@@ -119,7 +119,7 @@ export class Register {
           duration: 3000,
           horizontalPosition: "center",
           verticalPosition: "top",
-          panelClass: ['error-snackbar']
+          panelClass: ['success-snackbar']
         });
         setTimeout(() => {
           this.router.navigate(['/auth/login']);
