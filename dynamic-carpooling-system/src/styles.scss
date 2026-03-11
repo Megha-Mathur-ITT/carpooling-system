@@ -1,28 +1,62 @@
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
+@use "sass:color";  
+@use "bootstrap" as *;
+@use '@angular/material' as mat;
+@use './styles/variables' as *;
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
 
 body {
-  font-family: 'Satoshi', sans-serif;
-  background: #F9FAFB;
-  color: #1A2129;
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
 }
 
-.btn-primary {
-  background-color: #A5F50F;
-  border-color: #A5F50F;
-  color: #1A2129;
-  font-weight: 600;
+
+html {
+  height: 100%;
+  @include mat.theme((color: (primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    ));
 }
 
-.btn-primary:hover {
-  background-color: #92dd0d;
-  border-color: #92dd0d;
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
 }
-
-.form-control:focus {
-  border-color: #A5F50F;
-  box-shadow: 0 0 0 0.2rem rgba(165,245,15,0.25);
-}
-@use "sass:color";
 
 $primary-dark: #1A2129;
 $accent-green: #A5F505;
@@ -30,4 +64,18 @@ $text-light: #F9FAFB;
 $text-muted: #9CA3AF;
 $accent-hover: color.adjust($accent-green, $lightness: -8%);
 
-@use "bootstrap" as *;
+body {
+  font-family: 'Satoshi', sans-serif;
+  background: $text-light;
+  color: $primary-dark;
+}
+
+.btn-primary:hover {
+  background-color: $accent-hover;
+  border-color: $accent-hover;
+}
+
+.form-control:focus {
+  border-color: $accent-green;
+  box-shadow: 0 0 0 0.2rem rgba(165, 245, 15, 0.25);
+}

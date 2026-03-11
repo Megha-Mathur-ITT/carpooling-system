@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Button } from './button';
+import { OfflineTogglerPage } from './offline-toggler-page';
 
-describe('Button', () => {
-  let component: Button;
-  let fixture: ComponentFixture<Button>;
+describe('OfflineTogglerPage', () => {
+  let component: OfflineTogglerPage;
+  let fixture: ComponentFixture<OfflineTogglerPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Button]
+      imports: [OfflineTogglerPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Button);
+    fixture = TestBed.createComponent(OfflineTogglerPage);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
