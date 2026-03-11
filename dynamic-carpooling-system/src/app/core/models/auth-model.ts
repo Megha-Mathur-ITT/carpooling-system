@@ -1,6 +1,6 @@
 export enum UserRole {
-    Driver = 1,
-    Passenger = 2
+    Passenger = 1,
+    Driver = 2,
 };
 
 export interface LoginRequest {
@@ -21,3 +21,9 @@ export interface RegisterRequest {
     maxSeats?: number;
     vehicleLicense?: string;
 };
+
+export interface JwtPayload {
+    sub: string;
+    email: string;
+    role: string; 
+}
