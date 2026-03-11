@@ -18,6 +18,16 @@ export const routes: Routes = [
             import('./features/auth/register/register').then(module => module.Register)
     },
     {
+        path: 'passenger/landing',
+        loadComponent: () => 
+            import('./passenger/passenger-landing-page/passenger-landing-page').then(module => module.PassengerLandingPage)
+    },
+    {
+        path: 'passenger/ride-selection',
+        loadComponent: () => 
+            import('./passenger/passenger-ride-selection/passenger-ride-selection').then(module => module.PassengerRideSelection)
+    },
+    {
         path: '**',
         loadComponent: () =>
             import('./core/page-not-found/page-not-found').then(module => module.PageNotFound)
