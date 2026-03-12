@@ -1,0 +1,71 @@
+@use 'abstracts/_variables' as *;
+
+.driver-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+}
+
+.driver-information {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.driver-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba($accent-green, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $primary-dark;
+}
+
+.driver-name {
+    font-weight: 600;
+    margin: 0;
+}
+
+.driver-vehicle {
+    font-size: 13px;
+    color: $text-muted;
+    margin: 0;
+}
+
+.driver-rating {
+    font-size: 12px;
+    margin: 0;
+}
+
+.ride-information {
+    text-align: right;
+}
+
+.ride-eta {
+    font-weight: 600;
+    margin: 0;
+}
+
+.ride-time {
+    font-weight: 600;
+    margin: 0;
+}
+
+.ride-fare {
+    font-size: 14px;
+    color: $accent-green;
+    font-weight: 600;
+}

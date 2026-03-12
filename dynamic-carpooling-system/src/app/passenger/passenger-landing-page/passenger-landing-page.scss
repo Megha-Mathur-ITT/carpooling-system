@@ -1,0 +1,77 @@
+@use 'abstracts/_variables' as *;
+
+.passenger-landing-wrapper {
+    margin-top: 60px;
+}
+
+.landing-row {
+    min-height: 500px;
+}
+
+.left-section {
+    padding-right: 40px;
+}
+
+.passenger-heading {
+    font-size: 46px;
+    font-weight: 700;
+    color: $primary-dark;
+    margin: 10px 0 24px 0;
+}
+
+.accent-text {
+    color: $accent-green;
+}
+
+.location-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    font-weight: 500;
+    color: $text-muted;
+    padding: 8px 14px;
+    border-radius: 999px;
+}
+
+.input-placeholder {
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+
+    font-size: 14px;
+    color: $text-muted;
+}
+
+.right-section {
+    display: flex;
+    justify-content: center;
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 420px;
+    background: #f3f4f6;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-muted;
+    font-size: 14px;
+}
+
+.see-prices-button {
+    background-color: $accent-green;
+    border-color: $accent-green;
+    color: $primary-dark;
+    font-weight: 600;
+    margin-top: 10px;
+    padding: 12px 20px;
+    border-radius: 8px;
+}
+
+.see-prices-button:hover {
+    background-color: $accent-hover;
+    border-color: $accent-hover;
+}

@@ -6,7 +6,7 @@ import { Footer } from "../../core/layout/footer/footer";
 import { Features } from "./features/features";
 import { Splash } from '../splash/splash';
 import { RouterOutlet } from '@angular/router';
-import { NgIf, CommonModule } from '@angular/common';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-home',
