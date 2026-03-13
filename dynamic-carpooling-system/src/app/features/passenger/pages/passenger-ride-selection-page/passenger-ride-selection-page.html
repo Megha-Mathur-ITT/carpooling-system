@@ -1,0 +1,40 @@
+<app-navbar></app-navbar>
+<div>
+    <div class="container ride-selection-wrapper">
+        <div class="row align-items-center landing-row">
+            <div class="col-md-5 left-section border p-3">
+
+                <h1 class="passenger-heading">
+                    Ride Details
+                </h1>
+
+                <h1 class="driver-list-heading">
+                    Drivers List
+                </h1>
+
+                <app-driver-details-card driverName="Megha mathur" vehicleName="Maruti" [rating]=5 fare="200 rs"
+                    eta="8 min away"></app-driver-details-card>
+                <app-driver-details-card driverName="Megha mathur" vehicleName="Maruti" [rating]=5 fare="200 rs"
+                    eta="8 min away"></app-driver-details-card>
+
+                <!-- <app-driver-card
+                *ngFor="let driver of drivers"
+                driverName="driver.name"
+                vehicleName="driver.vehicle"
+                [rating]="driver.rating"
+                eta="driver.eta"
+                fare="driver.fare"
+            >
+            </app-driver-card> -->
+            </div>
+
+            <div class="col-lg-7 right-section">
+
+                <div class="map-placeholder">
+                    <app-map [pickup]="pickupLocation" [destination]="destinationLocation"></app-map>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<app-footer></app-footer>

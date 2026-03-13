@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PassengerRideSelection } from './passenger-ride-selection';
+import { PassengerRideSelection } from './passenger-ride-selection-page';
 
 describe('PassengerRideSelection', () => {
   let component: PassengerRideSelection;

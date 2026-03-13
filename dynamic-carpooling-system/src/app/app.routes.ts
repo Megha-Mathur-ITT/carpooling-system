@@ -22,12 +22,12 @@ export const routes: Routes = [
     {
         path: 'passenger/landing',
         loadComponent: () => 
-            import('./passenger/passenger-landing-page/passenger-landing-page').then(module => module.PassengerLandingPage)
+            import('./features/passenger/pages/passenger-landing-page/passenger-landing-page').then(module => module.PassengerLandingPage)
     },
     {
         path: 'passenger/ride-selection',
         loadComponent: () => 
-            import('./passenger/passenger-ride-selection/passenger-ride-selection').then(module => module.PassengerRideSelection)
+            import('./features/passenger/pages/passenger-ride-selection-page/passenger-ride-selection-page').then(module => module.PassengerRideSelection)
     },
     {
         path: '**',

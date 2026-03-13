@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,9 +8,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './location-search.html',
   styleUrls: ['./location-search.scss']
 })
-export class LocationSearchComponent implements OnInit {
+export class LocationSearchComponent implements OnInit, OnChanges {
 
   @Input() placeholder: string = 'Search location';
+  @Input() currentLocation: any;
   @Output() locationSelected = new EventEmitter<any>();
 
   query: string = '';
@@ -19,19 +20,21 @@ export class LocationSearchComponent implements OnInit {
 
   private debounceTimer: any;
 
-  private defaultLocation = {
-    name: 'Jaipur, Rajasthan, India',
-    latitude: 26.9124,
-    longitude: 75.7873
-  };
-
   ngOnInit() {
-    this.query = this.defaultLocation.name;
-    this.locationSelected.emit(this.defaultLocation);
+    if (this.currentLocation) {
+      this.query = this.currentLocation.name;
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+      if(changes['currentLocation'] && changes['currentLocation'].currentValue) {
+        this.query = changes['currentLocation'].currentValue.name;
+      }
   }
 
   onInput(event: Event) {
     clearTimeout(this.debounceTimer);
+
     const value = (event.target as HTMLInputElement).value;
     this.query = value;
 
@@ -50,6 +53,7 @@ export class LocationSearchComponent implements OnInit {
       const url =
         `https://nominatim.openstreetmap.org/search` +
         `?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&countrycodes=in`;
+
       const result = await fetch(url, { headers: { 'Accept-Language': 'en' } });
       this.results = await result.json();
     } catch (err) {
@@ -66,12 +70,15 @@ export class LocationSearchComponent implements OnInit {
       longitude: parseFloat(place.lon),
       name: place.display_name
     };
+
     this.query = place.display_name;
     this.locationSelected.emit(location);
     this.results = [];
   }
 
   clearResults() {
-    setTimeout(() => { this.results = []; }, 200);
+    setTimeout(() => {
+      this.results = [];
+    }, 200);
   }
 }
