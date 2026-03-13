@@ -1,4 +1,3 @@
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Component } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -92,8 +91,8 @@ export class Register {
         vehicleName: formValue.vehicleName,
         maxSeats: Number(formValue.maxSeats),
         vehicleLicense: formValue.vehicleLicense,
-        driverLicenseFile : this.base64File ?? "",
-        driverLicenseFileName : this.selectedFile?.name ?? ""
+        driverLicenseFile: this.base64File ?? "",
+        driverLicenseFileName: this.selectedFile?.name ?? ""
       };
     }
     else {
@@ -172,7 +171,9 @@ export class Register {
     input.value = '';
     this.selectedFile = null;
     this.base64File = null;
+  }
+
   goToLogin() {
-    this.router.navigate(['/auth/login'], {replaceUrl: true});
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 }

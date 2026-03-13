@@ -24,4 +24,13 @@ export class LocationTrackingService {
       { params }
     );
   }
+
+  getNearbyDrivers(latitude: number, longitude: number, radiusMeters: number = 2000): Observable<any> {
+    const params = new HttpParams()
+      .set('latitude', latitude)
+      .set('longitude', longitude)
+      .set('radius', radiusMeters);
+
+    return this.http.get<any>(`${this.baseUrl}/nearbyDrivers`, { params });
+  }
 }
