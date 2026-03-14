@@ -13,7 +13,7 @@
           across your city.
         </p>
 
-        <div class="hero-buttons" *ngIf="authService.isLoggedIn()">
+        <div class="hero-buttons" *ngIf="isLoggedIn">
           <button class="btn btn-accent" *ngIf="userRole === 1" (click)="goToPassengerPage()">
             Find a Ride
           </button>

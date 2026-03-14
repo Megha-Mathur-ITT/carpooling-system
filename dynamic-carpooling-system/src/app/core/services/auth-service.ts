@@ -62,6 +62,7 @@ export class AuthService {
   storeToken(token: string) {
     if (this.isBrowser()) {
       localStorage.setItem(this.TOKEN_KEY, token);
+      this.loadUserFromToken();
     }
   }
 
@@ -74,7 +75,6 @@ export class AuthService {
       const decodedToken = jwtDecode<JwtPayload>(token);
       return decodedToken;
     } catch (Error) {
-      console.error('Error decoding token:', Error);
       return null;
     }
   }
