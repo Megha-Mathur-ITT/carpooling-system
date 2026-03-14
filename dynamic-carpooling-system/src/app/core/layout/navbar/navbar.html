@@ -6,13 +6,19 @@
       <span class="brand">सफ़र</span>
     </a>
 
-    <div class="ms-auto d-flex gap-2">
+    <div *ngIf="!isLoggedIn" class="ms-auto d-flex gap-2">
       <button class="btn btn-outline-light" (click)="navigateToLogin()">
         Login
       </button>
 
       <button class="btn signup-button" (click)="navigateToRegister()">
         Sign Up
+      </button>
+    </div>
+
+    <div *ngIf="isLoggedIn" class="ms-auto d-flex gap-2">
+      <button class="btn btn-outline-light" (click)="logout()">
+        Logout
       </button>
     </div>
 

@@ -15,8 +15,6 @@ export class RideRequestService {
   }
 
   createRide(pickup: any, destination: any): Observable<any> {
-    console.log("Pickup in Ride-req-service: ", pickup);
-    console.log("destination in Ride-req-service: ", destination);
 
     // return this.http.post<any>(`${this.baseUrl}/create`, {
     //   pickup: pickup,

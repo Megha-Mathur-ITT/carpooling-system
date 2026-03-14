@@ -1,17 +1,18 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { DriverDetailsCard } from '../../../../shared/components/driver-details-card/driver-details-card';
 import { MapComponent } from '../../../../shared/components/map/map';
-import { LocationTrackingService } from '../../../../core/services/location-tracking-service';
+import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-import { RideRequestService } from '../../../../core/services/ride-request-service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-passenger-ride-selection',
   standalone: true,
-  imports: [NavbarComponent, Footer, DriverDetailsCard, MapComponent],
+  imports: [CommonModule, NavbarComponent, Footer, DriverDetailsCard, MapComponent, MatSnackBarModule],
   templateUrl: './passenger-ride-selection-page.html',
   styleUrl: './passenger-ride-selection-page.scss',
 })
@@ -19,15 +20,15 @@ export class PassengerRideSelection {
   pickupLocation: any;
   destinationLocation: any;
   drivers: any = [];
-  selectedDriver: any = [];
+  selectedDriver: any = null;
   isLoading = false;
   private refreshInterval: any;
 
   constructor(
     private router: Router,
-    private locationTrackingService: LocationTrackingService,
+    private snackBar: MatSnackBar,
+    private locationService: LocationService,
     private passengerRideService: PassengerRideService,
-    private rideRequestService: RideRequestService,
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
     this.destinationLocation = this.passengerRideService.destination;
@@ -52,19 +53,24 @@ export class PassengerRideSelection {
   loadNearbyDrivers() {
     this.isLoading = true;
 
-    this.locationTrackingService.getNearbyDrivers(
+    this.locationService.getNearbyDrivers(
       this.pickupLocation.latitude,
       this.pickupLocation.longitude,
       2000
     ).subscribe({
-      next: (response) => {
-        console.log("RES getNearbyDrivers: ", response);
+      next: (response: any) => {
         this.drivers = response.drivers;
         this.isLoading = false;
       },
       error: () => {
         this.drivers = [];
         this.isLoading = false;
+        this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
+          duration: 4000,
+          horizontalPosition: "center",
+          verticalPosition: "top",
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }

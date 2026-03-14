@@ -2,7 +2,6 @@ import { Component, OnInit, afterNextRender, ChangeDetectorRef } from '@angular/
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { LocationTrackingService } from '../../../../core/services/location-tracking-service';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { MapComponent } from '../../../../shared/components/map/map';
@@ -25,7 +24,6 @@ export class PassengerLandingPage implements OnInit {
 
   constructor(
     private router: Router,
-    private locationTrackingService: LocationTrackingService,
     private changeDetectorRef: ChangeDetectorRef,
     private snackBar: MatSnackBar,
     private passengerRideService: PassengerRideService,
@@ -66,26 +64,50 @@ export class PassengerLandingPage implements OnInit {
       };
 
       this.fetchLocation(latitude, longitude);
-    })
+    },
+      () => {
+        this.snackBar.open("Location access denied. Please enter pickup manually. ", 'close', {
+          duration: 4000,
+          horizontalPosition: "center",
+          verticalPosition: "top",
+          panelClass: ['error-snackbar']
+        });
+      })
   }
 
-  fetchLocation(latitude: number, longitude: number) {
-    this.locationTrackingService.getLocationFromCoordinates(latitude, longitude)
-      .subscribe(response => {
+  async fetchLocation(latitude: number, longitude: number) {
+    try {
+      const result = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+        {
+          headers: { 'Accept-Language': 'en' }
+        }
+      );
 
-        this.city = response.location.city;
-        this.state = response.location.state;
+      const data = await result.json();
+      const address = data.address;
 
-        this.pickupLocation = {
-          latitude: latitude,
-          longitude: longitude,
-          name: `${this.city}, ${this.state}`,
-        };
+      this.city = address?.state_district ?? address?.city ?? address?.village ?? address?.country ?? '';
+      this.state = address?.state ?? '';
 
-        this.passengerRideService.pickup = this.pickupLocation;
+      this.pickupLocation = {
+        latitude: latitude,
+        longitude: longitude,
+        name: data.display_name,
+      }
 
-        this.changeDetectorRef.markForCheck();
+      this.passengerRideService.pickup = this.pickupLocation;
+      this.changeDetectorRef.markForCheck();
+    }
+    catch (error) {
+      this.city = '';
+      this.state = '';
+      this.snackBar.open("Could not detect your location. Please enter pickup manually.", 'close', {
+        duration: 4000,
+        horizontalPosition: "center",
+        verticalPosition: "top",
+        panelClass: ['error-snackbar']
       });
+    }
   }
 
   goToRideSelectionPage() {
@@ -117,7 +139,7 @@ export class PassengerLandingPage implements OnInit {
           });
         }
       });
-  } 
+  }
 
   setPickup(location: any) {
     this.pickupLocation = location;
