@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse, RegisterRequest, UserRole, JwtPayload } from '../models/auth-model';
 import { environment } from '../environments/environment';
 import { jwtDecode } from 'jwt-decode';
+import { SignalrService } from './signalr';              
 
 @Injectable({
   providedIn: 'root'
@@ -17,11 +18,15 @@ export class AuthService {
   private userRoleSubject = new BehaviorSubject<UserRole | null>(null);
   loggedInUserRole = this.userRoleSubject.asObservable();
 
-  constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadUserFromToken();
-    }
+  constructor(
+  private http: HttpClient,
+  @Inject(PLATFORM_ID) private platformId: Object,
+  private signalrService: SignalrService          // ADD
+) {
+  if (isPlatformBrowser(this.platformId)) {
+    this.loadUserFromToken();
   }
+}
 
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
@@ -32,6 +37,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.storeToken(response.token);
+          this.signalrService.connect();  
         })
       );
   }
@@ -42,6 +48,7 @@ export class AuthService {
 
   logout(): void {
     if (this.isBrowser()) {
+      this.signalrService.disconnect(); 
       localStorage.removeItem(this.TOKEN_KEY);
       this.userRoleSubject.next(null);
     }

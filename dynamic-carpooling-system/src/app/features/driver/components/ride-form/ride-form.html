@@ -1,1 +1,96 @@
-<p>ride-form works!</p>
+<div class="ride-form-wrapper">
+  <div class="ride-form-header">
+    <h2 class="ride-heading">Your <span class="accent-text">Route</span></h2>
+    <p class="ride-subheading">Set your route to start earning</p>
+  </div>
+
+  <div class="ride-form-fields" *ngIf="!isOnline">
+
+    <div class="field-group">
+      <label class="field-label">
+        <span class="dot dot-blue"></span>
+        Pickup
+      </label>
+      <div class="gps-display" *ngIf="currentLocationName">
+        <i class="bi bi-geo-alt-fill me-2 text-primary"></i>
+        <span>{{ currentLocationName }}</span>
+      </div>
+      <div class="override-hint">
+        <app-location-search
+          placeholder="Override pickup location..."
+          (locationSelected)="onPickupSelected($event)">
+        </app-location-search>
+      </div>
+    </div>
+
+    <div class="field-divider-line"></div>
+
+    <div class="field-group">
+      <label class="field-label">
+        <span class="dot dot-red"></span>
+        Destination
+      </label>
+      <app-location-search
+        placeholder="Where are you going?"
+        (locationSelected)="onDestinationSelected($event)">
+      </app-location-search>
+    </div>
+
+    <div class="field-divider-line"></div>
+
+    <div class="field-group">
+      <label class="field-label">
+        <span class="dot dot-green"></span>
+        Available seats
+      </label>
+      <div class="seats-control">
+        <button class="seat-btn" (click)="seatCount > 1 && seatCount = seatCount - 1" type="button">
+          <i class="bi bi-dash"></i>
+        </button>
+        <span class="seat-count">{{ seatCount }}</span>
+        <button class="seat-btn" (click)="seatCount < 6 && seatCount = seatCount + 1" type="button">
+          <i class="bi bi-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <button
+      class="publish-btn"
+      [disabled]="!canPublish()"
+      (click)="publishRide()"
+      type="button">
+      <span *ngIf="!isLoading">
+        <i class="bi bi-broadcast me-2"></i>
+        Publish Ride
+      </span>
+      <span *ngIf="isLoading">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Publishing...
+      </span>
+    </button>
+
+  </div>
+
+  <div class="online-state" *ngIf="isOnline">
+    <div class="online-info">
+      <i class="bi bi-broadcast text-success me-2"></i>
+      <span>Ride published — waiting for passengers</span>
+    </div>
+    <div class="route-summary">
+      <span class="route-point">
+        <i class="bi bi-circle-fill dot-blue-sm"></i>
+        {{ pickup?.name }}
+      </span>
+      <i class="bi bi-arrow-right mx-2 text-muted"></i>
+      <span class="route-point">
+        <i class="bi bi-geo-alt-fill dot-red-sm"></i>
+        {{ destination?.name }}
+      </span>
+    </div>
+    <button class="go-offline-btn" (click)="goOffline()" type="button">
+      <i class="bi bi-stop-circle me-2"></i>
+      Go Offline
+    </button>
+  </div>
+
+</div>

@@ -1,21 +1,18 @@
 <div class="toggle-wrapper">
-  
   <h1 class="driver-heading">
     Wanna Go <span class="accent-text">Active?</span>
   </h1>
 
   <div class="toggler-card">
-    <label class="switch">
-    <input 
-      type="checkbox"
-      [(ngModel)]="isActive"
-      (change)="toggleStatus()"
-    >
-    <span class="slider"></span>
-    </label>
-    <div class="status-text">
-      {{ isActive ? "Let's Go &#128663;" : "Offline  &#x26D4;" }}
+    <div class="switch-display" [class.active]="isOnline">
+      <div class="switch-knob"></div>
+    </div>
+    <div class="status-text" [class.text-online]="isOnline">
+      {{ isOnline ? "Online " : 'Offline ' }}
     </div>
   </div>
- 
+
+  <p class="toggle-hint">
+    {{ isOnline ? 'You are visible to nearby passengers' : 'Fill the form below and publish your ride' }}
+  </p>
 </div>

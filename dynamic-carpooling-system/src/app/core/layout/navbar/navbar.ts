@@ -8,7 +8,7 @@ import { AuthService } from '../../services/auth-service';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.html',
-  imports: [CommonModule, RouterLink, NgIf],
+  imports: [CommonModule, RouterLink],
   styleUrls: ['./navbar.scss']
 })
 export class NavbarComponent {

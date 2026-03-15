@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RouteSearch } from './route-search';
+import { RideRequestPopup } from './ride-request-popup';
 
-describe('RouteSearch', () => {
-  let component: RouteSearch;
-  let fixture: ComponentFixture<RouteSearch>;
+describe('RideRequestPopup', () => {
+  let component: RideRequestPopup;
+  let fixture: ComponentFixture<RideRequestPopup>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouteSearch]
+      imports: [RideRequestPopup]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RouteSearch);
+    fixture = TestBed.createComponent(RideRequestPopup);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

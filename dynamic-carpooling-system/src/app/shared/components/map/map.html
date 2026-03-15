@@ -1,3 +1,8 @@
 <div class="map-wrapper">
-  <div id="map"></div>
+  <div class="map-container" id="map"></div>
+
+  <div class="map-live-badge" *ngIf="isTracking">
+    <span class="live-dot"></span>
+    Live
+  </div>
 </div>
