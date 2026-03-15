@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './hero.html',
   styleUrl: './hero.scss',
 })
-export class Hero {
+export class Hero implements OnInit { 
   userRole: UserRole | null = null;
   isLoggedIn = false;
 
@@ -18,8 +18,7 @@ export class Hero {
     public authService: AuthService,
     private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.authService.loggedInUserRole.subscribe(role => {
@@ -30,10 +29,10 @@ export class Hero {
   }
 
   goToPassengerPage() {
-    this.router.navigate(['/passenger/landing'])
+    this.router.navigate(['/passenger/landing-page']);
   }
 
   goToDriver() {
-
+    this.router.navigate(['/driver/landing']);
   }
 }
