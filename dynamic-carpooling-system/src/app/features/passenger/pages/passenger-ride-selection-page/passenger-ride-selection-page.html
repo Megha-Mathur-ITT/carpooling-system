@@ -1,0 +1,38 @@
+<app-navbar></app-navbar>
+<div>
+    <div class="container ride-selection-wrapper">
+        <div class="row align-items-center landing-row">
+            <div class="col-md-5 left-section border p-3">
+
+                <h1 class="passenger-heading">
+                    Ride Details
+                </h1>
+
+                <h1 class="driver-list-heading">
+                    Drivers List
+                </h1>
+                <div *ngIf="!isLoading && drivers.length === 0">
+                    No drivers found nearby.
+                </div>
+
+                <app-driver-details-card
+                    *ngFor="let driver of drivers"
+                    [driverName]="driver.driverName"
+                    [vehicleName]="driver.vehicleName"
+                    [rating]="driver.distanceKm"
+                    [eta]="driver.availableSeats + ' seats'"
+                    [fare]="driver.distanceKm + ' km away'"
+                    (click)="selectDriver(driver)">
+                </app-driver-details-card>
+            </div>
+
+            <div class="col-lg-7 right-section">
+
+                <div class="map-placeholder">
+                    <app-map [pickup]="pickupLocation" [destination]="destinationLocation"></app-map>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<app-footer></app-footer>

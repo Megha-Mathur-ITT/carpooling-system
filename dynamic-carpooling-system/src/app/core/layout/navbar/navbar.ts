@@ -1,19 +1,30 @@
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.html',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, NgIf],
   styleUrls: ['./navbar.scss']
 })
 export class NavbarComponent {
+  isLoggedIn = false;
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {
 
+  }
+
+  ngOnInit() {
+    this.authService.loggedInUserRole.subscribe(role => {
+      this.isLoggedIn = role !== null;
+    });
   }
 
   navigateToLogin() {
@@ -22,6 +33,11 @@ export class NavbarComponent {
 
   navigateToRegister() {
     this.router.navigate(['/auth/register']);
+  }
+
+  logout() {
+    this.authService.logout();
+    // this.router.navigate(['/auth/login']);
   }
 
   isCollapsed = true;
