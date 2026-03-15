@@ -134,7 +134,6 @@ export class Register {
   }
 
   onSubmit(): void {
-
     this.registrationFormSubmitted = true;
 
     if (this.registrationForm.invalid) {
@@ -149,7 +148,6 @@ export class Register {
     this.authService.register(payload).subscribe({
 
       next: () => {
-
         this.snackBar.open(
           "Registration successful! Redirecting to login...",
           'close',
@@ -193,17 +191,16 @@ export class Register {
 
     const file = event.target.files[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     this.selectedFile = file;
-
     const reader = new FileReader();
 
     reader.onload = () => {
-
       const base64String = reader.result as string;
       this.base64File = base64String.split(',')[1];
-
     };
 
     reader.readAsDataURL(file);

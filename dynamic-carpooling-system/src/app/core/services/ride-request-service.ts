@@ -10,6 +10,11 @@ export class RideRequestService {
   constructor(private http: HttpClient) {}
 
   createRide(pickup: any, destination: any): Observable<any> {
+    // return this.http.post<any>(`${this.baseUrl}/RideRequest`, {
+    //   pickup: pickup,
+    //   destination: destination,
+    // })
+    
     return of({
       rideRequestId: null,
       pickup,

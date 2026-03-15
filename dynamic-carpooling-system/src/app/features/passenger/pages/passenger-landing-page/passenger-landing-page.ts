@@ -37,7 +37,7 @@ export class PassengerLandingPage implements OnInit {
     private router: Router,
     private snackBar: MatSnackBar,
     private passengerRideService: PassengerRideService,
-    private rideRequestService: RideRequestService
+    private rideRequestService: RideRequestService,
   ) {
     afterNextRender(() => {
       this.detectCurrentLocation();
@@ -167,6 +167,13 @@ export class PassengerLandingPage implements OnInit {
       return;
     }
 
+    this.createRide();
+  }
+
+  createRide() {
+    this.rideRequestService.createRide(this.pickupLocation, this.destinationLocation)
+      .subscribe({
+        next: (response) => {
     this.rideRequestService
       .createRide(this.pickupLocation, this.destinationLocation)
       .subscribe({

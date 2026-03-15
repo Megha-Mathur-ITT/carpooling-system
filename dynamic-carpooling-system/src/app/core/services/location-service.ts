@@ -93,21 +93,10 @@ export class LocationService {
     radiusMeters: number = 2000
   ): Observable<any> {
     const params = new HttpParams()
-      .set('latitude', latitude.toString())
-      .set('longitude', longitude.toString())
-      .set('radius', radiusMeters.toString());
+      .set('latitude', latitude)
+      .set('longitude', longitude)
+      .set('radius', radiusMeters);
 
     return this.http.get<any>(`${this.baseUrl}/nearbyDrivers`, { params });
-  }
-
-  getLocationFromCoordinates(
-    latitude: number,
-    longitude: number
-  ): Observable<any> {
-    const params = new HttpParams()
-      .set('latitude', latitude.toString())
-      .set('longitude', longitude.toString());
-
-    return this.http.get<any>(`${this.baseUrl}/reverseGeocode`, { params });
   }
 }

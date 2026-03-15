@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestro } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -26,11 +26,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
   isRequesting = false;
   private refreshInterval: any;
 
+  @ViewChild(MapComponent) mapComponent!: MapComponent;
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
+    private changeDetectorRef: ChangeDetectorRef
     private rideRequestService: RideRequestService
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
@@ -58,23 +60,36 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       2000
     ).subscribe({
       next: (response: any) => {
-        this.drivers = response.drivers;
+        this.drivers = [...response.drivers];
         this.isLoading = false;
+
+        if (this.mapComponent) {
+          this.mapComponent.updateDrivers(this.drivers);
+        }
+
+        this.changeDetectorRef.markForCheck();
       },
       error: () => {
         this.drivers = [];
         this.isLoading = false;
-        this.snackBar.open(
-          "Could not load nearby drivers. Retrying in 30 seconds.",
-          'close',
-          { duration: 4000, horizontalPosition: "center", verticalPosition: "top", panelClass: ['error-snackbar'] }
-        );
+        this.changeDetectorRef.detectChanges();
+
+        this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
+          duration: 4000,
+          horizontalPosition: "center",
+          verticalPosition: "top",
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   selectDriver(driver: any) {
     this.selectedDriver = driver;
+
+    if (this.mapComponent) {
+      this.mapComponent.centerOnDriver(driver.latitude, driver.longitude, driver.driverName);
+    }
   }
 
   requestRide() {
