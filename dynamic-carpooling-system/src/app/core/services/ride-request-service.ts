@@ -15,8 +15,7 @@ export class RideRequestService {
   }
 
   createRide(pickup: any, destination: any): Observable<any> {
-
-    // return this.http.post<any>(`${this.baseUrl}/create`, {
+    // return this.http.post<any>(`${this.baseUrl}/RideRequest`, {
     //   pickup: pickup,
     //   destination: destination,
     // })

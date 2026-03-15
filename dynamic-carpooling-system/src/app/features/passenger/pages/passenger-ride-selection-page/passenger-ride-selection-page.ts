@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -24,11 +24,13 @@ export class PassengerRideSelection {
   isLoading = false;
   private refreshInterval: any;
 
+  @ViewChild(MapComponent) mapComponent!: MapComponent;
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
     this.destinationLocation = this.passengerRideService.destination;
@@ -59,12 +61,20 @@ export class PassengerRideSelection {
       2000
     ).subscribe({
       next: (response: any) => {
-        this.drivers = response.drivers;
+        this.drivers = [...response.drivers];
         this.isLoading = false;
+
+        if (this.mapComponent) {
+          this.mapComponent.updateDrivers(this.drivers);
+        }
+
+        this.changeDetectorRef.markForCheck();
       },
       error: () => {
         this.drivers = [];
         this.isLoading = false;
+        this.changeDetectorRef.detectChanges();
+
         this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
           duration: 4000,
           horizontalPosition: "center",
@@ -77,6 +87,10 @@ export class PassengerRideSelection {
 
   selectDriver(driver: any) {
     this.selectedDriver = driver;
+
+    if (this.mapComponent) {
+      this.mapComponent.centerOnDriver(driver.latitude, driver.longitude, driver.driverName);
+    }
   }
 
   requestRide() {

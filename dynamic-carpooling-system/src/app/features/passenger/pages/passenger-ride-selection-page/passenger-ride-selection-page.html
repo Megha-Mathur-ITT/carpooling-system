@@ -19,7 +19,6 @@
                     *ngFor="let driver of drivers"
                     [driverName]="driver.driverName"
                     [vehicleName]="driver.vehicleName"
-                    [rating]="driver.distanceKm"
                     [eta]="driver.availableSeats + ' seats'"
                     [fare]="driver.distanceKm + ' km away'"
                     (click)="selectDriver(driver)">
@@ -29,10 +28,15 @@
             <div class="col-lg-7 right-section">
 
                 <div class="map-placeholder">
-                    <app-map [pickup]="pickupLocation" [destination]="destinationLocation"></app-map>
+                    <app-map 
+                        [pickup]="pickupLocation" 
+                        [destination]="destinationLocation" 
+                        [drivers]="drivers"
+                        [showRadiusCircle]="true"
+                    ></app-map>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<app-footer></app-footer>
+<app-footer></app-footer>   

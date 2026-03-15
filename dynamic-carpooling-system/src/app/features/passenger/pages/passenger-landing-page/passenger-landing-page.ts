@@ -27,7 +27,7 @@ export class PassengerLandingPage implements OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private snackBar: MatSnackBar,
     private passengerRideService: PassengerRideService,
-    private rideRequestService: RideRequestService
+    private rideRequestService: RideRequestService,
   ) {
     afterNextRender(() => {
       this.detectCurrentLocation();
@@ -122,11 +122,13 @@ export class PassengerLandingPage implements OnInit {
       return;
     }
 
+    this.createRide();
+  }
+
+  createRide() {
     this.rideRequestService.createRide(this.pickupLocation, this.destinationLocation)
       .subscribe({
         next: (response) => {
-          console.log('Ride created:', response);
-
           this.passengerRideService.rideRequestId = response.rideRequestId;
           this.router.navigate(['/passenger/ride-selection']);
         },
