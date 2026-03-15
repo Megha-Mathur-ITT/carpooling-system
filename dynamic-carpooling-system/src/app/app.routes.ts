@@ -1,37 +1,32 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
+import { noAuthGuard } from './core/guards/no-auth-guard';
 import { DRIVER_ROUTES } from './features/driver/driver.routes';
+import { PASSENGER_ROUTES } from './features/passenger/passenger.routes';
 
 export const routes: Routes = [
-    {
-        path: '',
-        loadComponent: () =>
-            import('./landing/home/home').then(module => module.Home)
-    },
-    {
-        path: 'auth/login',
-        loadComponent: () =>
-            import('./features/auth/login/login').then(module => module.Login)
-    },
-    {
-        path: 'auth/register',
-        loadComponent: () =>
-            import('./features/auth/register/register').then(module => module.Register)
-    },
-    ...DRIVER_ROUTES,
-    {
-        path: 'passenger/landing',
-        loadComponent: () => 
-            import('./features/passenger/pages/passenger-landing-page/passenger-landing-page').then(module => module.PassengerLandingPage)
-    },
-    {
-        path: 'passenger/ride-selection',
-        loadComponent: () => 
-            import('./features/passenger/pages/passenger-ride-selection-page/passenger-ride-selection-page').then(module => module.PassengerRideSelection)
-    },
-    {
-        path: '**',
-        loadComponent: () =>
-            import('./core/page-not-found/page-not-found').then(module => module.PageNotFound)
-    },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./landing/home/home').then(m => m.Home)
+  },
+  {
+    path: 'auth/login',
+    canActivate: [noAuthGuard],
+    loadComponent: () =>
+      import('./features/auth/login/login').then(m => m.Login)
+  },
+  {
+    path: 'auth/register',
+    canActivate: [noAuthGuard],
+    loadComponent: () =>
+      import('./features/auth/register/register').then(m => m.Register)
+  },
+  ...DRIVER_ROUTES,
+  ...PASSENGER_ROUTES,
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./core/page-not-found/page-not-found').then(m => m.PageNotFound)
+  }
 ];

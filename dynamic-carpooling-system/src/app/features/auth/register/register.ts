@@ -143,6 +143,8 @@ export class Register {
 
     const payload = this.buildPayload();
 
+    console.log("Register Payload:", payload); // debug log
+
     this.authService.register(payload).subscribe({
 
       next: () => {
@@ -163,6 +165,7 @@ export class Register {
       },
 
       error: (error) => {
+
         this.snackBar.open(
           error?.error?.error || "Registration failed.",
           "close",
@@ -173,8 +176,11 @@ export class Register {
             panelClass: ['error-snackbar']
           }
         );
+
       }
+
     });
+
   }
 
   get getFormControls() {
@@ -182,6 +188,7 @@ export class Register {
   }
 
   onFileSelected(event: any) {
+
     const file = event.target.files[0];
 
     if (!file) {
@@ -200,6 +207,7 @@ export class Register {
   }
 
   clearFile(input: HTMLInputElement) {
+
     input.value = '';
     this.selectedFile = null;
     this.base64File = null;

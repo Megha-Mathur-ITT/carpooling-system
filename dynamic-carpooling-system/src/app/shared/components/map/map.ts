@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 
 @Component({
@@ -8,7 +8,7 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
   templateUrl: './map.html',
   styleUrls: ['./map.scss']
 })
-export class MapComponent implements OnInit, OnChanges {
+export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
   map: any;
   L: any;
@@ -16,14 +16,22 @@ export class MapComponent implements OnInit, OnChanges {
   pickupMarker: any;
   destinationMarker: any;
   routingControl: any;
+  liveMarker: any;                   
 
   private pendingPickup: any = null;
   private pendingDestination: any = null;
   private mapReady = false;
+  private watchId: number | null = null;
+
+  isTracking = false;                 
 
   routeCoordinates: { lat: number; lng: number }[] = [];
 
-  private defaultPickup = { latitude: 26.9124, longitude: 75.7873, name: 'Jaipur, Rajasthan, India' };
+  private defaultPickup = {
+    latitude: 26.9124,
+    longitude: 75.7873,
+    name: 'Jaipur, Rajasthan, India'
+  };
 
   @Input() pickup: any;
   @Input() destination: any;
@@ -33,12 +41,10 @@ export class MapComponent implements OnInit, OnChanges {
   private driverMarkers: any[] = [];
   private radiusCircle: any = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   async ngOnInit() {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
 
     const leafletModule = await import('leaflet');
     this.L = (leafletModule as any).default ?? leafletModule;
@@ -55,30 +61,29 @@ export class MapComponent implements OnInit, OnChanges {
     });
 
     (window as any).L = this.L;
+
     await this.loadScriptOnce(
       'leaflet-routing-machine-script',
       'https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js'
     );
 
     const mapContainer = this.L.DomUtil.get('map');
-
-    if (mapContainer != null) {
-      mapContainer._leaflet_id = null;
-    }
+    if (mapContainer != null) mapContainer._leaflet_id = null;
 
     this.map = this.L.map('map').setView(
       [this.defaultPickup.latitude, this.defaultPickup.longitude], 13
     );
 
     this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
     this.pickupMarker = this.L.marker(
       [this.defaultPickup.latitude, this.defaultPickup.longitude],
       { icon: this.makeIcon(), title: 'Pickup' }
     ).addTo(this.map);
-    this.pickupMarker.bindPopup('<b>&#128205; Pickup</b><br>Jaipur, Rajasthan').openPopup();
+    this.pickupMarker.bindPopup('<b>📍 Pickup</b><br>Jaipur, Rajasthan').openPopup();
 
     this.mapReady = true;
 
@@ -91,7 +96,6 @@ export class MapComponent implements OnInit, OnChanges {
 
       this.pendingPickup = null;
     }
-
     if (this.pendingDestination) {
       this.applyDestination(this.pendingDestination);
       this.pendingDestination = null;
@@ -100,10 +104,15 @@ export class MapComponent implements OnInit, OnChanges {
     if (this.drivers?.length > 0) {
       this.addDriverMarkers(this.drivers);
     }
+    this.startLiveLocation();
+  }
+
+  ngOnDestroy() {
+    this.stopLiveLocation();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (!this.mapReady) {
+     if (!this.mapReady) {
       if (this.pickup) {
         this.pendingPickup = this.pickup;
       }
@@ -114,7 +123,7 @@ export class MapComponent implements OnInit, OnChanges {
 
       return;
     }
-
+    
     if (changes['pickup'] && this.pickup) {
       this.applyPickup(this.pickup);
 
@@ -136,59 +145,78 @@ export class MapComponent implements OnInit, OnChanges {
       }
     }
   }
+  
+  startLiveLocation() {
+    if (!navigator.geolocation) return;
+
+    this.watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        this.updateLiveDot(latitude, longitude);
+        this.isTracking = true;
+      },
+      (err) => {
+        console.warn('[Map] Geolocation error:', err.message);
+        this.isTracking = false;
+      },
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+  }
+
+  stopLiveLocation() {
+    if (this.watchId !== null) {
+      navigator.geolocation.clearWatch(this.watchId);
+      this.watchId = null;
+      this.isTracking = false;
+    }
+  }
+
+  private updateLiveDot(lat: number, lng: number) {
+    if (!this.mapReady) return;
+
+    const blueIcon = this.L.divIcon({
+      className: '',
+      html: `<div style="
+        width:16px;height:16px;
+        background:#2563EB;
+        border:3px solid white;
+        border-radius:50%;
+        box-shadow:0 0 0 3px rgba(37,99,235,0.3)">
+      </div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+
+    if (this.liveMarker) {
+      this.liveMarker.setLatLng([lat, lng]);
+    } else {
+      this.liveMarker = this.L.marker([lat, lng], {
+        icon: blueIcon,
+        zIndexOffset: 1000,
+        title: 'Your location'
+      }).addTo(this.map);
+    }
+  }
 
   setPickup(location: any) {
-    if (!this.mapReady) {
-      this.pendingPickup = location;
-      return;
-    }
-
+    if (!this.mapReady) { this.pendingPickup = location; return; }
     this.applyPickup(location);
   }
 
   setDestination(location: any) {
-    if (!this.mapReady) {
-      this.pendingDestination = location;
-      return;
-    }
-
+    if (!this.mapReady) { this.pendingDestination = location; return; }
     this.applyDestination(location);
-  }
-
-  private loadScriptOnce(id: string, src: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (document.getElementById(id)) {
-        resolve();
-        return;
-      }
-      const script = document.createElement('script');
-      script.id = id;
-      script.src = src;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-      document.head.appendChild(script);
-    });
-  }
-
-  private makeIcon() {
-    return this.L.icon({
-      iconUrl: 'assets/images/marker-icon.png',
-      iconRetinaUrl: 'assets/images/marker-icon-2x.png',
-      shadowUrl: 'assets/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
   }
 
   private applyPickup(location: any) {
     const { latitude, longitude, name } = location;
-
     if (this.pickupMarker) {
       this.pickupMarker.setLatLng([latitude, longitude]);
     } else {
-      this.pickupMarker = this.L.marker([latitude, longitude], { icon: this.makeIcon(), title: 'Pickup' }).addTo(this.map);
+      this.pickupMarker = this.L.marker(
+        [latitude, longitude],
+        { icon: this.makeIcon(), title: 'Pickup' }
+      ).addTo(this.map);
     }
 
     this.pickupMarker.bindPopup(`<b> &#128205; Pickup</b><br>${name}`).openPopup();
@@ -204,11 +232,13 @@ export class MapComponent implements OnInit, OnChanges {
 
   private applyDestination(location: any) {
     const { latitude, longitude, name } = location;
-
     if (this.destinationMarker) {
       this.destinationMarker.setLatLng([latitude, longitude]);
     } else {
-      this.destinationMarker = this.L.marker([latitude, longitude], { icon: this.makeIcon(), title: 'Destination' }).addTo(this.map);
+      this.destinationMarker = this.L.marker(
+        [latitude, longitude],
+        { icon: this.makeIcon(), title: 'Destination' }
+      ).addTo(this.map);
     }
 
     this.destinationMarker.bindPopup(`<b> &#127937; Destination</b><br>${name}`).openPopup();
@@ -233,9 +263,7 @@ export class MapComponent implements OnInit, OnChanges {
   }
 
   createRoute() {
-    if (!this.mapReady || !this.pickupMarker || !this.destinationMarker) {
-      return;
-    }
+    if (!this.mapReady || !this.pickupMarker || !this.destinationMarker) return;
 
     const L = this.L as any;
     const Routing = L.Routing ?? (window as any).L?.Routing;
@@ -252,7 +280,7 @@ export class MapComponent implements OnInit, OnChanges {
     }
 
     const start = this.pickupMarker.getLatLng();
-    const end = this.destinationMarker.getLatLng();
+    const end   = this.destinationMarker.getLatLng();
 
     this.routingControl = Routing.control({
       waypoints: [L.latLng(start.lat, start.lng), L.latLng(end.lat, end.lng)],
@@ -267,16 +295,9 @@ export class MapComponent implements OnInit, OnChanges {
         extendToWaypoints: true,
         missingRouteTolerance: 0
       },
-
       createMarker: (i: number) => {
-        if (i === 0) {
-          return this.pickupMarker;
-        }
-
-        if (i === 1) {
-          return this.destinationMarker;
-        }
-
+        if (i === 0) return this.pickupMarker;
+        if (i === 1) return this.destinationMarker;
         return null;
       }
     }).addTo(this.map);
@@ -284,12 +305,9 @@ export class MapComponent implements OnInit, OnChanges {
     this.routingControl.on('routesfound', (e: any) => {
       const route = e.routes?.[0];
       if (route) {
-        this.routeCoordinates = route.coordinates.map((c: any) => ({ lat: c.lat, lng: c.lng }));
-        // console.log(
-        //   `Route: ${this.routeCoordinates.length} pts | ` +
-        //   `${(route.summary.totalDistance / 1000).toFixed(1)} km | ` +
-        //   `~${Math.round(route.summary.totalTime / 60)} min`
-        // );
+        this.routeCoordinates = route.coordinates.map(
+          (c: any) => ({ lat: c.lat, lng: c.lng })
+        );
       }
 
       if (this.showRadiusCircle && this.pickup) {
@@ -299,7 +317,9 @@ export class MapComponent implements OnInit, OnChanges {
       }
     });
 
-    this.routingControl.on('routingerror', (e: any) => console.error('Routing error:', e.error));
+    this.routingControl.on('routingerror', (e: any) =>
+      console.error('Routing error:', e.error)
+    );
   }
 
   getRouteForBackend(): { lat: number; lng: number }[] {
@@ -374,9 +394,7 @@ export class MapComponent implements OnInit, OnChanges {
   }
 
   public updateDrivers(drivers: any[]) {
-    console.log('updateDrivers called, mapReady:', this.mapReady, 'drivers:', drivers.length);
-
-    if (!this.mapReady) {
+   if (!this.mapReady) {
       return;
     }
 
@@ -393,5 +411,30 @@ export class MapComponent implements OnInit, OnChanges {
     }
 
     this.map.setView([latitude, longitude], 15);
+  }
+}
+
+  private loadScriptOnce(id: string, src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (document.getElementById(id)) { resolve(); return; }
+      const script = document.createElement('script');
+      script.id  = id;
+      script.src = src;
+      script.onload  = () => resolve();
+      script.onerror = () => reject(new Error(`Failed to load: ${src}`));
+      document.head.appendChild(script);
+    });
+  }
+
+  private makeIcon() {
+    return this.L.icon({
+      iconUrl: 'assets/images/marker-icon.png',
+      iconRetinaUrl: 'assets/images/marker-icon-2x.png',
+      shadowUrl: 'assets/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
   }
 }
