@@ -18,7 +18,7 @@
             Find a Ride
           </button>
 
-          <button class="btn btn-outline-dark-custom" *ngIf="userRole === 2">
+          <button class="btn btn-outline-dark-custom" *ngIf="userRole === 2" (click)="goToDriver()">
             Offer a Ride
           </button>
         </div>

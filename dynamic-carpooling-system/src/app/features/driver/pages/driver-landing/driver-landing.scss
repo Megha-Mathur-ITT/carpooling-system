@@ -4,9 +4,48 @@
   min-height: 100vh;
 }
 
-app-map {
+.driver-layout {
   display: flex;
-  justify-content: flex-end; 
-  padding: 20px;
   flex: 1;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.driver-panel {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  border-right: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.driver-map {
+  flex: 1;
+  position: relative;
+
+  app-map {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .driver-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .driver-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .driver-map {
+    height: 400px;
+  }
 }

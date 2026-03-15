@@ -1,29 +1,74 @@
-<div class="search-container position-relative">
+<div class="ls-wrap" [class.ls-focused]="isFocused" [class.ls-has-value]="query.length > 0">
 
-  <input type="text" class="form-control" [placeholder]="placeholder" [value]="query" (input)="onInput($event)"
-    (blur)="clearResults()" autocomplete="off" />
-
-  <div *ngIf="isLoading" class="loading-indicator position-absolute bg-white border rounded px-3 py-2 shadow-sm">
-    Searching...
+  <div class="ls-icon">
+    <i *ngIf="!isLoading" class="bi bi-search"></i>
+    <div *ngIf="isLoading" class="ls-spinner"></div>
   </div>
 
-  <ul *ngIf="results.length > 0" class="list-group position-absolute w-100 mt-1 shadow">
+  <input
+    #inputRef
+    class="ls-input"
+    type="text"
+    [placeholder]="placeholder"
+    [value]="query"
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    (keydown)="onKeydown($event)"
+    autocomplete="off"
+    spellcheck="false"
+  />
 
-    <li *ngFor="let place of results" class="list-group-item list-group-item-action"
-      (mousedown)="selectLocation(place)">
-      <div class="d-flex align-items-start">
+  <button *ngIf="query.length > 0" class="ls-clear" (mousedown)="clearQuery($event)" type="button" aria-label="Clear">
+    <i class="bi bi-x"></i>
+  </button>
 
-        <span class="result-icon me-2 text-primary">
-          &#128205;
-        </span>
+  <div class="ls-dropdown" *ngIf="showDropdown" role="listbox">
 
-        <small class="result-text text-muted">
-          {{ place.display_name }}
-        </small>
-
+    <div *ngIf="results.length === 0 && !isLoading && query.length === 0" class="ls-section">
+      <div class="ls-section-label">
+        <i class="bi bi-geo-alt"></i>
+        Popular in India
       </div>
-    </li>
+      <div class="ls-item ls-item-popular" *ngFor="let s of popularCities" (mousedown)="selectPopular(s)">
+        <span class="ls-item-icon ls-item-icon--city">&#127961;</span>
+        <div class="ls-item-body">
+          <span class="ls-item-name">{{ s.name }}</span>
+          <span class="ls-item-sub">{{ s.state }}</span>
+        </div>
+        <span class="ls-item-arrow">→</span>
+      </div>
+    </div>
 
-  </ul>
+    <div *ngIf="results.length === 0 && !isLoading && query.length >= 3" class="ls-empty">
+      <i class="bi bi-search" style="font-size: 2rem;"></i>
+      <p>No results for "<strong>{{ query }}</strong>"</p>
+      <small>Try a city, landmark, or address</small>
+    </div>
+
+    <div *ngIf="results.length > 0" class="ls-section">
+      <div class="ls-section-label">
+        <i class="bi bi-search"></i>
+        Search Results
+      </div>
+      <div
+        class="ls-item"
+        *ngFor="let place of results; let i = index"
+        [class.ls-item--active]="activeIndex === i"
+        (mousedown)="selectLocation(place)"
+        role="option"
+      >
+        <span class="ls-item-icon">
+          <i class="bi" [ngClass]="getIcon(place)"></i>
+        </span>
+        <div class="ls-item-body">
+          <span class="ls-item-name" [innerHTML]="highlight(getMainName(place), query)"></span>
+          <span class="ls-item-sub">{{ getSubName(place) }}</span>
+        </div>
+        <span class="ls-item-type">{{ getType(place) }}</span>
+      </div>
+    </div>
+
+  </div>
 
 </div>

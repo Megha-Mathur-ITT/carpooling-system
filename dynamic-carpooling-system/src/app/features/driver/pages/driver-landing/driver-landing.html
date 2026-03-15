@@ -1,19 +1,25 @@
 <app-navbar></app-navbar>
 
-<div class="driver-container">
-
-  <app-toggler></app-toggler>
-
-  <div class="driver-content">
-
-    <app-ride-form></app-ride-form>
-
-    <app-map></app-map>
-
-    <app-offline-toggler-page></app-offline-toggler-page>
-
+<div class="driver-layout">
+  <div class="driver-panel">
+    <app-toggler [isOnline]="isOnline"></app-toggler>
+    <app-ride-form
+      (currentLocationDetected)="onCurrentLocationDetected($event)"
+      (destinationSelected)="onDestinationSelected($event)"
+      (sessionStarted)="onSessionStarted()"
+      (sessionStopped)="onSessionStopped()">
+    </app-ride-form>
   </div>
 
+  <div class="driver-map">
+    <app-map [pickup]="pickup" [destination]="destination"></app-map>
+  </div>
 </div>
+
+<app-ride-request-popup
+  [request]="incomingRequest"
+  (accepted)="onRequestAccepted()"
+  (rejected)="onRequestRejected()">
+</app-ride-request-popup>
 
 <app-footer></app-footer>
