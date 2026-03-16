@@ -7,8 +7,10 @@ import { DriverDetailsCard } from '../../../../shared/components/driver-details-
 import { MapComponent } from '../../../../shared/components/map/map';
 import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
+import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { CommonModule } from '@angular/common';
 import { SignalrService } from '../../../../core/services/signalr';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-passenger-ride-selection',
@@ -20,13 +22,14 @@ import { SignalrService } from '../../../../core/services/signalr';
 export class PassengerRideSelection implements OnInit, OnDestroy {
   pickupLocation: any = null;
   destinationLocation: any = null;
-  drivers: any = [];
+  drivers: any[] = [];
   selectedDriver: any = null;
   isLoading = false;
   isRequesting = false;
   isWaiting = false;
+
   private refreshInterval: any;
-  private subs: any[] = [];
+  private subs: Subscription[] = [];
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
 
@@ -35,6 +38,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
+    private rideRequestService: RideRequestService,
     private changeDetectorRef: ChangeDetectorRef,
     private signalrService: SignalrService
   ) {
@@ -67,7 +71,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       })
     );
 
-    // Listen for driver rejecting
     this.subs.push(
       this.signalrService.rideRejected$.subscribe(data => {
         if (data) {
@@ -82,17 +85,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         }
       })
     );
-
-    // TODO: replace with loadNearbyDrivers() once Megha's API is ready
-    /*this.drivers = [{
-      driverId: 'c56a8e3e-d7d9-4a02-f85d-08de81f17c06',
-      driverName: 'Hiya',
-      vehicleName: 'Verna',
-      availableSeats: 3,
-      distanceKm: 0.5,
-      latitude: 26.92,
-      longitude: 75.71
-    }];*/
   }
 
   ngOnDestroy() {
@@ -102,7 +94,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
   loadNearbyDrivers() {
     this.isLoading = true;
-    console.log("Loading drivers...");
 
     this.locationService.getNearbyDrivers(
       this.pickupLocation.latitude,
@@ -110,7 +101,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       2000
     ).subscribe({
       next: (response: any) => {
-        console.log("Drivers nearby: ", response.drivers);
         this.drivers = [...response.drivers];
         this.isLoading = false;
 
@@ -125,12 +115,11 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         this.isLoading = false;
 
         if (error.status !== 404) {
-          this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
-            duration: 4000,
-            horizontalPosition: "center",
-            verticalPosition: "top",
-            panelClass: ['error-snackbar']
-          });
+          this.snackBar.open(
+            'Could not load nearby drivers. Retrying in 10 seconds.',
+            'Close',
+            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+          );
         }
 
         this.changeDetectorRef.detectChanges();
@@ -159,23 +148,22 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     const rideRequestId = this.passengerRideService.rideRequestId;
 
     if (!rideRequestId) {
-      this.snackBar.open("Ride session expired. Please go back and try again.", 'close', {
-        duration: 3000,
-        horizontalPosition: "center",
-        verticalPosition: "top",
-        panelClass: ['error-snackbar']
-      });
+      this.snackBar.open(
+        'Ride session expired. Please go back and try again.',
+        'Close',
+        { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+      );
       this.isRequesting = false;
       return;
     }
 
-       this.signalrService.notifyDriver(
+    this.signalrService.notifyDriver(
       this.selectedDriver.driverId,
       rideRequestId,
       this.pickupLocation,
       this.destinationLocation
     );
-    
+
     this.passengerRideService.selectedDriver = this.selectedDriver;
 
     this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
@@ -187,12 +175,11 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         },
         error: () => {
           this.isRequesting = false;
-          this.snackBar.open("Failed to send request.", 'close', {
-            duration: 3000,
-            horizontalPosition: "center",
-            verticalPosition: "top",
-            panelClass: ['error-snackbar']
-          });
+          this.snackBar.open(
+            'Failed to send request.',
+            'Close',
+            { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+          );
         }
       });
   }
