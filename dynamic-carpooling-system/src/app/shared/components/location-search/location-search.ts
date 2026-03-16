@@ -38,6 +38,7 @@ interface PopularCity {
   styleUrls: ['./location-search.scss'],
 })
 export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
+  private cache = new Map<string, any[]>();
 
   @Input() placeholder: string = 'Search for a location...';
   @Input() defaultCity: string = 'Jaipur';
@@ -70,6 +71,11 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   ];
 
   ngOnInit() {
+    if (this.currentLocation) {
+      this.query = this.currentLocation.name;
+      return;
+    }
+
     const def =
       this.popularCities.find((c) => c.name === this.defaultCity) ||
       this.popularCities[3];
@@ -95,6 +101,7 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     clearTimeout(this.debounceTimer);
+    this.cache.clear();
   }
 
   @HostListener('document:click', ['$event'])
@@ -141,7 +148,7 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
 
     this.debounceTimer = setTimeout(() => {
       this.fetchSuggestions(value);
-    }, 320);
+    }, 500);
   }
 
   onKeydown(event: KeyboardEvent) {
@@ -178,11 +185,18 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private async fetchSuggestions(query: string) {
+    if (this.cache.has(query)) {
+      this.results = this.cache.get(query)!;
+      this.isLoading = false;
+      return;
+    }
+
     try {
       const url =
         `https://nominatim.openstreetmap.org/search` +
         `?q=${encodeURIComponent(query)}` +
-        `&format=json&addressdetails=1&limit=7&countrycodes=in&accept-language=en` +
+        `&format=json&addressdetails=1&limit=7` + 
+        `&countrycodes=in&accept-language=en` +
         `&viewbox=68.0,8.0,97.5,37.5` +
         `&bounded=0`;
 
@@ -191,6 +205,7 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
       });
 
       const data = await res.json();
+      this.cache.set(query, data);
       this.results = data;
 
     } catch (err) {
@@ -206,11 +221,11 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
     const location: SelectedLocation = {
       latitude: parseFloat(place.lat),
       longitude: parseFloat(place.lon),
-      name: this.getMainName(place),
+      name: place.display_name,
       displayName: place.display_name,
     };
 
-    this.query = location.name;
+    this.query = this.getMainName(place)
     this.results = [];
     this.showDropdown = false;
 
@@ -231,27 +246,13 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   getMainName(place: any): string {
-    const a = place.address || {};
-
-    return (
-      a.amenity ||
-      a.building ||
-      a.road ||
-      a.suburb ||
-      a.neighbourhood ||
-      a.city ||
-      a.town ||
-      a.village ||
-      a.county ||
-      a.state ||
-      place.display_name?.split(',')[0] ||
-      ''
-    );
+    const parts = place.display_name?.split(',') || [];
+    return parts.slice(0, 3).join(',').trim();
   }
 
   getSubName(place: any): string {
     const parts = place.display_name?.split(',') || [];
-    return parts.slice(1, 4).join(',').trim();
+    return parts.slice(3, 6).join(',').trim();
   }
 
   getType(place: any): string {

@@ -7,7 +7,6 @@ import { DriverDetailsCard } from '../../../../shared/components/driver-details-
 import { MapComponent } from '../../../../shared/components/map/map';
 import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { CommonModule } from '@angular/common';
 import { SignalrService } from '../../../../core/services/signalr';
 
@@ -34,7 +33,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
     private changeDetectorRef: ChangeDetectorRef,
-    private rideRequestService: RideRequestService,
     private signalrService: SignalrService
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
@@ -49,7 +47,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
     this.signalrService.connect();
     this.loadNearbyDrivers();
-    this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 30000);
+    this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 10000);
   }
 
   ngOnDestroy() {
@@ -58,6 +56,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
   loadNearbyDrivers() {
     this.isLoading = true;
+    console.log("Loading drivers...");
+
     this.locationService.getNearbyDrivers(
       this.pickupLocation.latitude,
       this.pickupLocation.longitude,

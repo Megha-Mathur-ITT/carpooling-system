@@ -2,6 +2,7 @@
 
 .ride-selection-wrapper {
     margin-top: 60px;
+    padding-bottom: 40px;
 }
 
 .landing-row {
@@ -9,19 +10,37 @@
 }
 
 .left-section {
-    padding-right: 40px;
+    padding-right: 20px;
 }
 
 .passenger-heading, .driver-list-heading {
-    font-size: 46px;
+    font-size: 36px;
     font-weight: 700;
     color: $primary-dark;
-    margin: 10px 0 24px 0;
+    margin: 10px 0 16px 0;
+
+    @media (max-width: 768px) {
+        font-size: 26px;
+        margin: 8px 0 12px 0;
+    }
+
+    @media (max-width: 991px) {
+        font-size: 26px;
+        margin: 8px 0 12px 0;
+    }
 }
 
 .right-section {
     display: flex;
     justify-content: center;
+
+    @media (max-width: 768px) {
+        margin-top: 20px;
+    }
+
+    @media (max-width: 991px) {
+        margin-top: 20px;
+    }
 }
 
 .map-placeholder {
@@ -34,4 +53,12 @@
     justify-content: center;
     color: $text-muted;
     font-size: 14px;
+
+    @media (max-width: 768px) {
+        height: 300px;
+    }
+
+     @media (max-width: 991px) {
+        height: 300px;
+    }
 }
