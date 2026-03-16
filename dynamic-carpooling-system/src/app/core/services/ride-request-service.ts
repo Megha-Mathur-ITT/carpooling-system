@@ -31,9 +31,20 @@ export class RideRequestService {
     requestId: string,
     status: 'Accepted' | 'Rejected'
   ): Observable<any> {
+    const statusMap: Record<string, number> = {
+      'Accepted': 2,  
+      'Rejected': 3   
+    };
+ 
     return this.http.put(`${this.baseUrl}/update/${requestId}`, {
-      rideRequestStatus: status
+      rideRequestStatus: statusMap[status]
     });
+  }
+
+  notifyDriver(requestId: string, driverId: string): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
+  );
   }
 
   cancelRide(rideRequestId: string): Observable<any> {

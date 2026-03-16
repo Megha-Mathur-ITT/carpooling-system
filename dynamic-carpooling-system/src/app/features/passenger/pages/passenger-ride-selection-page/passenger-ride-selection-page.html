@@ -8,26 +8,40 @@
                     Ride Details
                 </h1>
 
-                <h1 class="driver-list-heading">
-                    Drivers List
-                </h1>
-                <div *ngIf="!isLoading && drivers.length === 0">
-                    No drivers found nearby.
+                <!-- Normal state — show drivers -->
+                <ng-container *ngIf="!isWaiting">
+                    <h1 class="driver-list-heading">
+                        Drivers List
+                    </h1>
+
+                    <div *ngIf="!isLoading && drivers.length === 0">
+                        No drivers found nearby.
+                    </div>
+
+                    <app-driver-details-card
+                        *ngFor="let driver of drivers"
+                        [driverName]="driver.driverName"
+                        [vehicleName]="driver.vehicleName"
+                        [eta]="driver.availableSeats + ' seats'"
+                        [fare]="driver.distanceKm + ' km away'"
+                        (click)="selectDriver(driver)"
+                        (onRequestRide)="selectDriver(driver); requestRide()">
+                    </app-driver-details-card>
+                </ng-container>
+
+                <!-- Waiting state — after request sent -->
+                <div *ngIf="isWaiting" class="waiting-state">
+                    <div class="waiting-icon">⏳</div>
+                    <h3>Request Sent!</h3>
+                    <p>Waiting for <strong>{{ selectedDriver?.driverName }}</strong> to respond...</p>
+                    <button class="btn btn-outline-danger mt-3" (click)="cancelRequest()">
+                        Cancel Request
+                    </button>
                 </div>
 
-                <app-driver-details-card
-                    *ngFor="let driver of drivers"
-                    [driverName]="driver.driverName"
-                    [vehicleName]="driver.vehicleName"
-                    [eta]="driver.availableSeats + ' seats'"
-                    [fare]="driver.distanceKm + ' km away'"
-                    (click)="selectDriver(driver)"
-                    (onRequestRide)="selectDriver(driver); requestRide()">
-                </app-driver-details-card>
             </div>
 
             <div class="col-lg-7 right-section">
-
                 <div class="map-placeholder">
                     <app-map 
                         [pickup]="pickupLocation" 
@@ -40,4 +54,4 @@
         </div>
     </div>
 </div>
-<app-footer></app-footer>   
+<app-footer></app-footer>

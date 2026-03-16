@@ -7,8 +7,10 @@ import { DriverDetailsCard } from '../../../../shared/components/driver-details-
 import { MapComponent } from '../../../../shared/components/map/map';
 import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
+import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { CommonModule } from '@angular/common';
 import { SignalrService } from '../../../../core/services/signalr';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-passenger-ride-selection',
@@ -20,18 +22,23 @@ import { SignalrService } from '../../../../core/services/signalr';
 export class PassengerRideSelection implements OnInit, OnDestroy {
   pickupLocation: any = null;
   destinationLocation: any = null;
-  drivers: any = [];
+  drivers: any[] = [];
   selectedDriver: any = null;
   isLoading = false;
   isRequesting = false;
+  isWaiting = false;
+
   private refreshInterval: any;
+  private subs: Subscription[] = [];
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
+
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
+    private rideRequestService: RideRequestService,
     private changeDetectorRef: ChangeDetectorRef,
     private signalrService: SignalrService
   ) {
@@ -48,15 +55,45 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.signalrService.connect();
     this.loadNearbyDrivers();
     this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 10000);
+
+    this.subs.push(
+      this.signalrService.rideAccepted$.subscribe(data => {
+        if (data) {
+          this.isWaiting = false;
+          this.snackBar.open(
+            'Driver accepted your ride!',
+            'Close',
+            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
+          );
+          this.router.navigate(['/passenger/ride-confirmation']);
+          this.changeDetectorRef.detectChanges();
+        }
+      })
+    );
+
+    this.subs.push(
+      this.signalrService.rideRejected$.subscribe(data => {
+        if (data) {
+          this.isWaiting = false;
+          this.selectedDriver = null;
+          this.snackBar.open(
+            'Driver declined. Please choose another.',
+            'Close',
+            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+          );
+          this.changeDetectorRef.detectChanges();
+        }
+      })
+    );
   }
 
   ngOnDestroy() {
     if (this.refreshInterval) clearInterval(this.refreshInterval);
+    this.subs.forEach(s => s.unsubscribe());
   }
 
   loadNearbyDrivers() {
     this.isLoading = true;
-    console.log("Loading drivers...");
 
     this.locationService.getNearbyDrivers(
       this.pickupLocation.latitude,
@@ -64,7 +101,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       2000
     ).subscribe({
       next: (response: any) => {
-        console.log("Drivers nearby: ", response.drivers);
         this.drivers = [...response.drivers];
         this.isLoading = false;
 
@@ -77,14 +113,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       error: (error) => {
         this.drivers = [];
         this.isLoading = false;
-        
+
         if (error.status !== 404) {
-          this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
-            duration: 4000,
-            horizontalPosition: "center",
-            verticalPosition: "top",
-            panelClass: ['error-snackbar']
-          });
+          this.snackBar.open(
+            'Could not load nearby drivers. Retrying in 10 seconds.',
+            'Close',
+            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+          );
         }
 
         this.changeDetectorRef.detectChanges();
@@ -100,22 +135,25 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     }
   }
 
+  cancelRequest() {
+    this.isWaiting = false;
+    this.selectedDriver = null;
+    this.changeDetectorRef.detectChanges();
+  }
+
   requestRide() {
-    if (!this.selectedDriver) {
-      return;
-    }
+    if (!this.selectedDriver) return;
 
     this.isRequesting = true;
     const rideRequestId = this.passengerRideService.rideRequestId;
 
     if (!rideRequestId) {
-      this.snackBar.open("Ride session expired. Please go back and try again.", 'close', {
-        duration: 3000,
-        horizontalPosition: "center",
-        verticalPosition: "top",
-        panelClass: ['error-snackbar']
-      });
-
+      this.snackBar.open(
+        'Ride session expired. Please go back and try again.',
+        'Close',
+        { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+      );
+      this.isRequesting = false;
       return;
     }
 
@@ -127,7 +165,22 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     );
 
     this.passengerRideService.selectedDriver = this.selectedDriver;
-    this.isRequesting = false;
-    this.router.navigate(['/passenger/ride-confirmation']);
+
+    this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
+      .subscribe({
+        next: () => {
+          this.isRequesting = false;
+          this.isWaiting = true;
+          this.changeDetectorRef.detectChanges();
+        },
+        error: () => {
+          this.isRequesting = false;
+          this.snackBar.open(
+            'Failed to send request.',
+            'Close',
+            { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+          );
+        }
+      });
   }
 }
