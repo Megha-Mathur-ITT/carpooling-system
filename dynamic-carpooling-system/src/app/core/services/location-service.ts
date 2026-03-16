@@ -16,12 +16,18 @@ export class LocationService {
   private readonly MAX_INTERVAL_MS = 10000;
   private lastSentTime: number = 0;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  startTracking(): void {
+  startTracking(initialLat?: number, initialLng?: number): void {
     if (!navigator.geolocation) {
       console.warn('[Location] Geolocation not supported.');
       return;
+    }
+
+    if (initialLat && initialLng) {
+      this.lastLat = initialLat;
+      this.lastLng = initialLng;
+      this.lastSentTime = Date.now();
     }
 
     this.watchId = navigator.geolocation.watchPosition(
@@ -29,9 +35,8 @@ export class LocationService {
         const { latitude, longitude } = position.coords;
         const now = Date.now();
         const moved = this.hasMovedEnough(latitude, longitude);
-        const timeElapsed = now - this.lastSentTime > this.MAX_INTERVAL_MS;
 
-        if (moved || timeElapsed) {
+        if (moved) {
           this.sendLocation(latitude, longitude);
           this.lastLat = latitude;
           this.lastLng = longitude;
@@ -81,9 +86,9 @@ export class LocationService {
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * Math.PI / 180) *
-              Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
@@ -98,5 +103,12 @@ export class LocationService {
       .set('radius', radiusMeters);
 
     return this.http.get<any>(`${this.baseUrl}/nearbyDrivers`, { params });
+  }
+
+  updateLocation(latitude: number, lng: number): void {
+    this.http.put(`${this.baseUrl}/update`, { latitude: latitude, longitude: lng })
+      .subscribe({
+        error: (err: any) => console.error('[Location] Failed to send:', err)
+      });
   }
 }

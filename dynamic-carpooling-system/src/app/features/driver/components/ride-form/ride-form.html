@@ -16,9 +16,7 @@
         <span>{{ currentLocationName }}</span>
       </div>
       <div class="override-hint">
-        <app-location-search
-          placeholder="Override pickup location..."
-          (locationSelected)="onPickupSelected($event)">
+        <app-location-search placeholder="Override pickup location..." (locationSelected)="onPickupSelected($event)">
         </app-location-search>
       </div>
     </div>
@@ -30,9 +28,7 @@
         <span class="dot dot-red"></span>
         Destination
       </label>
-      <app-location-search
-        placeholder="Where are you going?"
-        (locationSelected)="onDestinationSelected($event)">
+      <app-location-search placeholder="Where are you going?" (locationSelected)="onDestinationSelected($event)">
       </app-location-search>
     </div>
 
@@ -54,11 +50,7 @@
       </div>
     </div>
 
-    <button
-      class="publish-btn"
-      [disabled]="!canPublish()"
-      (click)="publishRide()"
-      type="button">
+    <button class="publish-btn" [disabled]="!canPublish()" (click)="publishRide()" type="button">
       <span *ngIf="!isLoading">
         <i class="bi bi-broadcast me-2"></i>
         Publish Ride
