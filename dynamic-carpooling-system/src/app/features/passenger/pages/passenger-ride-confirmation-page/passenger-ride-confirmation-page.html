@@ -1,55 +1,76 @@
 <app-navbar></app-navbar>
 
-<div class="container confirmation-wrapper">
-  <div class="confirmation-card">
+<div class="container-fluid confirmation-wrapper">
+  <div class="row align-items-stretch landing-row">
 
-    <div *ngIf="rideStatus === 'waiting'" class="status-section">
-      <div class="spinner"></div>
-      <h2>Waiting for driver...</h2>
-      <p class="status-text">Your request has been sent to <strong>{{ selectedDriver?.driverName }}</strong></p>
+    <div class="col-md-5 left-section border p-4" *ngIf="selectedDriver; else loading">
+
+      <div class="status-section mb-3" *ngIf="rideStatus === 'accepted'">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <h5 class="mb-0 text-success">Ride Accepted!</h5>
+        </div>
+        <p class="text-muted mb-0">
+          <strong>{{ selectedDriver.driverName }}</strong> has accepted your request and is on the way!
+        </p>
+      </div>
+
+      <div class="status-section mb-3" *ngIf="rideStatus === 'rejected'">
+        <h5 class="mb-0 text-danger">Ride Rejected</h5>
+        <p class="text-muted mb-0">Redirecting you back to driver selection...</p>
+      </div>
+
+      <div class="status-section mb-3" *ngIf="rideStatus === 'waiting'">
+        <h5 class="mb-0 text-warning">Waiting for Response</h5>
+        <p class="text-muted mb-0">
+          Waiting for <strong>{{ selectedDriver.driverName }}</strong> to respond...
+        </p>
+      </div>
+
+      <hr>
+
+      <div class="ride-details">
+
+        <div class="detail-row">
+          <span class="detail-label">Pickup</span>
+          <span class="detail-value">{{ pickup?.address }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Destination</span>
+          <span class="detail-value">{{ destination?.address }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Driver</span>
+          <span class="detail-value">{{ selectedDriver.driverName }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Vehicle</span>
+          <span class="detail-value">{{ selectedDriver.vehicleName }}</span>
+        </div>
+
+      </div>
+
+      <button
+        class="btn btn-outline-danger w-100 mt-4"
+        (click)="cancelRide()"
+        *ngIf="rideStatus === 'waiting' || rideStatus === 'accepted'">
+        Cancel Ride
+      </button>
+
     </div>
 
-    <div *ngIf="rideStatus === 'accepted'" class="status-section accepted">
-      <div class="check-icon">✅</div>
-      <h2>Ride Accepted!</h2>
-      <p class="status-text"><strong>{{ selectedDriver?.driverName }}</strong> is on the way!</p>
-    </div>
+    <ng-template #loading>
+      <div class="col-md-5 p-4 text-muted">Loading ride details...</div>
+    </ng-template>
 
-    <div *ngIf="rideStatus === 'rejected'" class="status-section rejected">
-      <div class="reject-icon">❌</div>
-      <h2>Ride Rejected</h2>
-      <p class="status-text">Driver declined your request. Going back to driver selection...</p>
+    <div class="col-md-7 p-0">
+      <app-map
+        [pickup]="pickup"
+        [destination]="destination">
+      </app-map>
     </div>
-
-    <div class="ride-details">
-      <div class="detail-row">
-        <span class="label">📍 Pickup</span>
-        <span class="value">{{ pickup?.name }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Destination</span>
-        <span class="value">{{ destination?.name }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Driver</span>
-        <span class="value">{{ selectedDriver?.driverName }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Vehicle</span>
-        <span class="value">{{ selectedDriver?.vehicleName }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Distance</span>
-        <span class="value">{{ selectedDriver?.distanceKm }} km away</span>
-      </div>
-    </div>
-
-    <button 
-      *ngIf="rideStatus === 'waiting'"
-      class="cancel-btn" 
-      (click)="cancelRide()">
-      Cancel Ride
-    </button>
 
   </div>
 </div>

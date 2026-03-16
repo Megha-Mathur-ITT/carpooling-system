@@ -77,11 +77,18 @@ export class SignalrService {
     this.connection.on('RideAccepted', (data) => {
       console.log('[SignalR] RideAccepted received:', data);
       this.rideAccepted$.next(data);
+      setTimeout(() => this.rideAccepted$.next(null), 100);
     });
 
     this.connection.on('RideRejected', (data) => {
       console.log('[SignalR] RideRejected received:', data);
       this.rideRejected$.next(data);
+      setTimeout(() => this.rideRejected$.next(null), 100);
+    });
+
+    this.connection.on('RideCancelled', (data) => {
+      console.log('[SignalR] RideCancelled received:', data);
+      this.rideRequested$.next(null);
     });
 
     this.connection.onreconnecting(() => {
@@ -106,13 +113,12 @@ export class SignalrService {
     pickup: any,
     destination: any
   ): void {
-    console.log("Inside notify Driver fronted singnalr..");
+    console.log('[SignalR] Inside notifyDriver.');
     if (!this.connection) {
       console.warn('[SignalR] Not connected. Cannot notify driver.');
       return;
     }
 
-    console.log("Invoking connection..");
     this.connection.invoke('NotifyDriver', {
       driverId,
       rideRequestId,
@@ -121,7 +127,24 @@ export class SignalrService {
       pickupLng: pickup.longitude,
       destinationName: destination.name
     }).catch(error => {
-      console.error('[SignalR] NotifyDriver failed:', error)
+      console.error('[SignalR] NotifyDriver failed:', error);
     });
+  }
+
+  resetRideState(): void {
+    this.rideAccepted$.next(null);
+    this.rideRejected$.next(null);
+  }
+
+  notifyCancelRide(rideRequestId: string): void {
+    if (!this.connection) {
+      console.warn('[SignalR] Not connected. Cannot cancel ride.');
+      return;
+    }
+
+    this.connection.invoke('CancelRide', { rideRequestId })
+      .catch(error => {
+        console.error('[SignalR] CancelRide failed:', error);
+      });
   }
 }

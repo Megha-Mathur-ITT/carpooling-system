@@ -25,9 +25,12 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
   selectedDriver: any = null;
   isLoading = false;
   isRequesting = false;
+  isWaiting = false;
   private refreshInterval: any;
+  private subs: any[] = [];
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
+
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
@@ -48,12 +51,53 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     }
 
     this.signalrService.connect();
-    this.loadNearbyDrivers();
-    this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 30000);
+
+    this.subs.push(
+      this.signalrService.rideAccepted$.subscribe(data => {
+        if (data) {
+          this.isWaiting = false;
+          this.snackBar.open(
+            'Driver accepted your ride!',
+            'Close',
+            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
+          );
+          this.router.navigate(['/passenger/ride-confirmation']);
+          this.changeDetectorRef.detectChanges();
+        }
+      })
+    );
+
+    // Listen for driver rejecting
+    this.subs.push(
+      this.signalrService.rideRejected$.subscribe(data => {
+        if (data) {
+          this.isWaiting = false;
+          this.selectedDriver = null;
+          this.snackBar.open(
+            'Driver declined. Please choose another.',
+            'Close',
+            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+          );
+          this.changeDetectorRef.detectChanges();
+        }
+      })
+    );
+
+    // TODO: replace with loadNearbyDrivers() once Megha's API is ready
+    this.drivers = [{
+      driverId: 'c56a8e3e-d7d9-4a02-f85d-08de81f17c06',
+      driverName: 'Hiya',
+      vehicleName: 'Verna',
+      availableSeats: 3,
+      distanceKm: 0.5,
+      latitude: 26.92,
+      longitude: 75.71
+    }];
   }
 
   ngOnDestroy() {
     if (this.refreshInterval) clearInterval(this.refreshInterval);
+    this.subs.forEach(s => s.unsubscribe());
   }
 
   loadNearbyDrivers() {
@@ -77,7 +121,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       error: (error) => {
         this.drivers = [];
         this.isLoading = false;
-        
+
         if (error.status !== 404) {
           this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
             duration: 4000,
@@ -100,10 +144,14 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     }
   }
 
+  cancelRequest() {
+    this.isWaiting = false;
+    this.selectedDriver = null;
+    this.changeDetectorRef.detectChanges();
+  }
+
   requestRide() {
-    if (!this.selectedDriver) {
-      return;
-    }
+    if (!this.selectedDriver) return;
 
     this.isRequesting = true;
     const rideRequestId = this.passengerRideService.rideRequestId;
@@ -115,19 +163,28 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         verticalPosition: "top",
         panelClass: ['error-snackbar']
       });
-
+      this.isRequesting = false;
       return;
     }
 
-    this.signalrService.notifyDriver(
-      this.selectedDriver.driverId,
-      rideRequestId,
-      this.pickupLocation,
-      this.destinationLocation
-    );
-
     this.passengerRideService.selectedDriver = this.selectedDriver;
-    this.isRequesting = false;
-    this.router.navigate(['/passenger/ride-confirmation']);
+
+    this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
+      .subscribe({
+        next: () => {
+          this.isRequesting = false;
+          this.isWaiting = true;
+          this.changeDetectorRef.detectChanges();
+        },
+        error: () => {
+          this.isRequesting = false;
+          this.snackBar.open("Failed to send request.", 'close', {
+            duration: 3000,
+            horizontalPosition: "center",
+            verticalPosition: "top",
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
   }
 }
