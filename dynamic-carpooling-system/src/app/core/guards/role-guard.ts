@@ -1,10 +1,17 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 
 export const roleGuard = (allowedRole: 'Driver' | 'Passenger'): CanActivateFn => {
   return () => {
     const router = inject(Router);
+    const platformId = inject(PLATFORM_ID);
+
+    if (!isPlatformBrowser(platformId)) {
+      return true;
+    }
+
     const token = localStorage.getItem('auth_token');
 
     if (!token) {
@@ -14,7 +21,7 @@ export const roleGuard = (allowedRole: 'Driver' | 'Passenger'): CanActivateFn =>
 
     try {
       const decoded: any = jwtDecode(token);
-      const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      const role = decoded['role'];
 
       if (role === allowedRole) {
         return true;

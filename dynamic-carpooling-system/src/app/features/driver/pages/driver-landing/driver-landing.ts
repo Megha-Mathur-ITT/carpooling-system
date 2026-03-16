@@ -27,27 +27,19 @@ export class DriverLanding implements OnInit, OnDestroy {
   constructor(
     private cdr: ChangeDetectorRef,
     private signalrService: SignalrService
-  ) {}
+  ) { }
 
   ngOnInit() {
-  // TEMPORARY : FOR TESTING
-  setTimeout(() => {
-    this.incomingRequest = {
-      requestId: 'test-123',
-      passengerName: 'Test Passenger',
-      pickup: 'Jaipur Railway Station',
-      destination: 'Amber Fort'
-    };
-    this.cdr.detectChanges();
-  }, 3000);
-
-  this.sub = this.signalrService.rideRequested$.subscribe(request => {
-    if (request) {
-      this.incomingRequest = request;
-      this.cdr.detectChanges();
-    }
-  });
-}
+    this.signalrService.connect();
+      
+    this.sub = this.signalrService.rideRequested$.subscribe(request => {
+      if (request) {
+      console.log("Driver received request:", request);
+        this.incomingRequest = request;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   ngOnDestroy() {
     this.sub?.unsubscribe();

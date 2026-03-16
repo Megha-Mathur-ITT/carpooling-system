@@ -7,14 +7,22 @@ import { environment } from '../environments/environment';
 export class RideRequestService {
   private readonly baseUrl = `${environment.apiBaseUrl}/RideRequest`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   createRide(pickup: any, destination: any): Observable<any> {
-    // return this.http.post<any>(`${this.baseUrl}/RideRequest`, {
-    //   pickup: pickup,
-    //   destination: destination,
+    // return this.http.post<any>(`${this.baseUrl}/create`, {
+    //   pickup: {
+    //   name: pickup.name,
+    //   latitude: pickup.latitude,
+    //   longitude: pickup.longitude
+    // },
+    // destination: {
+    //   name: destination.name,
+    //   latitude: destination.latitude,
+    //   longitude: destination.longitude
+    // }
     // })
-    
+
     return of({
       rideRequestId: null,
       pickup,

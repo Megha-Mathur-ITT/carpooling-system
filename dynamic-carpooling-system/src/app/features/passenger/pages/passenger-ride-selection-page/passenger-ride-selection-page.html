@@ -21,7 +21,8 @@
                     [vehicleName]="driver.vehicleName"
                     [eta]="driver.availableSeats + ' seats'"
                     [fare]="driver.distanceKm + ' km away'"
-                    (click)="selectDriver(driver)">
+                    (click)="selectDriver(driver)"
+                    (onRequestRide)="selectDriver(driver); requestRide()">
                 </app-driver-details-card>
             </div>
 

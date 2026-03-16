@@ -9,13 +9,13 @@ import { RideRequestService } from '../../../../core/services/ride-request-servi
   styleUrl: './ride-request-popup.scss',
 })
 export class RideRequestPopup {
-   @Input() request: any = null;
+  @Input() request: any = null;
   @Output() accepted = new EventEmitter<void>();
   @Output() rejected = new EventEmitter<void>();
 
   isLoading = false;
 
-  constructor(private rideRequestService: RideRequestService) {}
+  constructor(private rideRequestService: RideRequestService) { }
 
   accept() {
     this.isLoading = true;

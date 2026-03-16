@@ -7,4 +7,5 @@ export class PassengerRideService {
   pickup: any = null;
   destination: any = null;
   rideRequestId: string | null = null;
+  selectedDriver: any = null; 
 }
