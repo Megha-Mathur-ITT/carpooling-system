@@ -7,7 +7,6 @@ import { DriverDetailsCard } from '../../../../shared/components/driver-details-
 import { MapComponent } from '../../../../shared/components/map/map';
 import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { CommonModule } from '@angular/common';
 import { SignalrService } from '../../../../core/services/signalr';
 
@@ -37,7 +36,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
     private changeDetectorRef: ChangeDetectorRef,
-    private rideRequestService: RideRequestService,
     private signalrService: SignalrService
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
@@ -51,6 +49,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     }
 
     this.signalrService.connect();
+    this.loadNearbyDrivers();
+    this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 10000);
 
     this.subs.push(
       this.signalrService.rideAccepted$.subscribe(data => {
@@ -84,7 +84,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     );
 
     // TODO: replace with loadNearbyDrivers() once Megha's API is ready
-    this.drivers = [{
+    /*this.drivers = [{
       driverId: 'c56a8e3e-d7d9-4a02-f85d-08de81f17c06',
       driverName: 'Hiya',
       vehicleName: 'Verna',
@@ -92,7 +92,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       distanceKm: 0.5,
       latitude: 26.92,
       longitude: 75.71
-    }];
+    }];*/
   }
 
   ngOnDestroy() {
@@ -102,6 +102,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
   loadNearbyDrivers() {
     this.isLoading = true;
+    console.log("Loading drivers...");
+
     this.locationService.getNearbyDrivers(
       this.pickupLocation.latitude,
       this.pickupLocation.longitude,
@@ -167,6 +169,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       return;
     }
 
+       this.signalrService.notifyDriver(
+      this.selectedDriver.driverId,
+      rideRequestId,
+      this.pickupLocation,
+      this.destinationLocation
+    );
+    
     this.passengerRideService.selectedDriver = this.selectedDriver;
 
     this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)

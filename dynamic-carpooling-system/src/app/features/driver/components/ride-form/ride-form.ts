@@ -1,6 +1,6 @@
-import { 
-  Component, Output, EventEmitter, 
-  Inject, PLATFORM_ID, afterNextRender 
+import {
+  Component, Output, EventEmitter,
+  Inject, PLATFORM_ID, afterNextRender
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -94,31 +94,36 @@ export class RideForm {
   }
 
   publishRide(): void {
-  if (!this.canPublish()) return;
-  this.isLoading = true;
+    if (!this.canPublish()) return;
+    this.isLoading = true;
 
-  const dto = {
-    vehicleId: this.vehicleId,
-    pickup: this.pickup!.name,
-    dropoff: this.destination!.name,
-    availableSeats: this.seatCount
-  };
+    const dto = {
+      vehicleId: this.vehicleId,
+      pickup: this.pickup!.name,
+      dropoff: this.destination!.name,
+      availableSeats: this.seatCount
+    };
 
-  console.log('[RideForm] Sending dto:', JSON.stringify(dto));
+    console.log('[RideForm] Sending dto:', JSON.stringify(dto));
 
-  this.rideSessionService.startSession(dto).subscribe({
-    next: () => {
-      this.isOnline = true;
-      this.locationService.startTracking();
-      this.sessionStarted.emit();
-      this.isLoading = false;
-    },
-    error: (err: any) => {
-      console.error('[RideForm] Failed to start session:', err.error);
-      this.isLoading = false;
-    }
-  });
-}
+    this.rideSessionService.startSession(dto).subscribe({
+      next: () => {
+        this.isOnline = true;
+
+        this.locationService.updateLocation(
+          this.pickup!.latitude,
+          this.pickup!.longitude
+        );
+
+        this.sessionStarted.emit();
+        this.isLoading = false;
+      },
+      error: (err: any) => {
+        console.error('[RideForm] Failed to start session:', err.error);
+        this.isLoading = false;
+      }
+    });
+  }
 
   goOffline(): void {
     this.isLoading = true;
