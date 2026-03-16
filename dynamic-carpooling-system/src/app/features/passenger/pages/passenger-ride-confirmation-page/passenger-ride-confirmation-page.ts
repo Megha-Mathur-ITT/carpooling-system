@@ -5,6 +5,7 @@ import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { SignalrService } from '../../../../core/services/signalr';
+import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -26,8 +27,9 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private passengerRideService: PassengerRideService,
-    private signalrService: SignalrService
-  ) {}
+    private signalrService: SignalrService,
+    private rideRequestService: RideRequestService
+  ) { }
 
   ngOnInit() {
     this.pickup = this.passengerRideService.pickup;
@@ -38,6 +40,9 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
       this.router.navigate(['/passenger/landing']);
       return;
     }
+
+    this.signalrService.rideAccepted$.next(null);
+    this.signalrService.rideRejected$.next(null);
 
     this.sub = this.signalrService.rideAccepted$.subscribe(response => {
       if (response) {
@@ -60,6 +65,12 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
   }
 
   cancelRide() {
+    const rideRequestId = this.passengerRideService.rideRequestId;
+
+    if (rideRequestId) {
+      this.rideRequestService.cancelRide(rideRequestId).subscribe({});
+    }
+
     this.passengerRideService.pickup = null;
     this.passengerRideService.destination = null;
     this.passengerRideService.selectedDriver = null;

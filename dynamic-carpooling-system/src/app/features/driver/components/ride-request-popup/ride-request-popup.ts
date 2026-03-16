@@ -20,7 +20,8 @@ export class RideRequestPopup {
   accept() {
     this.isLoading = true;
     this.rideRequestService.respondToRequest(
-      this.request.requestId, 'Accepted'
+      this.request.rideRequestId,
+      'Accepted'
     ).subscribe({
       next: () => { this.accepted.emit(); this.isLoading = false; },
       error: () => { this.isLoading = false; }
@@ -30,7 +31,8 @@ export class RideRequestPopup {
   reject() {
     this.isLoading = true;
     this.rideRequestService.respondToRequest(
-      this.request.requestId, 'Rejected'
+      this.request.rideRequestId,
+      'Rejected'
     ).subscribe({
       next: () => { this.rejected.emit(); this.isLoading = false; },
       error: () => { this.isLoading = false; }

@@ -16,14 +16,19 @@ export class SignalrService {
   rideAccepted$ = new BehaviorSubject<any>(null);
   rideRejected$ = new BehaviorSubject<any>(null);
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   async connect(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (this.connection !== null) {
+    if (this.connection !== null && this.connection.state === signalR.HubConnectionState.Connected) {
       console.warn('[SignalR] Already connected.');
       return;
+    }
+
+    if (this.connection !== null) {
+      await this.connection.stop().catch(() => { });
+      this.connection = null;
     }
 
     const token = localStorage.getItem('auth_token');
@@ -92,6 +97,31 @@ export class SignalrService {
     this.connection.onclose(() => {
       this.connectionStatus$.next('disconnected');
       console.warn('[SignalR] Connection closed.');
+    });
+  }
+
+  notifyDriver(
+    driverId: string,
+    rideRequestId: string,
+    pickup: any,
+    destination: any
+  ): void {
+    console.log("Inside notify Driver fronted singnalr..");
+    if (!this.connection) {
+      console.warn('[SignalR] Not connected. Cannot notify driver.');
+      return;
+    }
+
+    console.log("Invoking connection..");
+    this.connection.invoke('NotifyDriver', {
+      driverId,
+      rideRequestId,
+      pickupName: pickup.name,
+      pickupLat: pickup.latitude,
+      pickupLng: pickup.longitude,
+      destinationName: destination.name
+    }).catch(error => {
+      console.error('[SignalR] NotifyDriver failed:', error)
     });
   }
 }
