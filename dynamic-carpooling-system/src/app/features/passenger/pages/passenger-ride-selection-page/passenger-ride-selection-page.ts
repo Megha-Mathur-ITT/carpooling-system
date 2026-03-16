@@ -9,6 +9,7 @@ import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { CommonModule } from '@angular/common';
+import { SignalrService } from '../../../../core/services/signalr';
 
 @Component({
   selector: 'app-passenger-ride-selection',
@@ -33,7 +34,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
     private changeDetectorRef: ChangeDetectorRef,
-    private rideRequestService: RideRequestService
+    private rideRequestService: RideRequestService,
+    private signalrService: SignalrService
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
     this.destinationLocation = this.passengerRideService.destination;
@@ -44,6 +46,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       this.router.navigate(['/passenger/landing']);
       return;
     }
+
+    this.signalrService.connect();
     this.loadNearbyDrivers();
     this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 30000);
   }
@@ -60,6 +64,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       2000
     ).subscribe({
       next: (response: any) => {
+        console.log("Drivers nearby: ", response.drivers);
         this.drivers = [...response.drivers];
         this.isLoading = false;
 
@@ -69,17 +74,20 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
         this.changeDetectorRef.markForCheck();
       },
-      error: () => {
+      error: (error) => {
         this.drivers = [];
         this.isLoading = false;
-        this.changeDetectorRef.detectChanges();
+        
+        if (error.status !== 404) {
+          this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
+            duration: 4000,
+            horizontalPosition: "center",
+            verticalPosition: "top",
+            panelClass: ['error-snackbar']
+          });
+        }
 
-        this.snackBar.open("Could not load nearby drivers. Retrying in 30 seconds.", 'close', {
-          duration: 4000,
-          horizontalPosition: "center",
-          verticalPosition: "top",
-          panelClass: ['error-snackbar']
-        });
+        this.changeDetectorRef.detectChanges();
       }
     });
   }
@@ -93,38 +101,33 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
   }
 
   requestRide() {
-    if (!this.selectedDriver) return;
+    if (!this.selectedDriver) {
+      return;
+    }
 
     this.isRequesting = true;
+    const rideRequestId = this.passengerRideService.rideRequestId;
 
-    this.rideRequestService.submitRequest({
-      driverId: this.selectedDriver.driverId,
-      pickup: {
-        name: this.pickupLocation.name,
-        latitude: this.pickupLocation.latitude,
-        longitude: this.pickupLocation.longitude
-      },
-      destination: {
-        name: this.destinationLocation.name,
-        latitude: this.destinationLocation.latitude,
-        longitude: this.destinationLocation.longitude
-      }
-    }).subscribe({
-      next: (response: any) => {
-        this.passengerRideService.rideRequestId = response.id;
-        this.passengerRideService.selectedDriver = this.selectedDriver;
-        this.isRequesting = false;
-        this.router.navigate(['/passenger/ride-confirmation']);
-      },
-      error: (err) => {
-        console.log('Error:', err.error);
-        this.isRequesting = false;
-        this.snackBar.open(
-          "Failed to send ride request. Please try again.",
-          'close',
-          { duration: 3000, horizontalPosition: "center", verticalPosition: "top", panelClass: ['error-snackbar'] }
-        );
-      }
-    });
+    if (!rideRequestId) {
+      this.snackBar.open("Ride session expired. Please go back and try again.", 'close', {
+        duration: 3000,
+        horizontalPosition: "center",
+        verticalPosition: "top",
+        panelClass: ['error-snackbar']
+      });
+
+      return;
+    }
+
+    this.signalrService.notifyDriver(
+      this.selectedDriver.driverId,
+      rideRequestId,
+      this.pickupLocation,
+      this.destinationLocation
+    );
+
+    this.passengerRideService.selectedDriver = this.selectedDriver;
+    this.isRequesting = false;
+    this.router.navigate(['/passenger/ride-confirmation']);
   }
 }

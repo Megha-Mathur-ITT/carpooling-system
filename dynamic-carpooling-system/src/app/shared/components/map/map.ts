@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Output, EventEmitter, NgZone } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 
 @Component({
@@ -41,7 +41,10 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   private driverMarkers: any[] = [];
   private radiusCircle: any = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private ngZone: NgZone,
+    ) { }
 
   async ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -88,7 +91,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     this.mapReady = true;
 
     setTimeout(() => {
-      this.mapReady$.emit(); // ✅ runs after change detection cycle
+      this.mapReady$.emit();
 
       if (this.pendingPickup) {
         this.applyPickup(this.pendingPickup);
@@ -156,8 +159,11 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     this.watchId = navigator.geolocation.watchPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        this.updateLiveDot(latitude, longitude);
-        this.isTracking = true;
+
+        this.ngZone.run(() => {   
+          this.updateLiveDot(latitude, longitude);
+          this.isTracking = true;
+        });
       },
       (err) => {
         console.warn('[Map] Geolocation error:', err.message);

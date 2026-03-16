@@ -9,34 +9,22 @@ export class RideRequestService {
 
   constructor(private http: HttpClient) { }
 
-  createRide(pickup: any, destination: any): Observable<any> {
-    // return this.http.post<any>(`${this.baseUrl}/create`, {
-    //   pickup: {
-    //   name: pickup.name,
-    //   latitude: pickup.latitude,
-    //   longitude: pickup.longitude
-    // },
-    // destination: {
-    //   name: destination.name,
-    //   latitude: destination.latitude,
-    //   longitude: destination.longitude
-    // }
-    // })
-
-    return of({
-      rideRequestId: null,
-      pickup,
-      destination,
-      status: 'draft'
-    });
-  }
-
-  submitRequest(dto: {
-    driverId: string;
-    pickup: { name: string; latitude: number; longitude: number };
-    destination: { name: string; latitude: number; longitude: number };
-  }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/create`, dto);
+  createRide(
+    pickup: any,
+    destination: any
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/create`, {
+      pickup: {
+        name: pickup.name,
+        latitude: pickup.latitude,
+        longitude: pickup.longitude
+      },
+      destination: {
+        name: destination.name,
+        latitude: destination.latitude,
+        longitude: destination.longitude
+      }
+    })
   }
 
   respondToRequest(
@@ -46,5 +34,9 @@ export class RideRequestService {
     return this.http.put(`${this.baseUrl}/update/${requestId}`, {
       rideRequestStatus: status
     });
+  }
+
+  cancelRide(rideRequestId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/cancel/${rideRequestId}`, {});
   }
 }

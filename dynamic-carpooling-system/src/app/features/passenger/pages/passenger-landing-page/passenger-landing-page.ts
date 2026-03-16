@@ -170,7 +170,7 @@ export class PassengerLandingPage implements OnInit {
       .subscribe({
         next: (response) => {
           console.log('Ride created:', response);
-          this.passengerRideService.rideRequestId = response.rideRequestId;
+          this.passengerRideService.rideRequestId = response.requestId;
           this.router.navigate(['/passenger/ride-selection']);
         },
         error: () => {

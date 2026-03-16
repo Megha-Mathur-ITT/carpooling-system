@@ -37,7 +37,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.storeToken(response.token);
-          this.signalrService.connect();  
+          setTimeout(() => this.signalrService.connect(), 500);
         })
       );
   }
