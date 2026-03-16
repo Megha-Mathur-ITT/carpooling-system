@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestro } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -18,8 +18,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './passenger-ride-selection-page.scss',
 })
 export class PassengerRideSelection implements OnInit, OnDestroy {
-  pickupLocation: any;
-  destinationLocation: any;
+  pickupLocation: any = null;
+  destinationLocation: any = null;
   drivers: any = [];
   selectedDriver: any = null;
   isLoading = false;
@@ -32,7 +32,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
     private rideRequestService: RideRequestService
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
@@ -112,10 +112,12 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     }).subscribe({
       next: (response: any) => {
         this.passengerRideService.rideRequestId = response.id;
+        this.passengerRideService.selectedDriver = this.selectedDriver;
         this.isRequesting = false;
         this.router.navigate(['/passenger/ride-confirmation']);
       },
-      error: () => {
+      error: (err) => {
+        console.log('Error:', err.error);
         this.isRequesting = false;
         this.snackBar.open(
           "Failed to send ride request. Please try again.",

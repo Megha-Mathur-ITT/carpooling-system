@@ -1,4 +1,4 @@
-import { Component, OnInit, afterNextRender } from '@angular/core';
+import { Component, OnInit, afterNextRender, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -26,12 +26,13 @@ import { RideRequestService } from '../../../../core/services/ride-request-servi
   styleUrl: './passenger-landing-page.scss',
 })
 export class PassengerLandingPage implements OnInit {
-
   city: string = '';
   state: string = '';
 
-  pickupLocation: any;
-  destinationLocation: any;
+  pickupLocation: any = null;
+  destinationLocation: any = null;
+
+  private ngZone = inject(NgZone);
 
   constructor(
     private router: Router,
@@ -55,7 +56,6 @@ export class PassengerLandingPage implements OnInit {
   }
 
   detectCurrentLocation() {
-
     if (!navigator.geolocation) {
       return;
     }
@@ -65,11 +65,8 @@ export class PassengerLandingPage implements OnInit {
     }
 
     navigator.geolocation.getCurrentPosition(
-
       (position) => {
-
-        setTimeout(() => {
-
+        this.ngZone.run(() => {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
 
@@ -80,30 +77,27 @@ export class PassengerLandingPage implements OnInit {
           };
 
           this.fetchLocation(latitude, longitude);
-
         });
-
       },
-
       () => {
-        this.snackBar.open(
-          "Location access denied. Please enter pickup manually.",
-          'close',
-          {
-            duration: 4000,
-            horizontalPosition: "center",
-            verticalPosition: "top",
-            panelClass: ['error-snackbar']
-          }
-        );
+        this.ngZone.run(() => {
+          this.snackBar.open(
+            "Location access denied. Please enter pickup manually.",
+            'close',
+            {
+              duration: 4000,
+              horizontalPosition: "center",
+              verticalPosition: "top",
+              panelClass: ['error-snackbar']
+            }
+          );
+        });
       }
     );
   }
 
   async fetchLocation(latitude: number, longitude: number) {
-
     try {
-
       const result = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
         {
@@ -114,45 +108,46 @@ export class PassengerLandingPage implements OnInit {
       const data = await result.json();
       const address = data.address;
 
-      this.city =
-        address?.state_district ??
-        address?.city ??
-        address?.village ??
-        address?.country ??
-        '';
+      this.ngZone.run(() => {
+        this.city =
+          address?.state_district ??
+          address?.city ??
+          address?.village ??
+          address?.country ??
+          '';
 
-      this.state = address?.state ?? '';
+        this.state = address?.state ?? '';
 
-      this.pickupLocation = {
-        latitude: latitude,
-        longitude: longitude,
-        name: data.display_name,
-      };
+        this.pickupLocation = {
+          latitude: latitude,
+          longitude: longitude,
+          name: data.display_name,
+        };
 
-      this.passengerRideService.pickup = this.pickupLocation;
+        this.passengerRideService.pickup = this.pickupLocation;
+      })
 
     } catch (error) {
+      this.ngZone.run(() => {
+        this.city = '';
+        this.state = '';
 
-      this.city = '';
-      this.state = '';
-
-      this.snackBar.open(
-        "Could not detect your location. Please enter pickup manually.",
-        'close',
-        {
-          duration: 4000,
-          horizontalPosition: "center",
-          verticalPosition: "top",
-          panelClass: ['error-snackbar']
-        }
-      );
+        this.snackBar.open(
+          "Could not detect your location. Please enter pickup manually.",
+          'close',
+          {
+            duration: 4000,
+            horizontalPosition: "center",
+            verticalPosition: "top",
+            panelClass: ['error-snackbar']
+          }
+        );
+      })
     }
   }
 
   goToRideSelectionPage() {
-
     if (!this.pickupLocation || !this.destinationLocation) {
-
       this.snackBar.open(
         "Please enter both pickup and destination.",
         'close',
@@ -174,29 +169,18 @@ export class PassengerLandingPage implements OnInit {
     this.rideRequestService.createRide(this.pickupLocation, this.destinationLocation)
       .subscribe({
         next: (response) => {
-    this.rideRequestService
-      .createRide(this.pickupLocation, this.destinationLocation)
-      .subscribe({
-        next: (response: any) => {
-
           console.log('Ride created:', response);
-
           this.passengerRideService.rideRequestId = response.rideRequestId;
-
           this.router.navigate(['/passenger/ride-selection']);
         },
-
         error: () => {
           this.snackBar.open(
-            "Failed to create ride. Please try again.",
-            'close',
-            {
-              duration: 3000,
-              horizontalPosition: "center",
-              verticalPosition: "top",
-              panelClass: ['error-snackbar']
-            }
-          );
+            "Failed to create ride. Please try again.", 'close', {
+            duration: 3000,
+            horizontalPosition: "center",
+            verticalPosition: "top",
+            panelClass: ['error-snackbar']
+          });
         }
       });
   }
@@ -210,6 +194,4 @@ export class PassengerLandingPage implements OnInit {
     this.destinationLocation = location;
     this.passengerRideService.destination = location;
   }
-
-  
 }

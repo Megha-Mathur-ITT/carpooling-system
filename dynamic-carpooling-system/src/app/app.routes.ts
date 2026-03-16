@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth-guard';
 import { noAuthGuard } from './core/guards/no-auth-guard';
 import { DRIVER_ROUTES } from './features/driver/driver.routes';
 import { PASSENGER_ROUTES } from './features/passenger/passenger.routes';
+import { roleGuard } from './core/guards/role-guard';
 
 export const routes: Routes = [
   {

@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hero',
+  standalone: true,
   imports: [NgIf],
   templateUrl: './hero.html',
   styleUrl: './hero.scss',
@@ -29,7 +30,7 @@ export class Hero implements OnInit {
   }
 
   goToPassengerPage() {
-    this.router.navigate(['/passenger/landing-page']);
+    this.router.navigate(['/passenger/landing']);
   }
 
   goToDriver() {

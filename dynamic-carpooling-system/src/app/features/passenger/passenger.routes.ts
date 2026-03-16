@@ -16,5 +16,12 @@ export const PASSENGER_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/passenger-ride-selection-page/passenger-ride-selection-page')
         .then(m => m.PassengerRideSelection)
+  },
+  {
+    path: 'passenger/ride-confirmation',  
+    canActivate: [authGuard, roleGuard('Passenger')],
+    loadComponent: () =>
+      import('./pages/passenger-ride-confirmation-page/passenger-ride-confirmation-page')
+        .then(m => m.PassengerRideConfirmationPage)
   }
 ];

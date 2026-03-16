@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-driver-details-card',
@@ -10,9 +9,10 @@ import { Input } from '@angular/core';
 })
 export class DriverDetailsCard {
   @Input() driverName!: string;
-  @Input() vehicleName!: string; 
+  @Input() vehicleName!: string;
   @Input() rating!: number;
   @Input() fare!: string;
   @Input() eta!: string;
 
+  @Output() onRequestRide  = new EventEmitter<void>()
 }

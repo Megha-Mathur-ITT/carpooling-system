@@ -19,8 +19,8 @@ export const noAuthGuard: CanActivateFn = () => {
 
   try {
     const decoded: any = jwtDecode(token);
-    const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-
+    const role = decoded['role'];
+    
     role === 'Driver'
       ? router.navigate(['/driver/landing'])
       : router.navigate(['/passenger/landing']);

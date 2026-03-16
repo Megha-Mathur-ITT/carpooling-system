@@ -1,0 +1,57 @@
+<app-navbar></app-navbar>
+
+<div class="container confirmation-wrapper">
+  <div class="confirmation-card">
+
+    <div *ngIf="rideStatus === 'waiting'" class="status-section">
+      <div class="spinner"></div>
+      <h2>Waiting for driver...</h2>
+      <p class="status-text">Your request has been sent to <strong>{{ selectedDriver?.driverName }}</strong></p>
+    </div>
+
+    <div *ngIf="rideStatus === 'accepted'" class="status-section accepted">
+      <div class="check-icon">✅</div>
+      <h2>Ride Accepted!</h2>
+      <p class="status-text"><strong>{{ selectedDriver?.driverName }}</strong> is on the way!</p>
+    </div>
+
+    <div *ngIf="rideStatus === 'rejected'" class="status-section rejected">
+      <div class="reject-icon">❌</div>
+      <h2>Ride Rejected</h2>
+      <p class="status-text">Driver declined your request. Going back to driver selection...</p>
+    </div>
+
+    <div class="ride-details">
+      <div class="detail-row">
+        <span class="label">📍 Pickup</span>
+        <span class="value">{{ pickup?.name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Destination</span>
+        <span class="value">{{ destination?.name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Driver</span>
+        <span class="value">{{ selectedDriver?.driverName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Vehicle</span>
+        <span class="value">{{ selectedDriver?.vehicleName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Distance</span>
+        <span class="value">{{ selectedDriver?.distanceKm }} km away</span>
+      </div>
+    </div>
+
+    <button 
+      *ngIf="rideStatus === 'waiting'"
+      class="cancel-btn" 
+      (click)="cancelRide()">
+      Cancel Ride
+    </button>
+
+  </div>
+</div>
+
+<app-footer></app-footer>

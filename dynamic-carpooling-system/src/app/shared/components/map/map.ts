@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 
 @Component({
@@ -16,15 +16,14 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   pickupMarker: any;
   destinationMarker: any;
   routingControl: any;
-  liveMarker: any;                   
+  liveMarker: any;
 
   private pendingPickup: any = null;
   private pendingDestination: any = null;
   private mapReady = false;
   private watchId: number | null = null;
 
-  isTracking = false;                 
-
+  isTracking = false;
   routeCoordinates: { lat: number; lng: number }[] = [];
 
   private defaultPickup = {
@@ -37,11 +36,12 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   @Input() destination: any;
   @Input() drivers: any[] = [];
   @Input() showRadiusCircle: boolean = false;
+  @Output() mapReady$ = new EventEmitter<void>();
 
   private driverMarkers: any[] = [];
   private radiusCircle: any = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   async ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -87,23 +87,27 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
     this.mapReady = true;
 
-    if (this.pendingPickup) {
-      this.applyPickup(this.pendingPickup);
+    setTimeout(() => {
+      this.mapReady$.emit(); // ✅ runs after change detection cycle
 
-      if (this.showRadiusCircle) {
-        this.addRadiusCircle(this.pendingPickup.latitude, this.pendingPickup.longitude);
+      if (this.pendingPickup) {
+        this.applyPickup(this.pendingPickup);
+        if (this.showRadiusCircle) {
+          this.addRadiusCircle(this.pendingPickup.latitude, this.pendingPickup.longitude);
+        }
+        this.pendingPickup = null;
       }
 
-      this.pendingPickup = null;
-    }
-    if (this.pendingDestination) {
-      this.applyDestination(this.pendingDestination);
-      this.pendingDestination = null;
-    }
+      if (this.pendingDestination) {
+        this.applyDestination(this.pendingDestination);
+        this.pendingDestination = null;
+      }
 
-    if (this.drivers?.length > 0) {
-      this.addDriverMarkers(this.drivers);
-    }
+      if (this.drivers?.length > 0) {
+        this.addDriverMarkers(this.drivers);
+      }
+    });
+
     this.startLiveLocation();
   }
 
@@ -112,7 +116,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-     if (!this.mapReady) {
+    if (!this.mapReady) {
       if (this.pickup) {
         this.pendingPickup = this.pickup;
       }
@@ -123,7 +127,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
       return;
     }
-    
+
     if (changes['pickup'] && this.pickup) {
       this.applyPickup(this.pickup);
 
@@ -145,7 +149,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
   }
-  
+
   startLiveLocation() {
     if (!navigator.geolocation) return;
 
@@ -280,7 +284,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     const start = this.pickupMarker.getLatLng();
-    const end   = this.destinationMarker.getLatLng();
+    const end = this.destinationMarker.getLatLng();
 
     this.routingControl = Routing.control({
       waypoints: [L.latLng(start.lat, start.lng), L.latLng(end.lat, end.lng)],
@@ -394,7 +398,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public updateDrivers(drivers: any[]) {
-   if (!this.mapReady) {
+    if (!this.mapReady) {
       return;
     }
 
@@ -412,15 +416,14 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
     this.map.setView([latitude, longitude], 15);
   }
-}
 
   private loadScriptOnce(id: string, src: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (document.getElementById(id)) { resolve(); return; }
       const script = document.createElement('script');
-      script.id  = id;
+      script.id = id;
       script.src = src;
-      script.onload  = () => resolve();
+      script.onload = () => resolve();
       script.onerror = () => reject(new Error(`Failed to load: ${src}`));
       document.head.appendChild(script);
     });

@@ -8,6 +8,7 @@ import { FormInput } from '../../../shared/ui/form-input/form-input';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth-service';
+import { SignalrService } from '../../../core/services/signalr';
 
 @Component({
   selector: 'app-login',
@@ -34,6 +35,7 @@ export class Login {
     private router: Router,
     private authService: AuthService,
     private snackBar: MatSnackBar,
+    private signalrService: SignalrService
   ) {
     this.buildLoginForm();
   }
@@ -64,6 +66,8 @@ export class Login {
 
     this.authService.login(payload).subscribe({
       next: () => {
+        this.signalrService.connect();
+        
         this.snackBar.open("Login successful!", 'close', {
           duration: 3000,
           horizontalPosition: "center",

@@ -10,6 +10,8 @@ import {
   ViewChild,
   ElementRef,
   HostListener,
+  NgZone,
+  inject,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -45,6 +47,8 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
 
   @ViewChild('inputRef') inputRef!: ElementRef<HTMLInputElement>;
 
+  private ngZone = inject(NgZone);
+
   query: string = '';
   results: any[] = [];
   isLoading = false;
@@ -70,11 +74,13 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
       this.popularCities.find((c) => c.name === this.defaultCity) ||
       this.popularCities[3];
 
-    this.locationSelected.emit({
-      latitude: def.latitude,
-      longitude: def.longitude,
-      name: def.name,
-    });
+    setTimeout(() => {
+      this.locationSelected.emit({
+        latitude: def.latitude,
+        longitude: def.longitude,
+        name: def.name,
+      });
+    })
 
     if (this.currentLocation) {
       this.query = this.currentLocation.name;
@@ -144,16 +150,16 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
       this.activeIndex = Math.min(this.activeIndex + 1, total - 1);
-    } 
+    }
     else if (event.key === 'ArrowUp') {
       event.preventDefault();
       this.activeIndex = Math.max(this.activeIndex - 1, 0);
-    } 
+    }
     else if (event.key === 'Enter') {
       if (this.activeIndex >= 0 && this.results[this.activeIndex]) {
         this.selectLocation(this.results[this.activeIndex]);
       }
-    } 
+    }
     else if (event.key === 'Escape') {
       this.showDropdown = false;
       this.inputRef.nativeElement.blur();
