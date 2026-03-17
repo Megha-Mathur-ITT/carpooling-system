@@ -5,24 +5,12 @@
 
     <div class="col-md-5 left-section border p-4" *ngIf="selectedDriver; else loading">
 
-      <div class="status-section mb-3" *ngIf="rideStatus === 'accepted'">
+      <div class="status-section mb-3">
         <div class="d-flex align-items-center gap-2 mb-2">
           <h5 class="mb-0 text-success">Ride Accepted!</h5>
         </div>
         <p class="text-muted mb-0">
           <strong>{{ selectedDriver.driverName }}</strong> has accepted your request and is on the way!
-        </p>
-      </div>
-
-      <div class="status-section mb-3" *ngIf="rideStatus === 'rejected'">
-        <h5 class="mb-0 text-danger">Ride Rejected</h5>
-        <p class="text-muted mb-0">Redirecting you back to driver selection...</p>
-      </div>
-
-      <div class="status-section mb-3" *ngIf="rideStatus === 'waiting'">
-        <h5 class="mb-0 text-warning">Waiting for Response</h5>
-        <p class="text-muted mb-0">
-          Waiting for <strong>{{ selectedDriver.driverName }}</strong> to respond...
         </p>
       </div>
 
@@ -52,10 +40,7 @@
 
       </div>
 
-      <button
-        class="btn btn-outline-danger w-100 mt-4"
-        (click)="cancelRide()"
-        *ngIf="rideStatus === 'waiting' || rideStatus === 'accepted'">
+      <button class="btn btn-outline-danger w-100 mt-4" (click)="cancelRide()">
         Cancel Ride
       </button>
 
@@ -66,9 +51,7 @@
     </ng-template>
 
     <div class="col-md-7 p-0">
-      <app-map
-        [pickup]="pickup"
-        [destination]="destination">
+      <app-map [pickup]="pickup" [destination]="destination">
       </app-map>
     </div>
 

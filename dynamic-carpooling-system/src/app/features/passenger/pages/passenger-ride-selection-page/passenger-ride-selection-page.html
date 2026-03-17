@@ -8,7 +8,6 @@
                     Ride Details
                 </h1>
 
-                <!-- Normal state — show drivers -->
                 <ng-container *ngIf="!isWaiting">
                     <h1 class="driver-list-heading">
                         Drivers List
@@ -29,9 +28,7 @@
                     </app-driver-details-card>
                 </ng-container>
 
-                <!-- Waiting state — after request sent -->
                 <div *ngIf="isWaiting" class="waiting-state">
-                    <div class="waiting-icon">⏳</div>
                     <h3>Request Sent!</h3>
                     <p>Waiting for <strong>{{ selectedDriver?.driverName }}</strong> to respond...</p>
                     <button class="btn btn-outline-danger mt-3" (click)="cancelRequest()">
