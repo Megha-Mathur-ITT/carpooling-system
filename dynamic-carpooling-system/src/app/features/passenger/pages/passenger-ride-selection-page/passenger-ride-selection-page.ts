@@ -115,11 +115,12 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         this.isLoading = false;
 
         if (error.status !== 404) {
-          this.snackBar.open(
-            'Could not load nearby drivers. Retrying in 10 seconds.',
-            'Close',
-            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-          );
+          this.snackBar.open("Could not load nearby drivers. Retrying in 10 seconds.", 'close', {
+            duration: 4000,
+            horizontalPosition: "center",
+            verticalPosition: "top",
+            panelClass: ['error-snackbar']
+          });
         }
 
         this.changeDetectorRef.detectChanges();
