@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Map } from './map';
+import { MapAnimation } from './map-animation';
 
-describe('Map', () => {
-  let service: Map;
+describe('MapAnimation', () => {
+  let service: MapAnimation;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Map);
+    service = TestBed.inject(MapAnimation);
   });
 
   it('should be created', () => {

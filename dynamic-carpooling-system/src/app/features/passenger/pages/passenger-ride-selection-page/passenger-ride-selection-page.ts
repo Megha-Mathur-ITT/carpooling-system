@@ -1,21 +1,30 @@
 import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
-import { DriverDetailsCard } from '../../../../shared/components/driver-details-card/driver-details-card';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequestService } from '../../../../core/services/ride-request-service';
-import { CommonModule } from '@angular/common';
 import { SignalrService } from '../../../../core/services/signalr';
-import { Subscription } from 'rxjs';
+import { RideSummary } from '../../components/ride-selection-page/ride-summary/ride-summary';
+import { NearbyDriversList } from '../../components/ride-selection-page/nearby-drivers-list/nearby-drivers-list';
 
 @Component({
   selector: 'app-passenger-ride-selection',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, Footer, DriverDetailsCard, MapComponent, MatSnackBarModule],
+  imports: [
+    CommonModule,
+    NavbarComponent,
+    Footer,
+    MapComponent,
+    MatSnackBarModule,
+    RideSummary,
+    NearbyDriversList
+  ],
   templateUrl: './passenger-ride-selection-page.html',
   styleUrl: './passenger-ride-selection-page.scss',
 })
@@ -115,11 +124,12 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         this.isLoading = false;
 
         if (error.status !== 404) {
-          this.snackBar.open(
-            'Could not load nearby drivers. Retrying in 10 seconds.',
-            'Close',
-            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-          );
+          this.snackBar.open("Could not load nearby drivers. Retrying in 10 seconds.", 'close', {
+            duration: 4000,
+            horizontalPosition: "center",
+            verticalPosition: "top",
+            panelClass: ['error-snackbar']
+          });
         }
 
         this.changeDetectorRef.detectChanges();

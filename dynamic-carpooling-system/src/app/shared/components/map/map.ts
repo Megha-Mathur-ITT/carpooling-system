@@ -318,6 +318,8 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         this.routeCoordinates = route.coordinates.map(
           (c: any) => ({ lat: c.lat, lng: c.lng })
         );
+
+        console.log("routeCoordinates: ", this.routeCoordinates);
       }
 
       if (this.showRadiusCircle && this.pickup) {
