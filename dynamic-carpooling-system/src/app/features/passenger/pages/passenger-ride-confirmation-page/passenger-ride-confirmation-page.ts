@@ -9,18 +9,6 @@ import { SignalrService } from '../../../../core/services/signalr';
 import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { Subscription } from 'rxjs';
 
-interface Location {
-  lat: number;
-  lng: number;
-  address: string;
-}
-
-interface Driver {
-  driverId: string;
-  driverName: string;
-  vehicleName: string;
-}
-
 @Component({
   selector: 'app-passenger-ride-confirmation',
   standalone: true,
@@ -30,20 +18,18 @@ interface Driver {
 })
 export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
 
-  pickup: Location | null = null;
-  destination: Location | null = null;
-  selectedDriver: Driver | null = null;
-  rideStatus: 'waiting' | 'accepted' | 'rejected' = 'waiting';
+  pickup: any = null;
+  destination: any = null;
+  selectedDriver: any = null;
 
   private sub: Subscription | null = null;
-  private redirectTimeout: any = null;
 
   constructor(
     private router: Router,
     private passengerRideService: PassengerRideService,
     private signalrService: SignalrService,
     private rideRequestService: RideRequestService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.pickup = this.passengerRideService.pickup;
@@ -52,37 +38,11 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
 
     if (!this.pickup || !this.selectedDriver) {
       this.router.navigate(['/passenger/landing']);
-      return;
     }
-
-    this.signalrService.resetRideState();
-
-    this.sub = this.signalrService.rideAccepted$.subscribe(response => {
-      if (response) {
-        this.rideStatus = 'accepted';
-      }
-    });
-
-    this.sub.add(this.signalrService.rideRejected$.subscribe(response => {
-      if (response) {
-        this.rideStatus = 'rejected';
-        this.redirectTimeout = setTimeout(() => {
-          this.router.navigate(['/passenger/ride-selection']);
-        }, 2000);
-      }
-    }));
   }
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
-    clearTimeout(this.redirectTimeout);
-  }
-
-  private clearRideState(): void {
-    this.passengerRideService.pickup = null;
-    this.passengerRideService.destination = null;
-    this.passengerRideService.selectedDriver = null;
-    this.passengerRideService.rideRequestId = null;
   }
 
   cancelRide() {
@@ -95,13 +55,21 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
           this.clearRideState();
           this.router.navigate(['/passenger/landing']);
         },
-        error: (err) => {
-          console.error('Failed to cancel ride:', err);
+        error: () => {
+          this.clearRideState();
+          this.router.navigate(['/passenger/landing']);
         }
       });
     } else {
       this.clearRideState();
       this.router.navigate(['/passenger/landing']);
     }
+  }
+
+  private clearRideState(): void {
+    this.passengerRideService.pickup = null;
+    this.passengerRideService.destination = null;
+    this.passengerRideService.selectedDriver = null;
+    this.passengerRideService.rideRequestId = null;
   }
 }
