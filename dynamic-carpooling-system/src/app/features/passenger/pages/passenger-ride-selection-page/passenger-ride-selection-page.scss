@@ -3,43 +3,62 @@
 .ride-selection-wrapper {
     margin-top: 60px;
     padding-bottom: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    @media (max-width: 768px) {
+        margin-top: 16px;
+        padding-bottom: 20px;
+    }
 }
 
 .landing-row {
     min-height: 500px;
+
+    @media (max-width: 991px) {
+        min-height: unset;
+        gap: 0;
+    }
 }
 
 .left-section {
     padding-right: 20px;
-}
-
-.passenger-heading, .driver-list-heading {
-    font-size: 36px;
-    font-weight: 700;
-    color: $primary-dark;
-    margin: 10px 0 16px 0;
-
-    @media (max-width: 768px) {
-        font-size: 26px;
-        margin: 8px 0 12px 0;
-    }
+    position: relative;
 
     @media (max-width: 991px) {
-        font-size: 26px;
-        margin: 8px 0 12px 0;
+        padding: 12px !important;
+        order: 2;
+        z-index: 0;
     }
 }
 
 .right-section {
     display: flex;
     justify-content: center;
-
-    @media (max-width: 768px) {
-        margin-top: 20px;
-    }
+    position: relative;
 
     @media (max-width: 991px) {
-        margin-top: 20px;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
+        order: 1;
+        z-index: 0;
+    }
+}
+
+.passenger-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: $primary-dark;
+    margin: 10px 0 12px 0;
+
+    @media (max-width: 991px) {
+        font-size: 22px;
+        margin: 8px 0 10px 0;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 20px;
     }
 }
 
@@ -47,18 +66,43 @@
     width: 100%;
     height: 420px;
     background: #f3f4f6;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $text-muted;
-    font-size: 14px;
+    border-radius: 14px;    
+    overflow: hidden;
+    position: relative; 
+    z-index: 0;  
 
-    @media (max-width: 768px) {
-        height: 300px;
+    @media (max-width: 991px) {
+        height: 240px;border-radius: 12px;  
+        margin: 12px 12px 0 12px;  
+        width: calc(100% - 24px); 
     }
 
-     @media (max-width: 991px) {
-        height: 300px;
+    @media (max-width: 480px) {
+        height: 200px;
+    }
+}
+
+.waiting-state {
+    text-align: center;
+    padding: 24px 16px;
+
+    h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: $primary-dark;
+        margin-bottom: 8px;
+
+        @media (max-width: 768px) {
+            font-size: 18px;
+        }
+    }
+
+    p {
+        font-size: 14px;
+        color: #6b7280;
+
+        @media (max-width: 768px) {
+            font-size: 13px;
+        }
     }
 }

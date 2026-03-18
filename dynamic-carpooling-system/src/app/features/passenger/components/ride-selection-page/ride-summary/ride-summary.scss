@@ -1,0 +1,66 @@
+@use 'abstracts/_variables' as *;
+
+.ride-summary {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+
+    @media (max-width: 768px) {
+        padding: 12px;
+        margin-bottom: 14px;
+    }
+}
+
+.route-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.dot-blue {
+    background: #2563EB;
+}
+
+.dot-red {
+    background: #ef4444;
+}
+
+.route-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.passenger-route-label {
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.passenger-route-value {
+    font-size: 14px;
+    font-family: 'Satoshi', sans-serif ;
+    font-weight: bold;
+    color: $text-muted;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.route-divider {
+    color: #9ca3af;
+    padding-left: 4px;
+    font-size: 14px;
+    margin: 4px 0;
+}

@@ -24,7 +24,7 @@ export class RideRequestService {
         latitude: destination.latitude,
         longitude: destination.longitude
       }
-    })
+    });
   }
 
   respondToRequest(
@@ -32,19 +32,19 @@ export class RideRequestService {
     status: 'Accepted' | 'Rejected'
   ): Observable<any> {
     const statusMap: Record<string, number> = {
-      'Accepted': 2,  
-      'Rejected': 3   
+      'Accepted': 2,
+      'Rejected': 3
     };
- 
+
     return this.http.put(`${this.baseUrl}/update/${requestId}`, {
       rideRequestStatus: statusMap[status]
     });
   }
 
   notifyDriver(requestId: string, driverId: string): Observable<any> {
-  return this.http.post(
-    `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
-  );
+    return this.http.post(
+      `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
+    );
   }
 
   cancelRide(rideRequestId: string): Observable<any> {

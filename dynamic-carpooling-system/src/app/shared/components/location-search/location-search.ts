@@ -195,7 +195,7 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
       const url =
         `https://nominatim.openstreetmap.org/search` +
         `?q=${encodeURIComponent(query)}` +
-        `&format=json&addressdetails=1&limit=7` + 
+        `&format=json&addressdetails=1&limit=7` +
         `&countrycodes=in&accept-language=en` +
         `&viewbox=68.0,8.0,97.5,37.5` +
         `&bounded=0`;
