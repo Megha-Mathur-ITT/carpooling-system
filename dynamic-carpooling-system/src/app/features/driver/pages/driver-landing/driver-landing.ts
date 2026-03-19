@@ -8,6 +8,7 @@ import { RideRequestPopup } from '../../components/ride-request-popup/ride-reque
 import { SelectedLocation } from '../../../../shared/components/location-search/location-search';
 import { SignalrService } from '../../../../core/services/signalr';
 import { Subscription } from 'rxjs';
+import {Router}  from '@angular/router';
 
 @Component({
   selector: 'app-driver-landing',
@@ -26,7 +27,8 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private signalrService: SignalrService
+    private signalrService: SignalrService , 
+    private router : Router
   ) { }
 
   ngOnInit() {
@@ -74,4 +76,5 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.isOnline = false;
     this.cdr.detectChanges();
   }
+
 }

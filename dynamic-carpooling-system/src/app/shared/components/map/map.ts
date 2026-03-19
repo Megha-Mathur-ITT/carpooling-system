@@ -37,6 +37,10 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   @Input() drivers: any[] = [];
   @Input() showRadiusCircle: boolean = false;
   @Output() mapReady$ = new EventEmitter<void>();
+  @Output() routeInfo = new EventEmitter<{
+    distanceKm: number;
+    durationMin: number;
+  }>();
 
   private driverMarkers: any[] = [];
   private radiusCircle: any = null;
@@ -320,6 +324,14 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         );
       }
 
+      const distanceKm = route.summary.totalDistance/1000;
+      const durationMin = route.summary.totalTime /60 ;
+
+      this.routeInfo.emit({
+        distanceKm: Number(distanceKm.toFixed(2)),
+        durationMin: Math.ceil(durationMin)
+      });
+      
       if (this.showRadiusCircle && this.pickup) {
         setTimeout(() => {
           this.fitToPickupArea(this.pickup.latitude, this.pickup.longitude);

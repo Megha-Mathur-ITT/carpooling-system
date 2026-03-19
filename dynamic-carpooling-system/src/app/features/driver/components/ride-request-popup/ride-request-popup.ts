@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, NgZone ,  ChangeDetectorRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RideRequestService } from '../../../../core/services/ride-request-service';
-
+import {Router } from '@angular/router';
 @Component({
   selector: 'app-ride-request-popup',
   imports: [CommonModule],
@@ -21,7 +21,8 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   constructor(
     private rideRequestService: RideRequestService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router : Router
   ) {}
 
   ngOnChanges() {
@@ -86,6 +87,9 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
       console.log('Accept success:', res);
       this.accepted.emit(); 
       this.isLoading = false; 
+      this.router.navigate(['/driver/ride-active'], {
+        state: { ride: res } 
+      });
     },
     error: (err) => { 
       console.error('Accept error:', err);
