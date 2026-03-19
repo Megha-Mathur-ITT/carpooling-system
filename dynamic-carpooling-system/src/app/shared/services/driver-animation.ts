@@ -60,10 +60,6 @@ export class DriverAnimation {
       opacity: 1,
       dashArray: '10, 6'
     }).addTo(this.map);
-
-    console.log('[Animation] Green polyline drawn with', this.coords.length, 'coords');
-    console.log('[Animation] First coord:', this.coords[0]);
-    console.log('[Animation] Last coord:', this.coords[this.coords.length - 1]);
   }
 
   private drawBluePolyline(
@@ -281,8 +277,6 @@ export class DriverAnimation {
     }
 
     this.drawBluePolyline(passengerToDestination);
-    console.log('[Animation] Blue polyline drawn with', passengerToDestination.length, 'coords');
-console.log('[Animation] Map instance:', this.map);
     const allCoords = [...driverToPassenger, ...passengerToDestination];
 
     const bounds = this.L.latLngBounds(allCoords.map(coords => [coords.latitude, coords.longitude]));

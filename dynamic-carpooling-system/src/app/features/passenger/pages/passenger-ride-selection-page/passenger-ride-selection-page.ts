@@ -70,7 +70,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         if (data) {
           this.isWaiting = false;
           this.changeDetectorRef.detectChanges();
-          
+
           this.snackBar.open(
             'Driver accepted your ride!',
             'Close',
@@ -140,7 +140,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
   selectDriver(driver: any) {
     this.selectedDriver = driver;
-    console.log("selected driver: ", this.selectedDriver);
 
     if (this.mapComponent) {
       this.mapComponent.centerOnDriver(driver.latitude, driver.longitude, driver.driverName);
