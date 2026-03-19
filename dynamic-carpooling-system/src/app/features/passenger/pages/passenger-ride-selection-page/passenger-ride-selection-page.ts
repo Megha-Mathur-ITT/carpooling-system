@@ -69,13 +69,14 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       this.signalrService.rideAccepted$.subscribe(data => {
         if (data) {
           this.isWaiting = false;
+          this.changeDetectorRef.detectChanges();
+
           this.snackBar.open(
             'Driver accepted your ride!',
             'Close',
             { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
           );
           this.router.navigate(['/passenger/ride-confirmation']);
-          this.changeDetectorRef.detectChanges();
         }
       })
     );
@@ -189,7 +190,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
             'Failed to send request.',
             'Close',
             { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-          );
+          );  
         }
       });
   }

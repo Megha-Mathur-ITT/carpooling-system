@@ -1,4 +1,4 @@
-import { Component, OnInit, afterNextRender, inject, NgZone } from '@angular/core';
+import { Component, OnInit, afterNextRender, inject, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -39,6 +39,7 @@ export class PassengerLandingPage implements OnInit {
     private snackBar: MatSnackBar,
     private passengerRideService: PassengerRideService,
     private rideRequestService: RideRequestService,
+    private changeDetectionRef: ChangeDetectorRef
   ) {
     afterNextRender(() => {
       this.detectCurrentLocation();
@@ -48,10 +49,22 @@ export class PassengerLandingPage implements OnInit {
   ngOnInit() {
     if (this.passengerRideService.pickup) {
       this.pickupLocation = this.passengerRideService.pickup;
+      this.changeDetectionRef.detectChanges();
     }
 
     if (this.passengerRideService.destination) {
       this.destinationLocation = this.passengerRideService.destination;
+      this.changeDetectionRef.detectChanges();
+    }
+
+    if(this.passengerRideService.city) {
+      this.city = this.passengerRideService.city;
+      this.changeDetectionRef.detectChanges();
+    }
+
+    if(this.passengerRideService.state) {
+      this.state = this.passengerRideService.state;
+      this.changeDetectionRef.detectChanges();
     }
   }
 
@@ -60,7 +73,7 @@ export class PassengerLandingPage implements OnInit {
       return;
     }
 
-    if (this.passengerRideService.pickup) {
+    if (this.passengerRideService.pickup && this.city && this.state) {
       return;
     }
 
@@ -117,14 +130,17 @@ export class PassengerLandingPage implements OnInit {
           '';
 
         this.state = address?.state ?? '';
+        this.passengerRideService.setCity(this.city);
+        this.passengerRideService.setState(this.state);
 
         this.pickupLocation = {
           latitude: latitude,
           longitude: longitude,
           name: data.display_name,
         };
+        this.passengerRideService.setPickup(this.pickupLocation);
 
-        this.passengerRideService.pickup = this.pickupLocation;
+        this.changeDetectionRef.detectChanges(); 
       })
 
     } catch (error) {
@@ -184,13 +200,15 @@ export class PassengerLandingPage implements OnInit {
       });
   }
 
-  setPickup(location: any) {
-    this.pickupLocation = location;
-    this.passengerRideService.pickup = location;
+  setPickup(pickup: any) {
+    this.pickupLocation = pickup;
+    this.passengerRideService.setPickup(pickup);
+    this.changeDetectionRef.detectChanges();
   }
 
-  setDestination(location: any) {
-    this.destinationLocation = location;
-    this.passengerRideService.destination = location;
+  setDestination(destination: any) {
+    this.destinationLocation = destination;
+    this.passengerRideService.setDestination(destination);
+    this.changeDetectionRef.detectChanges();
   }
 }

@@ -3,7 +3,7 @@
         <span class="dot dot-blue"></span>
         <div class="route-info">
             <span class="passenger-route-label">Pickup</span>
-            <span class="passenger-route-value">{{ pickup?.name }}</span>
+            <span class="passenger-route-value">{{ trimLocation(pickup?.name) }}</span>
         </div>
     </div>
 
@@ -11,7 +11,7 @@
         <span class="dot dot-red"></span>
         <div class="route-info">
             <span class="passenger-route-label">Destination</span>
-            <span class="passenger-route-value">{{ destination?.name }}</span>
+            <span class="passenger-route-value">{{ trimLocation(destination?.name) }}</span>
         </div>
     </div>
 </div>
