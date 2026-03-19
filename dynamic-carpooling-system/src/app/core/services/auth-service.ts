@@ -21,7 +21,7 @@ export class AuthService {
   constructor(
   private http: HttpClient,
   @Inject(PLATFORM_ID) private platformId: Object,
-  private signalrService: SignalrService          // ADD
+  private signalrService: SignalrService          
 ) {
   if (isPlatformBrowser(this.platformId)) {
     this.loadUserFromToken();
