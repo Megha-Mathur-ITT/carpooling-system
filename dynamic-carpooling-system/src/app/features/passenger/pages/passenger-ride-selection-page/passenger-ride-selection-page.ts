@@ -10,8 +10,10 @@ import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { SignalrService } from '../../../../core/services/signalr';
-import { RideSummary } from '../../components/ride-selection-page/ride-summary/ride-summary';
+import { RideSummary } from '../../components/common-components/ride-summary/ride-summary';
 import { NearbyDriversList } from '../../components/ride-selection-page/nearby-drivers-list/nearby-drivers-list';
+import { RideStatus } from '../../components/ride-confirmation-page/ride-status/ride-status';
+import { RideRequestPending } from '../../components/ride-selection-page/ride-request-pending/ride-request-pending';
 
 @Component({
   selector: 'app-passenger-ride-selection',
@@ -23,7 +25,8 @@ import { NearbyDriversList } from '../../components/ride-selection-page/nearby-d
     MapComponent,
     MatSnackBarModule,
     RideSummary,
-    NearbyDriversList
+    NearbyDriversList,
+    RideRequestPending
   ],
   templateUrl: './passenger-ride-selection-page.html',
   styleUrl: './passenger-ride-selection-page.scss',
@@ -153,7 +156,9 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
   }
 
   requestRide() {
-    if (!this.selectedDriver) return;
+    if (!this.selectedDriver) {
+      return;
+    }
 
     this.isRequesting = true;
     const rideRequestId = this.passengerRideService.rideRequestId;

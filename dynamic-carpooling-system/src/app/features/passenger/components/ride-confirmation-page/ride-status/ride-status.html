@@ -1,0 +1,53 @@
+<div class="status-section mb-3">
+    <!-- Ride acceptes section -->
+    @if(!isDriverArrived && !isRideStarted && !isReachedDestination) {
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <h5 class="mb-0 text-success">Ride Accepted!</h5>
+    </div>
+    <p class="text-muted mb-0">
+        <strong>{{ driver.driverName }}</strong> has accepted your request and is on the way!
+    </p>
+    }
+
+    <!-- Driver arrived section -->
+    @if(isDriverArrived && !isRideStarted && !isReachedDestination) {
+    <div class="d-flex align-items-center gap-2 mb-2 status-badge">
+        <span>&#128663;</span>
+        <h5 class="mb-0 text-success">Driver arrived!</h5>
+    </div>
+
+    <h5>{{ driver.driverName }} is here!</h5>
+    <p>Waiting at your pickup point.</p>
+
+    <!-- PIN verification section -->
+    @if(isDriverArrived) {
+    <div class="pin-verification-notice">
+        <p>&#128274; PIN verification required</p>
+        <small>Share your PIN with the driver to begin the trip</small>
+    </div>
+
+    <button class="button-start-ride" (click)="onStartRide.emit()">
+       &#10003; PIN Verified - Start Ride
+    </button>
+    }
+    }
+
+    <!-- Ride progress section -->
+    @if(isRideStarted && !isReachedDestination) {
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <h5 class="mb-0 text-success">Ride in progress!</h5>
+    </div>
+    <p class="text-muted mb-0">
+        Heading to <strong>{{ destination?.name?.split(',')[0] }}</strong>
+    </p>
+    }
+
+    <!-- Ride completed section -->
+    @if(isReachedDestination) {
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <h5 class="mb-0 text-success">Ride Completed</h5>
+    </div>
+        
+    <button class="button-pay">Pay your driver</button>
+    }
+</div>
