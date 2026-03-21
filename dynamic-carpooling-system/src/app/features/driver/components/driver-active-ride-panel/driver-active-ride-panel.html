@@ -71,4 +71,25 @@
         </button>
     </div>
 
+    @if(isPaymentPending) {
+    <div class="payment-confirmed">
+        <div class="payment-icon">#128181;</div>
+        <h3>Did you receive cash?</h3>
+        <p>Confirm that <strong>{{ activeRide?.passengerName }}</strong> paid the fare in cash.</p>
+
+        <div class="fare-badge">
+            ₹{{ activeRide?.fare ?? '-' }}
+        </div>
+
+        <div class="payment-actions">
+            <button class="button-deny-payment" (click)="denyCashReceived()">
+                Not Yet
+            </button>
+            <button class="button-confirm-payment" (click)="confirmCashReceived()">
+                Yes, Received
+            </button>
+        </div>
+    </div>
+    }
+
 </div>

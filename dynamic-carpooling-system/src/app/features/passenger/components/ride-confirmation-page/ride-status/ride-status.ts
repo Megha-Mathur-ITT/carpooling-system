@@ -15,4 +15,5 @@ export class RideStatus {
   @Input() isReachedDestination = false;
 
   @Output() onStartRide = new EventEmitter<void>();
+  @Output() onPayDriver = new EventEmitter<void>();
 }

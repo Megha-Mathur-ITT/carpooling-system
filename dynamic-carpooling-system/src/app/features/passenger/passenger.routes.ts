@@ -18,10 +18,17 @@ export const PASSENGER_ROUTES: Routes = [
         .then(m => m.PassengerRideSelection)
   },
   {
-    path: 'passenger/ride-confirmation',  
+    path: 'passenger/ride-confirmation',
     canActivate: [authGuard, roleGuard('Passenger')],
     loadComponent: () =>
       import('./pages/passenger-ride-confirmation-page/passenger-ride-confirmation-page')
         .then(m => m.PassengerRideConfirmationPage)
+  },
+  {
+    path: 'passenger/payment',
+    canActivate: [authGuard, roleGuard('Passenger')],
+    loadComponent: () => 
+      import('./pages/passenger-payment-page/passenger-payment-page')
+        .then(module => module.PassengerPaymentPage)
   }
 ];

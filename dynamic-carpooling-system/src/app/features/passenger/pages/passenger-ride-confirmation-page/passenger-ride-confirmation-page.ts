@@ -26,6 +26,8 @@ export class PassengerRideConfirmationPage implements OnInit {
   isRideStarted = false;
   isReachedDestination = false;
   passengerPin: string = '';
+  fare: number = 0;
+  distanceKm: number = 0;
 
   constructor(
     private router: Router,
@@ -122,6 +124,18 @@ export class PassengerRideConfirmationPage implements OnInit {
       },
       error: () => {
 
+      }
+    });
+  }
+
+  goToPayment() {
+    this.router.navigate(['passenger/payment'], {
+      state: {
+        fare: 200,
+        distanceKm: this.distanceKm,
+        driver: this.selectedDriver,  
+        pickup: this.passengerPickup,
+        destination: this.passengerDestination
       }
     });
   }

@@ -1,0 +1,42 @@
+<app-navbar></app-navbar>
+
+<div class="payment-wrapper">
+    <div class="payment-car">
+        <div class="payment-header">
+            <span class="payment-icon">&#128663;</span>
+            <h2>Pay your Driver</h2>
+            <p>Your ride has been completed. Please pay the fare in cash.</p>
+        </div>
+
+        <div class="fare-display">
+            <span class="fare-label">Total Fare</span>
+            <span class="fare-amount">₹{{ fare }}</span>
+        </div>
+
+        <div class="ride-informations">
+            <div class="ride-information-row">
+                <span class="ride-information-label">Driver</span>
+                <span class="ride-information-value">{{ driver?.driverName }}</span>
+            </div>
+            <div class="ride-information-row">
+                <span class="ride-information-label">Vehicle</span>
+                <span class="ride-information-value">{{ driver?.vehicleName }}</span>
+            </div>
+            <div class="ride-information-row">
+                <span class="ride-information-label">Distance</span>
+                <span class="ride-information-value">{{ distanceKm }} km</span>
+            </div>
+        </div>
+
+        <div class="cash-notice">
+            <span>&#128181;</span>
+            <p>This is a <strong>cash payment</strong>. Please hand the fare directly to your driver.</p>
+        </div>
+
+        <button class="button-confirm-payment" (click)="confirmPayment()">
+            &#10003; I've Paid - Confirm
+        </button>
+    </div>
+</div>
+
+<app-footer></app-footer>
