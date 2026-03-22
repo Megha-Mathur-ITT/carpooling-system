@@ -28,24 +28,11 @@
     }
 
     @if(isPaymentPending) {
-    <div class="payment-confirmed">
-        <h3><i class="fa-solid fa-sack-dollar fa-flip" style="color: rgb(165, 245, 5);"></i> Did you received cash?</h3>
-        <p>Confirm that <strong>{{ activeRide?.passengerName }}</strong> paid the fare in cash.</p>
-
-        <div class="fare-badge">
-            <i class="fa-solid fa-indian-rupee-sign" style="color: rgb(165, 245, 5);"></i>
-            {{ activeRide?.fare ?? '-' }}
-        </div>
-
-        <div class="payment-actions">
-            <button class="button-deny-payment" (click)="denyCashReceived()">
-                Not Yet
-            </button>
-            <button class="button-confirm-payment" (click)="confirmCashReceived()">
-                Yes, Received
-            </button>
-        </div>
-    </div>
+    <app-payment-confirm
+        [activeRide]="activeRide"
+        (confirmed)="onPaymentConfirmed()"
+        (denied)="onPaymentDenied()"
+    ></app-payment-confirm>
     }
 
 </div>

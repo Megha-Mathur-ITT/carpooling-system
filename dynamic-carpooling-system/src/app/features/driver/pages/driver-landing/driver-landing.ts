@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -9,6 +9,7 @@ import { RideRequestPopup } from '../../components/ride-request-popup/ride-reque
 import { SelectedLocation } from '../../../../shared/components/location-search/location-search';
 import { SignalrService } from '../../../../core/services/signalr';
 import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel/driver-active-ride-panel';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-driver-landing',
@@ -28,17 +29,27 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private signalrService: SignalrService
+    private signalrService: SignalrService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   ngOnInit() {
     this.signalrService.connect();
 
+    if(isPlatformBrowser(this.platformId)) {
+      const savedDriverActiveSession = sessionStorage.getItem("driver_active_ride");
+
+      if(savedDriverActiveSession) {
+        this.activeRide = JSON.parse(savedDriverActiveSession);
+        this.isOnline = true;
+
+        this.cdr.detectChanges();
+      }
+    }
+
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
       if (request) {
-        console.log("Driver received request:", request);
         this.incomingRequest = request;
-        console.log("incomingRequest in DL: ", this.incomingRequest);
         this.cdr.detectChanges();
       }
     });
@@ -58,7 +69,9 @@ export class DriverLanding implements OnInit, OnDestroy {
       fare: 200 
     }
 
-    console.log("activeRide: ", this.activeRide);
+    if(isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem("driver_active_ride", JSON.stringify(this.activeRide));
+    }
 
     this.incomingRequest = null;
     this.cdr.detectChanges();
@@ -90,12 +103,22 @@ export class DriverLanding implements OnInit, OnDestroy {
   }
 
   onRideCompleted() {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem('driver_active_ride');
+      sessionStorage.removeItem('driver_payment_pending');
+    }
+
     this.activeRide = null;
     this.isOnline = false;
     this.cdr.detectChanges();
   }
 
   onRideCancelled() {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem('driver_active_ride');
+      sessionStorage.removeItem('driver_payment_pending');
+    }
+
     this.activeRide = null;
     this.cdr.detectChanges();
   }

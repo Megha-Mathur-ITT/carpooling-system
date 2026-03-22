@@ -1,9 +1,10 @@
-import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy, NgZone, ChangeDetectorRef, ApplicationRef } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { Subscription } from 'rxjs';
+import { filter, first } from 'rxjs/operators';
 import { SignalrService } from '../../../../core/services/signalr';
 
 @Component({
@@ -31,19 +32,31 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
     private signalrService: SignalrService,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
-    private appRef: ApplicationRef
   ) { }
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
+    
+    this.signalrService.connect(); 
 
-    const state = this.router.getCurrentNavigation()?.extras?.state ?? history.state;
+    if (!this.loadState()) {
+      return;
+    }
+
+    this.restoreWaitingState();
+    this.listenToPaymentConfirmEvent();
+    this.listenToPaymentDeniedEvent();
+  }
+
+  private loadState(): boolean {
+    const freshNavigationState = this.router.getCurrentNavigation()?.extras?.state;
+    const state = freshNavigationState ?? history.state ?? JSON.parse(sessionStorage.getItem('payment_state') || 'null');
 
     if (!state?.fare) {
       this.router.navigate(['/passenger/landing']);
-      return;
+      return false;
     }
 
     this.fare = state.fare;
@@ -54,8 +67,34 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
     this.driverId = state.driverId;
     this.rideRequestId = state.rideRequestId;
 
+    return true;
+  }
+
+  private restoreWaitingState() {
+    this.isWaitingForDriver = sessionStorage.getItem('payment_waiting') === 'true';
+
+    if (this.isWaitingForDriver) {
+      this.subs.push(
+        this.signalrService.connectionStatus$.pipe(
+          filter(status => status === "connected"),
+          first()
+        ).subscribe(status => {
+          if (status === "connected") {
+            this.signalrService.notifyDriverPassengerPaid(
+              this.driverId,
+              this.rideRequestId
+            );
+          }
+        })
+      );
+    }
+  }
+
+  private listenToPaymentConfirmEvent() {
     this.subs.push(
       this.signalrService.paymentConfirmed$.subscribe(data => {
+        sessionStorage.removeItem('payment_waiting');
+
         if (data) {
           this.router.navigate(['/passenger/receipt'], {
             state: {
@@ -69,10 +108,14 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
         }
       })
     );
+  }
 
+  private listenToPaymentDeniedEvent() {
     this.subs.push(
       this.signalrService.paymentDenied$.subscribe(data => {
         if (data) {
+          sessionStorage.removeItem("payment_waiting");
+
           this.ngZone.run(() => {
             this.isWaitingForDriver = false;
             this.isPaymentDenied = true;
@@ -87,6 +130,7 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
   confirmPayment() {
     this.isWaitingForDriver = true;
     this.isPaymentDenied = false;
+    sessionStorage.setItem("payment_waiting", "true");
 
     this.signalrService.notifyDriverPassengerPaid(
       this.driverId,
@@ -95,6 +139,11 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    sessionStorage.removeItem("payment_state");
     this.subs.forEach(sub => sub.unsubscribe());
   }
 }

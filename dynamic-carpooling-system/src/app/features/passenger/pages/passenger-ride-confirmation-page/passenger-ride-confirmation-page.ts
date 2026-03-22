@@ -55,15 +55,15 @@ export class PassengerRideConfirmationPage implements OnInit {
       longitude: this.selectedDriver.longitude
     });
 
-      this.driverLocation = {
-        latitude: this.selectedDriver.latitude,
-        longitude: this.selectedDriver.longitude,
-        name: this.selectedDriver.driverName,
-        popupLabel: `<b>Driver start point:</b> ${address}`
-      };
+    this.driverLocation = {
+      latitude: this.selectedDriver.latitude,
+      longitude: this.selectedDriver.longitude,
+      name: this.selectedDriver.driverName,
+      popupLabel: `<b>Driver start point:</b> ${address}`
+    };
 
-      this.changeDetectorRef.markForCheck();
-      
+    this.changeDetectorRef.markForCheck();
+
     setTimeout(() => {
       if (this.mapComponent && this.selectedDriver && this.passengerPickup) {
         this.mapComponent.startDriverAnimation(
@@ -90,7 +90,7 @@ export class PassengerRideConfirmationPage implements OnInit {
     const pin = this.passengerPin || '------';
     return pin.split('');
   }
-  
+
   startDestinationRide(): void {
     this.isRideStarted = true;
     this.isDriverArrived = false;
@@ -112,6 +112,7 @@ export class PassengerRideConfirmationPage implements OnInit {
       next: (response) => {
         this.ngZone.run(() => {
           this.passengerPin = response.pin;
+          
           this.changeDetectorRef.detectChanges();
         });
       },
@@ -122,16 +123,21 @@ export class PassengerRideConfirmationPage implements OnInit {
   }
 
   goToPayment() {
+    const paymentState = {
+      fare: 200,
+      distanceKm: this.distanceKm,
+      driver: this.selectedDriver,
+      pickup: this.passengerPickup,
+      destination: this.passengerDestination,
+      driverId: this.selectedDriver.driverId,
+      rideRequestId: this.passengerRideService.rideRequestId
+    };
+
+    sessionStorage.setItem("payment_state", JSON.stringify(paymentState));
+
     this.router.navigate(['passenger/payment'], {
-      state: {
-        fare: 200,
-        distanceKm: this.distanceKm,
-        driver: this.selectedDriver,
-        pickup: this.passengerPickup,
-        destination: this.passengerDestination,
-        driverId: this.selectedDriver.driverId,
-        rideRequestId: this.passengerRideService.rideRequestId
-      }
+      state: paymentState
     });
+
   }
 }
