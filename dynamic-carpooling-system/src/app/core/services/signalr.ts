@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import * as signalR from '@microsoft/signalr';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +15,10 @@ export class SignalrService {
   rideRequested$ = new BehaviorSubject<any>(null);
   rideAccepted$ = new BehaviorSubject<any>(null);
   rideRejected$ = new BehaviorSubject<any>(null);
-  paymentConfirmed$ = new BehaviorSubject<any>(null);
-  paymentDenied$ = new BehaviorSubject<any>(null);
+
+  paymentConfirmed$ = new Subject<any>();
+  paymentDenied$ = new Subject<any>();
+  passengerPaid$ = new Subject<any>();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
@@ -111,20 +113,17 @@ export class SignalrService {
     this.connection.on('PaymentConfirmed', (data) => {
       console.log('[SignalR] PaymentConfirmed received:', data);
       this.paymentConfirmed$.next(data);
-      setTimeout(() => {
-        this.paymentConfirmed$.next(null);
-      },
-        100);
     });
 
     this.connection.on('PaymentDenied', (data) => {
       console.log('[SignalR] PaymentDenied received:', data);
       this.paymentDenied$.next(data);
-      setTimeout(() => {
-        this.paymentDenied$.next(null)
-      },
-        100);
     });
+
+    this.connection.on('PassengerPaid', (data) => {
+      console.log("[SignalR] PassengerPaid received:", data);
+      this.passengerPaid$.next(data);
+    })
   }
 
   notifyDriver(
@@ -191,11 +190,26 @@ export class SignalrService {
       return;
     }
 
+    console.log("requestId received in signalr: ", rideRequestId);
     this.connection.invoke('DenyPayment', {
       passengerId,
       rideRequestId
     }).catch(error =>
       console.error('[SignalR] DenyPayment failed:', error)
+    );
+  }
+
+  notifyDriverPassengerPaid(driverId: string, rideRequestId: string): void {
+    if (!this.connection) {
+      console.warn('[SignalR] Not connected. Cannot deny payment.');
+      return;
+    }
+
+    this.connection.invoke("NotifyDriverPassengerPaid", {
+      driverId,
+      rideRequestId
+    }).catch(error =>
+      console.error('[SignalR] NotifyDriverPassengerPaid failed:', error)
     );
   }
 }

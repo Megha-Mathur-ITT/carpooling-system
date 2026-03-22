@@ -5,80 +5,36 @@
             <span class="live-dot"></span>
             Active Ride
         </div>
-        <span class="ride-id" *ngIf="activeRide?.rideRequestId">
-            #{{ activeRide.rideRequestId | slice:0:8 }}
-        </span>
     </div>
 
+    @if(!isPaymentPending) {
     <div class="info-card">
         <div class="card-label">
             <i class="bi bi-person-fill"></i>
-            Passenger
-        </div>
-        <div class="passenger-row">
-            <div class="avatar">
-                {{ passengerInitial }}
-            </div>
-            <div class="passenger-details">
-                <span class="passenger-name">{{ activeRide?.passengerName || 'Passenger' }}</span>
-            </div>
-            <button class="call-btn" title="Call Passenger">
-                <i class="bi bi-telephone-fill"></i>
-            </button>
+            Passenger:
+            <span class="passenger-name">{{ activeRide?.passengerName || 'Passenger' }}</span>
         </div>
     </div>
 
     <div class="info-card">
-        <div class="card-label">
-            <i class="bi bi-map-fill"></i>
-            Trip Route
-        </div>
-
-        <div class="route-item">
-            <div class="route-dot blue"></div>
-            <div class="route-text">
-                <span class="route-label">Pickup</span>
-                <span class="route-value">{{ activeRide?.pickupName || '—' }}</span>
-            </div>
-        </div>
-
-        <div class="route-divider">
-            <div class="dashed-line"></div>
-        </div>
-
-        <div class="route-item">
-            <div class="route-dot red"></div>
-            <div class="route-text">
-                <span class="route-label">Drop-off</span>
-                <span class="route-value">{{ activeRide?.destinationName || '—' }}</span>
-            </div>
-        </div>
+        <app-ride-summary [pickup]="activeRide?.pickupName"
+            [destination]="activeRide?.destinationName"></app-ride-summary>
     </div>
 
     <div class="status-strip">
         <i class="bi bi-car-front-fill"></i>
         <span>Drive to pickup point</span>
     </div>
-
-    <div class="action-row">
-        <button class="btn-complete" (click)="completeRide()">
-            <i class="bi bi-check-lg"></i>
-            Complete Ride
-        </button>
-        <button class="btn-cancel-ride" (click)="cancelRide()">
-            <i class="bi bi-x-lg"></i>
-            Cancel
-        </button>
-    </div>
+    }
 
     @if(isPaymentPending) {
     <div class="payment-confirmed">
-        <div class="payment-icon">#128181;</div>
-        <h3>Did you receive cash?</h3>
+        <h3><i class="fa-solid fa-sack-dollar fa-flip" style="color: rgb(165, 245, 5);"></i> Did you received cash?</h3>
         <p>Confirm that <strong>{{ activeRide?.passengerName }}</strong> paid the fare in cash.</p>
 
         <div class="fare-badge">
-            ₹{{ activeRide?.fare ?? '-' }}
+            <i class="fa-solid fa-indian-rupee-sign" style="color: rgb(165, 245, 5);"></i>
+            {{ activeRide?.fare ?? '-' }}
         </div>
 
         <div class="payment-actions">

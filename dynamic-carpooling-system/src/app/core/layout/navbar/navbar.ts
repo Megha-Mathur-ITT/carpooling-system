@@ -37,7 +37,7 @@ export class NavbarComponent {
 
   logout() {
     this.authService.logout();
-    // this.router.navigate(['/auth/login']);
+    this.router.navigate(['/']);
   }
 
   isCollapsed = true;

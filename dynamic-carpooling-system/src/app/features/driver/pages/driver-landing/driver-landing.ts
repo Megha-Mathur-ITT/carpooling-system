@@ -1,4 +1,5 @@
 import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
@@ -7,11 +8,11 @@ import { RideForm } from '../../components/ride-form/ride-form';
 import { RideRequestPopup } from '../../components/ride-request-popup/ride-request-popup';
 import { SelectedLocation } from '../../../../shared/components/location-search/location-search';
 import { SignalrService } from '../../../../core/services/signalr';
-import { Subscription } from 'rxjs';
+import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel/driver-active-ride-panel';
 
 @Component({
   selector: 'app-driver-landing',
-  imports: [MapComponent, NavbarComponent, Footer, Toggler, RideForm, RideRequestPopup],
+  imports: [MapComponent, NavbarComponent, Footer, Toggler, RideForm, RideRequestPopup, DriverActiveRidePanel],
   templateUrl: './driver-landing.html',
   styleUrl: './driver-landing.scss',
 })
@@ -21,6 +22,7 @@ export class DriverLanding implements OnInit, OnDestroy {
   destination: SelectedLocation | null = null;
   isOnline = false;
   incomingRequest: any = null;
+  activeRide: any = null;
 
   private sub!: Subscription;
 
@@ -31,11 +33,12 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.signalrService.connect();
-      
+
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
       if (request) {
-      console.log("Driver received request:", request);
+        console.log("Driver received request:", request);
         this.incomingRequest = request;
+        console.log("incomingRequest in DL: ", this.incomingRequest);
         this.cdr.detectChanges();
       }
     });
@@ -46,6 +49,17 @@ export class DriverLanding implements OnInit, OnDestroy {
   }
 
   onRequestAccepted() {
+    this.activeRide = {
+      rideRequestId: this.incomingRequest.requestId,
+      passengerName: this.incomingRequest.passengerName,
+      passengerId: this.incomingRequest.passengerId,
+      pickupName: this.incomingRequest.pickup,
+      destinationName: this.incomingRequest.destination,
+      fare: 200 
+    }
+
+    console.log("activeRide: ", this.activeRide);
+
     this.incomingRequest = null;
     this.cdr.detectChanges();
   }
@@ -72,6 +86,17 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   onSessionStopped() {
     this.isOnline = false;
+    this.cdr.detectChanges();
+  }
+
+  onRideCompleted() {
+    this.activeRide = null;
+    this.isOnline = false;
+    this.cdr.detectChanges();
+  }
+
+  onRideCancelled() {
+    this.activeRide = null;
     this.cdr.detectChanges();
   }
 }

@@ -1,3 +1,5 @@
+@use 'abstracts/_variables' as *;
+
 $accent: #2563eb;
 $accent-light: #eff6ff;
 $success: #16a34a;
@@ -213,45 +215,7 @@ $text-muted: #6b7280;
     margin-top: 4px;
 }
 
-.btn-complete {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 0;
-    background: $success;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-
-    &:hover {
-        background: darken($success, 6%);
-    }
-}
-
-.btn-cancel-ride {
-    padding: 11px 18px;
-    border: 1.5px solid $border;
-    background: transparent;
-    color: $text-muted;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.15s, color 0.15s;
-
-    &:hover {
-        border-color: $danger;
-        color: $danger;
-    }
-}
-
-.payment-confirmation {
+.payment-confirmed {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -270,17 +234,16 @@ $text-muted: #6b7280;
 
   p {
     font-size: 14px;
-    color: #6b7280;
+    color: $text-muted;
     margin: 0;
   }
 
   .fare-badge {
     background: $primary-dark;
     color: $accent-green;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 800;
-    font-family: monospace;
-    padding: 12px 28px;
+    padding: 12px 18px;
     border-radius: 12px;
     letter-spacing: 2px;
   }

@@ -5,7 +5,7 @@ import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-import { RideSummary } from '../../components/common-components/ride-summary/ride-summary';
+import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { AuthService } from '../../../../core/services/auth-service';
 import { RideStatus } from '../../components/ride-confirmation-page/ride-status/ride-status';
 import { reverseGeocode, trimLocation } from '../../../../shared/utils/locationUtil';
@@ -55,7 +55,6 @@ export class PassengerRideConfirmationPage implements OnInit {
       longitude: this.selectedDriver.longitude
     });
 
-    this.ngZone.run(() => {
       this.driverLocation = {
         latitude: this.selectedDriver.latitude,
         longitude: this.selectedDriver.longitude,
@@ -63,11 +62,8 @@ export class PassengerRideConfirmationPage implements OnInit {
         popupLabel: `<b>Driver start point:</b> ${address}`
       };
 
-      this.changeDetectorRef.detectChanges();
-    });
-
-    this.changeDetectorRef.detectChanges();
-
+      this.changeDetectorRef.markForCheck();
+      
     setTimeout(() => {
       if (this.mapComponent && this.selectedDriver && this.passengerPickup) {
         this.mapComponent.startDriverAnimation(
@@ -90,14 +86,11 @@ export class PassengerRideConfirmationPage implements OnInit {
     this.loadPin();
   }
 
-  private clearRideState(): void {
-    this.passengerRideService.setPickup(null);
-    this.passengerRideService.setDestination(null);
-
-    this.passengerRideService.selectedDriver = null;
-    this.passengerRideService.rideRequestId = null;
+  get passengerPinDigits(): string[] {
+    const pin = this.passengerPin || '------';
+    return pin.split('');
   }
-
+  
   startDestinationRide(): void {
     this.isRideStarted = true;
     this.isDriverArrived = false;
@@ -133,9 +126,11 @@ export class PassengerRideConfirmationPage implements OnInit {
       state: {
         fare: 200,
         distanceKm: this.distanceKm,
-        driver: this.selectedDriver,  
+        driver: this.selectedDriver,
         pickup: this.passengerPickup,
-        destination: this.passengerDestination
+        destination: this.passengerDestination,
+        driverId: this.selectedDriver.driverId,
+        rideRequestId: this.passengerRideService.rideRequestId
       }
     });
   }

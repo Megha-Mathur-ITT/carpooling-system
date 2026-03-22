@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { trimLocation } from '../../../../../shared/utils/locationUtil';
 
 @Component({
   selector: 'app-ride-status',
@@ -16,4 +17,6 @@ export class RideStatus {
 
   @Output() onStartRide = new EventEmitter<void>();
   @Output() onPayDriver = new EventEmitter<void>();
+
+  readonly trimLocation = trimLocation;
 }

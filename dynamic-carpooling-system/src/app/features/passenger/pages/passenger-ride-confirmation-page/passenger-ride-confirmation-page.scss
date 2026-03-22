@@ -22,32 +22,53 @@
 
 .pin-box {
   background: $primary-dark;
-  border-radius: 14px;
-  padding: 20px 16px;
+  border-radius: 16px;
+  padding: 14px 10px;
   text-align: center;
-  margin: 16px 0;
+  margin: 11px 0;
+  position: relative;
+  overflow: hidden;
 
-  p {
-    font-size: 12px;
-    font-weight: 700;
-    color: $accent-green;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
+  &::before {
+    content: '';
+    position: absolute;
+    height: 120px;
+    border-radius: 50%;
   }
 
-  .pin-digits {
-    font-size: 38px;
-    font-weight: 800;
-    letter-spacing: 12px;
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  .pin-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
     color: $accent-green;
-    font-family: monospace;
-    margin: 4px 0 10px;
+    text-transform: uppercase;
+  }
+
+  .pin-digits-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .pin-digit {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.123);
+    border: 1px solid rgba($accent-green, 0.25);
+    border-radius: 10px;
+    font-size: 26px;
+    color: $accent-green;
   }
 
   small {
     font-size: 12px;
-    color: rgba(255,255,255,0.45);
+    color: rgba(255, 255, 255, 0.4);
   }
 }
 

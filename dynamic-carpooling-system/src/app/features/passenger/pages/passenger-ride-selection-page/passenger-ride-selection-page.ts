@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -10,9 +10,8 @@ import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { SignalrService } from '../../../../core/services/signalr';
-import { RideSummary } from '../../components/common-components/ride-summary/ride-summary';
+import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { NearbyDriversList } from '../../components/ride-selection-page/nearby-drivers-list/nearby-drivers-list';
-import { RideStatus } from '../../components/ride-confirmation-page/ride-status/ride-status';
 import { RideRequestPending } from '../../components/ride-selection-page/ride-request-pending/ride-request-pending';
 
 @Component({
@@ -52,7 +51,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private passengerRideService: PassengerRideService,
     private rideRequestService: RideRequestService,
     private changeDetectorRef: ChangeDetectorRef,
-    private signalrService: SignalrService
+    private signalrService: SignalrService,
+    private ngZone: NgZone
   ) {
     this.pickupLocation = this.passengerRideService.pickup;
     this.destinationLocation = this.passengerRideService.destination;
@@ -71,15 +71,17 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.subs.push(
       this.signalrService.rideAccepted$.subscribe(data => {
         if (data) {
-          this.isWaiting = false;
-          this.changeDetectorRef.detectChanges();
+          this.ngZone.run(() => {
+            this.isWaiting = false;
 
-          this.snackBar.open(
-            'Driver accepted your ride!',
-            'Close',
-            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
-          );
-          this.router.navigate(['/passenger/ride-confirmation']);
+            this.snackBar.open(
+              'Driver accepted your ride!',
+              'Close',
+              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
+            );
+
+            this.router.navigate(['/passenger/ride-confirmation']);
+          });
         }
       })
     );
@@ -87,14 +89,18 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.subs.push(
       this.signalrService.rideRejected$.subscribe(data => {
         if (data) {
-          this.isWaiting = false;
-          this.selectedDriver = null;
-          this.snackBar.open(
-            'Driver declined. Please choose another.',
-            'Close',
-            { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-          );
-          this.changeDetectorRef.detectChanges();
+          this.ngZone.run(() => {
+            this.isWaiting = false;
+            this.selectedDriver = null;
+
+            this.snackBar.open(
+              'Driver declined. Please choose another.',
+              'Close',
+              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+            );
+
+            this.changeDetectorRef.detectChanges();
+          })
         }
       })
     );
@@ -195,7 +201,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
             'Failed to send request.',
             'Close',
             { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-          );  
+          );
         }
       });
   }

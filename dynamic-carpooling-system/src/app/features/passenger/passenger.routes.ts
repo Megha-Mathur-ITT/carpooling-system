@@ -27,8 +27,15 @@ export const PASSENGER_ROUTES: Routes = [
   {
     path: 'passenger/payment',
     canActivate: [authGuard, roleGuard('Passenger')],
-    loadComponent: () => 
+    loadComponent: () =>
       import('./pages/passenger-payment-page/passenger-payment-page')
         .then(module => module.PassengerPaymentPage)
+  },
+  {
+    path: 'passenger/receipt',
+    canActivate: [authGuard, roleGuard('Passenger')],
+    loadComponent: () =>
+      import('../../shared/components/ride-receipt/ride-receipt')
+        .then(module => module.RideReceipt)
   }
 ];

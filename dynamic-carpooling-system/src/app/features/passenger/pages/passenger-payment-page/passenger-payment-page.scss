@@ -15,7 +15,7 @@
   padding: 40px 32px;
   max-width: 480px;
   width: 100%;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -68,38 +68,6 @@
   }
 }
 
-.ride-informations {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.ride-information-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f3f4f6;
-
-  &:last-child { border-bottom: none; }
-
-  .ride-information-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #9ca3af;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-
-  .ride-information-value {
-    font-size: 14px;
-    font-weight: 600;
-    color: $primary-dark;
-  }
-}
-
 .cash-notice {
   display: flex;
   align-items: flex-start;
@@ -109,7 +77,9 @@
   border-radius: 10px;
   padding: 14px;
 
-  span { font-size: 20px; }
+  span {
+    font-size: 20px;
+  }
 
   p {
     font-size: 13px;
@@ -130,5 +100,24 @@
   cursor: pointer;
   transition: opacity 0.2s;
 
-  &:hover { opacity: 0.88; }
+  &:hover {
+    opacity: 0.88;
+  }
+}
+
+.payment-denied-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #cc0000;
+  }
 }

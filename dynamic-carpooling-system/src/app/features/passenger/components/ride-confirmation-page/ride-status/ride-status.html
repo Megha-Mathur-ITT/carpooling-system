@@ -1,53 +1,58 @@
-<div class="status-section mb-3">
+<div class="status-section">
     <!-- Ride acceptes section -->
     @if(!isDriverArrived && !isRideStarted && !isReachedDestination) {
-    <div class="d-flex align-items-center gap-2 mb-2">
-        <h5 class="mb-0 text-success">Ride Accepted!</h5>
+    <div class="status-badge green">
+        <span class="dot"></span>
+        On the way
     </div>
-    <p class="text-muted mb-0">
-        <strong>{{ driver.driverName }}</strong> has accepted your request and is on the way!
+    <h5>Ride Accepted!</h5>
+    <p>
+        <strong>{{ driver.driverName }}</strong> has accepted your request and is heading to your pickup.
     </p>
     }
 
     <!-- Driver arrived section -->
     @if(isDriverArrived && !isRideStarted && !isReachedDestination) {
-    <div class="d-flex align-items-center gap-2 mb-2 status-badge">
-        <span>&#128663;</span>
-        <h5 class="mb-0 text-success">Driver arrived!</h5>
+    <div class="status-badge blue">
+        <span class="dot"></span>
+        Arrived
     </div>
-
     <h5>{{ driver.driverName }} is here!</h5>
     <p>Waiting at your pickup point.</p>
 
     <!-- PIN verification section -->
     @if(isDriverArrived) {
     <div class="pin-verification-notice">
-        <p>&#128274; PIN verification required</p>
-        <small>Share your PIN with the driver to begin the trip</small>
+        <p>PIN verification required</p>
+        <small>Share your PIN with the driver to begin</small>
     </div>
 
     <button class="button-start-ride" (click)="onStartRide.emit()">
-       &#10003; PIN Verified - Start Ride
+        PIN Verified - Start Ride
     </button>
     }
     }
 
     <!-- Ride progress section -->
     @if(isRideStarted && !isReachedDestination) {
-    <div class="d-flex align-items-center gap-2 mb-2">
-        <h5 class="mb-0 text-success">Ride in progress!</h5>
+    <div class="status-badge amber">
+        <span class="dot"></span>
+        In progress
     </div>
-    <p class="text-muted mb-0">
-        Heading to <strong>{{ destination?.name?.split(',')[0] }}</strong>
+    <h5>Ride in progress!</h5>
+    <p>
+        Heading to <strong>{{ trimLocation(destination?.name)}}</strong>
     </p>
     }
 
     <!-- Ride completed section -->
     @if(isReachedDestination) {
-    <div class="d-flex align-items-center gap-2 mb-2">
-        <h5 class="mb-0 text-success">Ride Completed</h5>
+    <div class="status-badge teal">
+        <span class="dot"></span>
+        Completed    
     </div>
-        
+    <h5>Ride Completed</h5>
+    <p>You've arrived. Please pay your driver.</p>
     <button class="button-pay" (click)="onPayDriver.emit()">
         Pay your driver
     </button>
