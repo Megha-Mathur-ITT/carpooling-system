@@ -8,11 +8,21 @@ import { RideRequestPopup } from '../../components/ride-request-popup/ride-reque
 import { SelectedLocation } from '../../../../shared/components/location-search/location-search';
 import { SignalrService } from '../../../../core/services/signalr';
 import { Subscription } from 'rxjs';
-import {Router}  from '@angular/router';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-driver-landing',
-  imports: [MapComponent, NavbarComponent, Footer, Toggler, RideForm, RideRequestPopup],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MapComponent,
+    NavbarComponent,
+    Footer,
+    Toggler,
+    RideForm,
+    RideRequestPopup
+  ],
   templateUrl: './driver-landing.html',
   styleUrl: './driver-landing.scss',
 })
@@ -27,19 +37,41 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private signalrService: SignalrService , 
-    private router : Router
-  ) { }
+    private signalrService: SignalrService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.signalrService.connect();
-      
+
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
-      if (request) {
-      console.log("Driver received request:", request);
-        this.incomingRequest = request;
-        this.cdr.detectChanges();
+      if (!request) return;
+
+      const incomingId = request.rideRequestId ?? request.requestId;
+      const existingId = this.incomingRequest?.requestId ?? this.incomingRequest?.rideRequestId;
+
+      if (incomingId && existingId && incomingId === existingId) {
+        return;
       }
+
+      this.incomingRequest = {
+        requestId: incomingId,
+        sessionId: request.sessionId,
+        passengerName: request.passengerName,
+        pickup: {
+          latitude: request.pickupLat,
+          longitude: request.pickupLng,
+          name: request.pickupName
+        },
+        destination: {
+          latitude: request.destinationLat,
+          longitude: request.destinationLng,
+          name: request.destinationName
+      }
+    };
+
+      console.log('Driver received request:', this.incomingRequest);
+      this.cdr.detectChanges();
     });
   }
 
@@ -76,5 +108,4 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.isOnline = false;
     this.cdr.detectChanges();
   }
-
 }

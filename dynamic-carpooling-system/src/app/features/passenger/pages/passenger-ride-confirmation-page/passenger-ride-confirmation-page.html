@@ -17,16 +17,11 @@
       <hr>
 
       <div class="ride-details">
-
-        <div class="detail-row">
-          <span class="detail-label">Pickup</span>
-          <span class="detail-value">{{ pickup?.address }}</span>
-        </div>
-
-        <div class="detail-row">
-          <span class="detail-label">Destination</span>
-          <span class="detail-value">{{ destination?.address }}</span>
-        </div>
+        
+        <app-ride-summary 
+          [pickup]="passengerPickup" 
+          [destination]="passengerDestination"
+        ></app-ride-summary>
 
         <div class="detail-row">
           <span class="detail-label">Driver</span>
@@ -36,6 +31,11 @@
         <div class="detail-row">
           <span class="detail-label">Vehicle</span>
           <span class="detail-value">{{ selectedDriver.vehicleName }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">License plate</span>
+          <span class="detail-value">{{ selectedDriver.licensePlate }}</span>
         </div>
 
       </div>
@@ -51,7 +51,10 @@
     </ng-template>
 
     <div class="col-md-7 p-0">
-      <app-map [pickup]="pickup" [destination]="destination">
+      <app-map 
+        [pickup]="driverLocation" 
+        [destination]="passengerPickup" 
+        [showRoute]="false">
       </app-map>
     </div>
 

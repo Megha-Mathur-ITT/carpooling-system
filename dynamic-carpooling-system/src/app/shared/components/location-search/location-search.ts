@@ -13,8 +13,8 @@ import {
   NgZone,
   inject,
 } from '@angular/core';
-
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 export interface SelectedLocation {
   latitude: number;
@@ -33,7 +33,7 @@ interface PopularCity {
 @Component({
   selector: 'app-location-search',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './location-search.html',
   styleUrls: ['./location-search.scss'],
 })
@@ -41,14 +41,11 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   private cache = new Map<string, any[]>();
 
   @Input() placeholder: string = 'Search for a location...';
-  @Input() defaultCity: string = 'Jaipur';
   @Input() currentLocation: any;
 
   @Output() locationSelected = new EventEmitter<SelectedLocation>();
 
   @ViewChild('inputRef') inputRef!: ElementRef<HTMLInputElement>;
-
-  private ngZone = inject(NgZone);
 
   query: string = '';
   results: any[] = [];
@@ -71,25 +68,11 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   ];
 
   ngOnInit() {
+    this.query = '';
+
     if (this.currentLocation) {
       this.query = this.currentLocation.name;
       return;
-    }
-
-    const def =
-      this.popularCities.find((c) => c.name === this.defaultCity) ||
-      this.popularCities[3];
-
-    setTimeout(() => {
-      this.locationSelected.emit({
-        latitude: def.latitude,
-        longitude: def.longitude,
-        name: def.name,
-      });
-    })
-
-    if (this.currentLocation) {
-      this.query = this.currentLocation.name;
     }
   }
 
@@ -130,10 +113,9 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onInput(event: Event) {
+  onInput(value: string) {
     clearTimeout(this.debounceTimer);
-
-    const value = (event.target as HTMLInputElement).value;
+    
     this.query = value;
     this.activeIndex = -1;
     this.showDropdown = true;
@@ -195,7 +177,7 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
       const url =
         `https://nominatim.openstreetmap.org/search` +
         `?q=${encodeURIComponent(query)}` +
-        `&format=json&addressdetails=1&limit=7` + 
+        `&format=json&addressdetails=1&limit=7` +
         `&countrycodes=in&accept-language=en` +
         `&viewbox=68.0,8.0,97.5,37.5` +
         `&bounded=0`;
@@ -246,11 +228,19 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   getMainName(place: any): string {
+    if (!place?.display_name) {
+      return '';
+    }
+
     const parts = place.display_name?.split(',') || [];
     return parts.slice(0, 3).join(',').trim();
   }
 
   getSubName(place: any): string {
+    if (!place?.display_name) {
+      return '';
+    }
+
     const parts = place.display_name?.split(',') || [];
     return parts.slice(3, 6).join(',').trim();
   }
@@ -310,7 +300,9 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   highlight(text: string, query: string): string {
-    if (!query || !text) return text;
+    if (!query || !text) {
+      return text || '';
+    }
 
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 

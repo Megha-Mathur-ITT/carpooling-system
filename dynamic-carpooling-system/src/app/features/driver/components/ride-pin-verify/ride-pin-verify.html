@@ -1,1 +1,57 @@
-<p>ride-pin-verify works!</p>
+<div class="pin-verify-wrapper">
+  <div class="pin-card">
+
+    <div class="pin-card__icon">
+      <i class="bi bi-lock-fill"></i>
+    </div>
+
+    <h2 class="pin-card__title">Verify ride PIN</h2>
+    <p class="pin-card__subtitle">Ask passenger for their 6-digit PIN</p>
+
+    <div class="pin-row" [class.pin-row--error]="state === 'error'">
+      @for (ctrl of pinControls.controls; track $index) {
+        <input
+          #pinBox
+          class="pin-box"
+          [class.pin-box--active]="boxState($index) === 'active'"
+          [class.pin-box--filled]="boxState($index) === 'filled'"
+          [class.pin-box--error]="boxState($index) === 'error'"
+          [formControl]="$any(ctrl)"
+          type="tel"
+          inputmode="numeric"
+          maxlength="1"
+          autocomplete="off"
+          [attr.aria-label]="'PIN digit ' + ($index + 1)"
+          (keydown)="onKeyDown($event, $index)"
+          (input)="onInput($event, $index)"
+          (paste)="onPaste($event, $index)"
+        />
+      }
+    </div>
+
+    <div class="pin-status"
+         [class.pin-status--success]="state === 'success'"
+         [class.pin-status--error]="state === 'error'"
+         [class.pin-status--info]="state === 'loading'">
+      {{ statusMessage }}
+    </div>
+
+    <button
+      class="verify-btn"
+      [class.verify-btn--loading]="state === 'loading'"
+      [class.verify-btn--success]="state === 'success'"
+      [disabled]="!isComplete || state === 'loading' || state === 'success'"
+      (click)="verify()">
+      @if (state === 'loading') {
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        Verifying…
+      } @else if (state === 'success') {
+        <i class="bi bi-check-lg me-1"></i>
+        Boarding confirmed
+      } @else {
+        Verify PIN
+      }
+    </button>
+
+  </div>
+</div>
