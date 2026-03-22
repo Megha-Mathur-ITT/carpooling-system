@@ -9,14 +9,14 @@
     <div class="field-group">
       <label class="field-label">
         <span class="dot dot-blue"></span>
-        Pickup
+        Your Location
       </label>
       <div class="gps-display" *ngIf="currentLocationName">
         <i class="bi bi-geo-alt-fill me-2 text-primary"></i>
         <span>{{ currentLocationName }}</span>
       </div>
       <div class="override-hint">
-        <app-location-search placeholder="Override pickup location..." (locationSelected)="onPickupSelected($event)">
+        <app-location-search placeholder="Override current location..." (locationSelected)="onPickupSelected($event)">
         </app-location-search>
       </div>
     </div>

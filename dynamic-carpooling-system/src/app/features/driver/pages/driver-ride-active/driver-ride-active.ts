@@ -1,64 +1,133 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {PassengerDetails } from '../../components/passenger-details/passenger-details';
-import { NavbarComponent } from '../../../../core/layout/navbar/navbar'; 
+import { Router } from '@angular/router';
+import { NgZone } from '@angular/core';
+import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
-import { isPlatformBrowser } from '@angular/common';
-import { Inject, PLATFORM_ID } from '@angular/core';
 import { MapComponent } from '../../../../shared/components/map/map';
-import {Router} from '@angular/router';
+import { PassengerDetails } from '../../components/passenger-details/passenger-details';
+import { RidePinVerify } from '../../components/ride-pin-verify/ride-pin-verify';
+import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
+import { Subscription } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-driver-ride-active',
   standalone: true,
   imports: [
     CommonModule,
-    PassengerDetails,
     NavbarComponent,
+    Footer,
     MapComponent,
-    Footer
-],
+    PassengerDetails,
+    RidePinVerify
+  ],
   templateUrl: './driver-ride-active.html',
-  styleUrls: ['./driver-ride-active.scss'],
+  styleUrls: ['./driver-ride-active.scss']
 })
+export class DriverRideActive implements OnInit, OnDestroy {
 
-export class DriverRideActive {
-  rideData: any;
-  rideLoaded = false; 
+  rideData: any = null;
+  rideLoaded: boolean = false;
 
-  distanceKm: number = 0;
-  durationMin: number = 0;
-  fare: number = 0;
+  passengerName: string = '';
 
-  hasReachedPickup = false;
+  showPinVerification: boolean = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    if (isPlatformBrowser(this.platformId)) {
-      this.rideData = history.state?.ride ?? null;
-      console.log('RideData (constructor):', this.rideData);
-      console.log('Full rideData:', JSON.stringify(this.rideData, null, 2));
-    }
-  }
+  private sub: Subscription | null = null;
+
+  @ViewChild(MapComponent) mapComponent!: MapComponent;
+
+  constructor(
+    private router: Router,
+    public passengerRideService: PassengerRideService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-     this.rideLoaded = true; 
+
+    const pickup = this.passengerRideService.pickup;
+    const destination = this.passengerRideService.destination;
+    const driver = this.passengerRideService.selectedDriver;
+    this.passengerName = this.passengerRideService.passengerName;
+
+    console.log('Service Data:', pickup, destination, driver);
+
+    if (!pickup || !destination || !driver) {
+      this.router.navigate(['/driver/landing']);
+      return;
+    }
+
+    this.rideData = {
+      passengerName : this.passengerName,
+      pickup,
+      destination,
+      driver
+    };
+
+    
+    this.rideLoaded = true;
+
+    setTimeout(() => {
+      if (
+        this.mapComponent &&
+        this.rideData?.driver?.latitude &&
+        this.rideData?.driver?.longitude &&
+        this.rideData?.pickup?.latitude &&
+        this.rideData?.pickup?.longitude &&
+        this.rideData?.destination?.latitude &&
+        this.rideData?.destination?.longitude
+      ) {
+
+        this.mapComponent.onDriverReachedPickup(() => {
+
+            this.ngZone.run(() => {
+              this.showPinVerification = true;
+              this.cdr.markForCheck();
+          });
+        });
+        
+        console.log('Starting animation...');
+
+        this.mapComponent.startDriverAnimation(
+          this.rideData.driver.latitude,
+          this.rideData.driver.longitude,
+          this.rideData.pickup.latitude,
+          this.rideData.pickup.longitude,
+          this.rideData.destination.latitude,
+          this.rideData.destination.longitude
+        );
+      } else {
+        console.error('Missing coordinates → animation not started', this.rideData);
+      }
+    }, 1500);
   }
 
   onRouteInfo(data: { distanceKm: number; durationMin: number }) {
-    this.distanceKm = data.distanceKm;
-    this.durationMin = data.durationMin;
-    this.fare = Math.round(this.distanceKm * 9); 
+    this.passengerRideService.setRouteInfo(data.distanceKm, data.durationMin);
   }
 
-  markArrivedAtPickup(): void {
-    this.hasReachedPickup = true;
+
+  onDriverReached() {
+    console.log('SHOW PIN NOW');
+
+    this.ngZone.run(() => {
+      this.showPinVerification = true;
+    });
   }
- 
+
+  get ridePin(): string {
+    return this.passengerRideService.pin;
+  }
+
   onPinVerified(pin: string): void {
-    console.log('PIN verified:', pin);
+    this.showPinVerification = false;
+    // TODO: navigate to ride-in-progress or call backend to confirm boarding
   }
- 
-  onResendPin(): void {
-    console.log('Resend PIN requested');
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
   }
 }

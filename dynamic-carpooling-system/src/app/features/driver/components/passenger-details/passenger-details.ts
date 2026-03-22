@@ -13,4 +13,5 @@ export class PassengerDetails {
   @Input() distance: number = 0;
   @Input() eta: number = 0;
   @Input() fare: number = 0;
+
 }

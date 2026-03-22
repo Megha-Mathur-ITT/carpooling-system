@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { DriverLanding } from './pages/driver-landing/driver-landing';
 import { DriverDashboard} from './pages/driver-dashboard/driver-dashboard';
-import { DriverRideActive } from './pages/driver-ride-active/driver-ride-active';
+import { DriverRideActive } from '../driver/pages/driver-ride-active/driver-ride-active';
 import { authGuard } from '../../core/guards/auth-guard';
 
 export const DRIVER_ROUTES: Routes = [
@@ -11,7 +11,7 @@ export const DRIVER_ROUTES: Routes = [
     children: [
       { path: 'landing', component: DriverLanding},
       { path: 'dashboard', component: DriverDashboard },
-      {path : 'ride-active' , component : DriverRideActive}
+      {path : 'ride-active' , component :DriverRideActive}
     ]
   }
-];
+];  
