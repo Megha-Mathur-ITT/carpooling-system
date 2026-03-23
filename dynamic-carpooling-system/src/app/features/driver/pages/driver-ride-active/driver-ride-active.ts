@@ -10,7 +10,7 @@ import { RidePinVerify } from '../../components/ride-pin-verify/ride-pin-verify'
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { Subscription } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
-
+import { BookingService } from '../../../../core/services/booking-service';
 
 @Component({
   selector: 'app-driver-ride-active',
@@ -43,7 +43,8 @@ export class DriverRideActive implements OnInit, OnDestroy {
     private router: Router,
     public passengerRideService: PassengerRideService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private bookingService: BookingService
   ) {}
 
   ngOnInit() {
@@ -123,8 +124,16 @@ export class DriverRideActive implements OnInit, OnDestroy {
   }
 
   onPinVerified(pin: string): void {
-    this.showPinVerification = false;
-    // TODO: navigate to ride-in-progress or call backend to confirm boarding
+    this.bookingService.verifyPin(this.passengerRideService.bookingId, pin)
+      .subscribe({
+        next: () => {
+          this.showPinVerification = false;
+          this.router.navigate(['/driver/trip-details']);
+        },
+        error: (err: any) => {
+          console.error('PIN verify failed:', err);
+        }
+      });
   }
 
   ngOnDestroy() {
