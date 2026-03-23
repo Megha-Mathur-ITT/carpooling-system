@@ -15,6 +15,7 @@ export class SignalrService {
   rideRequested$ = new BehaviorSubject<any>(null);
   rideAccepted$ = new BehaviorSubject<any>(null);
   rideRejected$ = new BehaviorSubject<any>(null);
+  requestCancelled$ = new BehaviorSubject<any>(null);
 
   paymentConfirmed$ = new Subject<any>();
   paymentDenied$ = new Subject<any>();
@@ -90,8 +91,8 @@ export class SignalrService {
       setTimeout(() => this.rideRejected$.next(null), 100);
     });
 
-    this.connection.on('RideCancelled', (data) => {
-      console.log('[SignalR] RideCancelled received:', data);
+    this.connection.on('RequestCancelled', (data) => {
+      console.log('[SignalR] RequestCancelled received:', data);
       this.rideRequested$.next(null);
     });
 
@@ -155,15 +156,21 @@ export class SignalrService {
     this.rideRejected$.next(null);
   }
 
-  notifyCancelRide(rideRequestId: string): void {
+  notifyCancelRequest(
+    rideRequestId: string,
+    driverId: string
+  ): void {
     if (!this.connection) {
       console.warn('[SignalR] Not connected. Cannot cancel ride.');
       return;
     }
 
-    this.connection.invoke('CancelRide', { rideRequestId })
+    this.connection.invoke('CancelRequest', { 
+      rideRequestId,
+      driverId
+    })
       .catch(error => {
-        console.error('[SignalR] CancelRide failed:', error);
+        console.error('[SignalR] CancelRequest failed:', error);
       });
   }
 
@@ -190,7 +197,6 @@ export class SignalrService {
       return;
     }
 
-    console.log("requestId received in signalr: ", rideRequestId);
     this.connection.invoke('DenyPayment', {
       passengerId,
       rideRequestId

@@ -75,15 +75,12 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   accept() {
   this.stopTimer();
   this.isLoading = true;
-  console.log('Accepting request:', this.request);
-  console.log('requestId:', this.request.requestId);
   
   this.rideRequestService.respondToRequest(
     this.request.requestId,
     'Accepted'
   ).subscribe({
     next: (res) => { 
-      console.log('Accept success:', res);
       this.accepted.emit(); 
       this.isLoading = false; 
     },

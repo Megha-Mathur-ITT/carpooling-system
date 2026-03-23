@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, OnInit, OnDestroy, NgZone, Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -38,6 +38,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
   isLoading = false;
   isRequesting = false;
   isWaiting = false;
+  rideRequestId: any = null;
 
   private refreshInterval: any;
   private subs: Subscription[] = [];
@@ -52,55 +53,82 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private rideRequestService: RideRequestService,
     private changeDetectorRef: ChangeDetectorRef,
     private signalrService: SignalrService,
-    private ngZone: NgZone
-  ) {
-    this.pickupLocation = this.passengerRideService.pickup;
-    this.destinationLocation = this.passengerRideService.destination;
-  }
+    private ngZone: NgZone,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) { }
 
   ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.pickupLocation = this.passengerRideService.pickup;
+    this.destinationLocation = this.passengerRideService.destination;
+    this.rideRequestId = this.passengerRideService.rideRequestId;
+
     if (!this.pickupLocation) {
       this.router.navigate(['/passenger/landing']);
       return;
     }
 
+    if (!this.destinationLocation) {
+      this.router.navigate(['/passenger/landing']);
+      return;
+    }
+
+    if (!this.passengerRideService.rideRequestId) {
+      this.router.navigate(['/passenger/landing']);
+      return;
+    }
+
+    this.signalrService.resetRideState();
     this.signalrService.connect();
     this.loadNearbyDrivers();
     this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 10000);
 
-    this.subs.push(
-      this.signalrService.rideAccepted$.subscribe(data => {
-        if (data) {
-          this.ngZone.run(() => {
-            this.isWaiting = false;
+    this.listenToRideAcceptedEvent();
+    this.listenToRideRejectedEvent();
+  }
 
-            this.snackBar.open(
-              'Driver accepted your ride!',
-              'Close',
-              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
-            );
-
-            this.router.navigate(['/passenger/ride-confirmation']);
-          });
-        }
-      })
-    );
-
+  private listenToRideRejectedEvent() {
     this.subs.push(
       this.signalrService.rideRejected$.subscribe(data => {
         if (data) {
           this.ngZone.run(() => {
             this.isWaiting = false;
             this.selectedDriver = null;
-
-            this.snackBar.open(
-              'Driver declined. Please choose another.',
-              'Close',
-              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-            );
-
             this.changeDetectorRef.detectChanges();
+            
+            setTimeout(() => {
+              this.snackBar.open(
+                'Driver declined. Please choose another.',
+                'Close',
+                { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+              );
+            })
           })
+        }
+      })
+    );
+  }
+
+  private listenToRideAcceptedEvent() {
+    this.subs.push(
+      this.signalrService.rideAccepted$.subscribe(data => {
+        if (data) {
+          this.ngZone.run(() => {
+            this.isWaiting = false;
+            this.changeDetectorRef.detectChanges();
+            setTimeout(() => {
+              this.snackBar.open(
+                'Driver accepted your ride!',
+                'Close',
+                { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
+              );
+            })
+
+            this.router.navigate(['/passenger/ride-confirmation']);
+          });
         }
       })
     );
@@ -157,8 +185,9 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
   cancelRequest() {
     this.isWaiting = false;
-    this.selectedDriver = null;
     this.changeDetectorRef.detectChanges();
+
+    this.signalrService.notifyCancelRequest(this.rideRequestId, this.selectedDriver.driverId);
   }
 
   requestRide() {
@@ -186,7 +215,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       this.destinationLocation
     );
 
-    this.passengerRideService.selectedDriver = this.selectedDriver;
+    this.passengerRideService.setSelectedDriver(this.selectedDriver);
 
     this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
       .subscribe({

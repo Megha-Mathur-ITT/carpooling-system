@@ -68,7 +68,6 @@ export class RideForm {
   private fetchVehicle(): void {
     this.rideSessionService.getMyVehicle().subscribe({
       next: (vehicle: any) => {
-        console.log('[RideForm] Vehicle fetched:', vehicle);
         this.vehicleId = vehicle.vehicleId;
         this.seatCount = vehicle.maxSeats;
       },
@@ -103,8 +102,6 @@ export class RideForm {
       dropoff: this.destination!.name,
       availableSeats: this.seatCount
     };
-
-    console.log('[RideForm] Sending dto:', JSON.stringify(dto));
 
     this.rideSessionService.startSession(dto).subscribe({
       next: () => {

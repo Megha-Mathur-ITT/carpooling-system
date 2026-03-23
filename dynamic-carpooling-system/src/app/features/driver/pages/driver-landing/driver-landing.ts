@@ -36,10 +36,10 @@ export class DriverLanding implements OnInit, OnDestroy {
   ngOnInit() {
     this.signalrService.connect();
 
-    if(isPlatformBrowser(this.platformId)) {
+    if (isPlatformBrowser(this.platformId)) {
       const savedDriverActiveSession = sessionStorage.getItem("driver_active_ride");
 
-      if(savedDriverActiveSession) {
+      if (savedDriverActiveSession) {
         this.activeRide = JSON.parse(savedDriverActiveSession);
         this.isOnline = true;
 
@@ -50,6 +50,13 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
       if (request) {
         this.incomingRequest = request;
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.signalrService.rideRequested$.subscribe(request => {
+      if (request === null && this.incomingRequest !== null) {
+        this.incomingRequest = null;
         this.cdr.detectChanges();
       }
     });
@@ -66,10 +73,10 @@ export class DriverLanding implements OnInit, OnDestroy {
       passengerId: this.incomingRequest.passengerId,
       pickupName: this.incomingRequest.pickup,
       destinationName: this.incomingRequest.destination,
-      fare: 200 
+      fare: 200
     }
 
-    if(isPlatformBrowser(this.platformId)) {
+    if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem("driver_active_ride", JSON.stringify(this.activeRide));
     }
 

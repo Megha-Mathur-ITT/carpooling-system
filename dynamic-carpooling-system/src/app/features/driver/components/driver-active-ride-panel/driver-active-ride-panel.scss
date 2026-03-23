@@ -130,24 +130,6 @@ $text-muted: #6b7280;
     }
 }
 
-.call-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: $success-bg;
-    color: $success;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.15s;
-
-    &:hover {
-        background: darken($success-bg, 4%);
-    }
-}
-
 .route-card {
     border: 1px solid $border;
     border-radius: 12px;

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -35,17 +35,16 @@ export class PassengerRideConfirmationPage implements OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private authService: AuthService,
     private ngZone: NgZone
-  ) {
-    this.passengerPickup = this.passengerRideService.pickup;
-    this.passengerDestination = this.passengerRideService.destination;
-
-    this.selectedDriver = this.passengerRideService.selectedDriver;
-  }
+  ) { }
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
 
   async ngOnInit() {
-    if (!this.passengerPickup || !this.selectedDriver) {
+    this.passengerPickup = this.passengerRideService.pickup;
+    this.passengerDestination = this.passengerRideService.destination;
+    this.selectedDriver = this.passengerRideService.selectedDriver;
+
+    if (!this.passengerPickup || !this.passengerDestination || !this.selectedDriver) {
       this.router.navigate(['/passenger/landing']);
       return;
     }
@@ -112,7 +111,7 @@ export class PassengerRideConfirmationPage implements OnInit {
       next: (response) => {
         this.ngZone.run(() => {
           this.passengerPin = response.pin;
-          
+
           this.changeDetectorRef.detectChanges();
         });
       },
@@ -138,6 +137,5 @@ export class PassengerRideConfirmationPage implements OnInit {
     this.router.navigate(['passenger/payment'], {
       state: paymentState
     });
-
   }
 }
