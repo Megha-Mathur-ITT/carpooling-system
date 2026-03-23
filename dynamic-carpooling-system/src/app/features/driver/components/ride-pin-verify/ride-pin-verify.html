@@ -8,7 +8,7 @@
     <h2 class="pin-card__title">Verify ride PIN</h2>
     <p class="pin-card__subtitle">Ask passenger for their 6-digit PIN</p>
 
-    <div class="pin-row" [class.pin-row--error]="state === 'error'">
+    <div class="pin-row" [class.pin-row--error]="state === 'error' || state === 'redirecting'">
       @for (ctrl of pinControls.controls; track $index) {
         <input
           #pinBox
@@ -32,7 +32,8 @@
     <div class="pin-status"
          [class.pin-status--success]="state === 'success'"
          [class.pin-status--error]="state === 'error'"
-         [class.pin-status--info]="state === 'loading'">
+         [class.pin-status--info]="state === 'loading'"
+         [class.pin-status--redirecting]="state === 'redirecting'">
       {{ statusMessage }}
     </div>
 
@@ -40,14 +41,16 @@
       class="verify-btn"
       [class.verify-btn--loading]="state === 'loading'"
       [class.verify-btn--success]="state === 'success'"
-      [disabled]="!isComplete || state === 'loading' || state === 'success'"
+      [disabled]="!isComplete || state === 'loading' || state === 'success' || state === 'redirecting'"
       (click)="verify()">
       @if (state === 'loading') {
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        Verifying…
+        Verifying...
       } @else if (state === 'success') {
         <i class="bi bi-check-lg me-1"></i>
         Boarding confirmed
+      } @else if (state === 'redirecting') {
+        Redirecting...
       } @else {
         Verify PIN
       }

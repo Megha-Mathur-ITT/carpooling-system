@@ -26,6 +26,7 @@ export class DriverLanding implements OnInit, OnDestroy {
   activeRide: any = null;
 
   private sub!: Subscription;
+  private platformId = inject(PLATFORM_ID);
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -34,7 +35,23 @@ export class DriverLanding implements OnInit, OnDestroy {
     private router: Router
   ) { }
 
+  
   ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+    const savedPickup = sessionStorage.getItem('pickup');
+    if (savedPickup) {
+      this.pickup = JSON.parse(savedPickup);
+    }
+
+    const savedDestination = sessionStorage.getItem('destination');
+    if (savedDestination) {
+      this.destination = JSON.parse(savedDestination);
+    }
+
+    const savedOnline = sessionStorage.getItem('isOnline');
+    this.isOnline = savedOnline === 'true';
+  }
+
     this.signalrService.connect();
 
     if (isPlatformBrowser(this.platformId)) {
@@ -119,21 +136,33 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   onCurrentLocationDetected(location: SelectedLocation) {
     this.pickup = location;
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('pickup', JSON.stringify(location));
+    }
     this.cdr.detectChanges();
   }
 
   onDestinationSelected(location: SelectedLocation) {
     this.destination = location;
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('destination', JSON.stringify(location));
+    }
     this.cdr.detectChanges();
   }
 
   onSessionStarted() {
     this.isOnline = true;
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('isOnline', 'true');
+    }
     this.cdr.detectChanges();
   }
 
   onSessionStopped() {
     this.isOnline = false;
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('isOnline', 'false');
+    }
     this.cdr.detectChanges();
   }
 

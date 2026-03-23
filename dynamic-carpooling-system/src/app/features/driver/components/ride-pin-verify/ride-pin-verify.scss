@@ -8,6 +8,7 @@ $text-muted: rgba(#F9FAFB, 0.45);
 $border:     rgba(#fff, 0.08);
 $error:      #E24B4A;
 
+
 :host {
   font-family: 'Satoshi Variable', 'Satoshi', sans-serif;
   display: block;
@@ -110,7 +111,7 @@ $error:      #E24B4A;
 }
 
 .pin-status {
-  height: 18px;
+  height: auto;
   font-size: 12px;
   text-align: center;
   color: transparent;
@@ -121,6 +122,7 @@ $error:      #E24B4A;
   &--success { color: $lime; }
   &--error   { color: $error; }
   &--info    { color: $text-muted; }
+  &--redirecting { color: $error; } 
 }
 
 .verify-btn {
