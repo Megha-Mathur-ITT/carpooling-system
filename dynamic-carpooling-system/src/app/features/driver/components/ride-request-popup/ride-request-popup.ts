@@ -104,13 +104,20 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   }
 
   accept() {
-    this.stopTimer();
-    this.isLoading = true;
-
-    if (!this.currentDriverLat || !this.currentDriverLng) {
-      console.error('Driver location missing!');
-      this.isLoading = false;
-      return;
+  this.stopTimer();
+  this.isLoading = true;
+  
+  this.rideRequestService.respondToRequest(
+    this.request.requestId,
+    'Accepted'
+  ).subscribe({
+    next: (res) => { 
+      this.accepted.emit(); 
+      this.isLoading = false; 
+    },
+    error: (err) => { 
+      console.error('Accept error:', err);
+      this.isLoading = false; 
     }
 
     this.rideRequestService.respondToRequest(

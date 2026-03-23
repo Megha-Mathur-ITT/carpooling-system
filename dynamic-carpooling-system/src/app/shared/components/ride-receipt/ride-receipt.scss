@@ -1,0 +1,178 @@
+@use 'abstracts/variables' as *;
+
+.receipt-wrapper {
+  min-height: calc(100vh - 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $text-light;
+  padding: 24px;
+}
+
+.receipt-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 32px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.receipt-header {
+  text-align: center;
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 42px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: $primary-dark;
+    margin: 0 0 8px;
+  }
+
+  .receipt-sub {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+  }
+}
+
+.fare-summary {
+  background: $primary-dark;
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .fare-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: $accent-green;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .fare-amount {
+    font-size: 52px;
+    font-weight: 800;
+    color: $accent-green;
+    font-family: monospace;
+  }
+
+  .fare-mode {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+  }
+}
+
+.receipt-details {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+
+  &:last-child { border-bottom: none; }
+
+  .receipt-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .receipt-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: $primary-dark;
+  }
+}
+
+.route-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+
+  .route-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-top: 3px;
+      flex-shrink: 0;
+
+      &.dot-blue { background: #3b82f6; }
+      &.dot-red { background: #ef4444; }
+    }
+
+    .route-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .route-value {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: $primary-dark;
+      margin-top: 2px;
+    }
+  }
+
+  .route-line {
+    width: 2px;
+    height: 20px;
+    background: #e5e7eb;
+    margin-left: 5px;
+    margin: 6px 0 6px 5px;
+  }
+}
+
+.button-done {
+  width: 100%;
+  background: $accent-green;
+  color: $primary-dark;
+  font-weight: 800;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover { opacity: 0.88; }
+}

@@ -143,8 +143,6 @@ export class Register {
 
     const payload = this.buildPayload();
 
-    console.log("Register Payload:", payload); 
-
     this.authService.register(payload).subscribe({
 
       next: () => {
