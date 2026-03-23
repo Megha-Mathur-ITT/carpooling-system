@@ -1,5 +1,8 @@
-import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { MapComponent } from '../../../../shared/components/map/map';
+import { Router } from '@angular/router';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { Toggler } from '../../components/toggler/toggler';
@@ -7,71 +10,83 @@ import { RideForm } from '../../components/ride-form/ride-form';
 import { RideRequestPopup } from '../../components/ride-request-popup/ride-request-popup';
 import { SelectedLocation } from '../../../../shared/components/location-search/location-search';
 import { SignalrService } from '../../../../core/services/signalr';
-import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel/driver-active-ride-panel';
 
 @Component({
   selector: 'app-driver-landing',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MapComponent,
-    NavbarComponent,
-    Footer,
-    Toggler,
-    RideForm,
-    RideRequestPopup
-  ],
+  imports: [CommonModule, MapComponent, NavbarComponent, Footer, Toggler, RideForm, RideRequestPopup, DriverActiveRidePanel],
   templateUrl: './driver-landing.html',
   styleUrl: './driver-landing.scss',
 })
 export class DriverLanding implements OnInit, OnDestroy {
-
   pickup: SelectedLocation | null = null;
   destination: SelectedLocation | null = null;
   isOnline = false;
   incomingRequest: any = null;
+  activeRide: any = null;
 
   private sub!: Subscription;
 
   constructor(
     private cdr: ChangeDetectorRef,
     private signalrService: SignalrService,
+    @Inject(PLATFORM_ID) private platformId: Object,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.signalrService.connect();
 
+    if (isPlatformBrowser(this.platformId)) {
+      const savedDriverActiveSession = sessionStorage.getItem("driver_active_ride");
+
+      if (savedDriverActiveSession) {
+        this.activeRide = JSON.parse(savedDriverActiveSession);
+        this.isOnline = true;
+
+        this.cdr.detectChanges();
+      }
+    }
+
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
-      if (!request) return;
+      if (request) {
+        this.incomingRequest = request;
+        this.cdr.detectChanges();
 
-      const incomingId = request.rideRequestId ?? request.requestId;
-      const existingId = this.incomingRequest?.requestId ?? this.incomingRequest?.rideRequestId;
+        const incomingId = request.rideRequestId ?? request.requestId;
+        const existingId = this.incomingRequest?.requestId ?? this.incomingRequest?.rideRequestId;
 
-      if (incomingId && existingId && incomingId === existingId) {
-        return;
-      }
+        if (incomingId && existingId && incomingId === existingId) {
+          return;
+        }
 
-      this.incomingRequest = {
-        requestId: incomingId,
-        sessionId: request.sessionId,
-        passengerName: request.passengerName,
-        pickup: {
-          latitude: request.pickupLat,
-          longitude: request.pickupLng,
-          name: request.pickupName
-        },
-        destination: {
-          latitude: request.destinationLat,
-          longitude: request.destinationLng,
-          name: request.destinationName
-      }
-    };
 
-      console.log('Driver received request:', this.incomingRequest);
-      this.cdr.detectChanges();
+        this.incomingRequest = {
+          requestId: incomingId,
+          sessionId: request.sessionId,
+          passengerName: request.passengerName,
+          pickup: {
+            latitude: request.pickupLat,
+            longitude: request.pickupLng,
+            name: request.pickupName
+          },
+          destination: {
+            latitude: request.destinationLat,
+            longitude: request.destinationLng,
+            name: request.destinationName
+          }
+        };
+
+        console.log('Driver received request:', this.incomingRequest);
+        this.cdr.detectChanges();
+      };
+
+      this.signalrService.rideRequested$.subscribe(request => {
+        if (request === null && this.incomingRequest !== null) {
+          this.incomingRequest = null;
+          this.cdr.detectChanges();
+        }
+      });
     });
   }
 
@@ -80,6 +95,19 @@ export class DriverLanding implements OnInit, OnDestroy {
   }
 
   onRequestAccepted() {
+    this.activeRide = {
+      rideRequestId: this.incomingRequest.requestId,
+      passengerName: this.incomingRequest.passengerName,
+      passengerId: this.incomingRequest.passengerId,
+      pickupName: this.incomingRequest.pickup,
+      destinationName: this.incomingRequest.destination,
+      fare: 200
+    }
+
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem("driver_active_ride", JSON.stringify(this.activeRide));
+    }
+
     this.incomingRequest = null;
     this.cdr.detectChanges();
   }
@@ -106,6 +134,27 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   onSessionStopped() {
     this.isOnline = false;
+    this.cdr.detectChanges();
+  }
+
+  onRideCompleted() {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem('driver_active_ride');
+      sessionStorage.removeItem('driver_payment_pending');
+    }
+
+    this.activeRide = null;
+    this.isOnline = false;
+    this.cdr.detectChanges();
+  }
+
+  onRideCancelled() {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem('driver_active_ride');
+      sessionStorage.removeItem('driver_payment_pending');
+    }
+
+    this.activeRide = null;
     this.cdr.detectChanges();
   }
 }

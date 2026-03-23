@@ -46,8 +46,4 @@ export class RideRequestService {
       `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
     );
   }
-
-  cancelRide(rideRequestId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/cancel/${rideRequestId}`, {});
-  }
 }

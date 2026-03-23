@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input} from '@angular/core';
-import { trimLocation } from '../../../../../shared/utils/locationUtil';
+import { trimLocation } from '../../utils/locationUtil';
 
 @Component({
   selector: 'app-ride-summary',

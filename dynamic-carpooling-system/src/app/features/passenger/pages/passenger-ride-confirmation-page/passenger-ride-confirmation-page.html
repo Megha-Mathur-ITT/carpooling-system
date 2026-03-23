@@ -4,9 +4,13 @@
   <div class="row align-items-stretch landing-row">
 
     <div class="col-md-5 border p-4 left-section" *ngIf="selectedDriver; else loading">
-      <div class="p-3 rounded text-center pin-box ">
-        <p class="mb-1 text-success fw-semibold">Your Ride PIN</p>
-        <div class="pin-digits">{{ passengerPin || '------' }}</div>
+      <div class="pin-box ">
+        <p class="pin-label">Your Ride PIN</p>
+        <div class="pin-digits-row">
+          <span class="pin-digit" *ngFor="let digit of passengerPinDigits">
+            {{digit}}
+          </span>
+        </div>
         <small class="text-muted">Share this PIN with your driver to start the ride</small>
       </div>
 
@@ -17,9 +21,10 @@
         [isRideStarted]="isRideStarted"
         [isReachedDestination]="isReachedDestination" 
         (onStartRide)="startDestinationRide()"
+        (onPayDriver)="goToPayment()"
       ></app-ride-status>
 
-      <div class="ride-details">
+      <div class="ride-details"> 
         <app-ride-summary 
           [pickup]="passengerPickup" 
           [destination]="passengerDestination"

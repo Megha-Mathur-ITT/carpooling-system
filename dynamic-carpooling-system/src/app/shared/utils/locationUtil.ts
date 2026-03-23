@@ -6,7 +6,7 @@ export function trimLocation(location: string): string {
     }
 
     const parts = location.split(',');
-    return parts.slice(0, 4).join(',').trim();
+    return parts.slice(0, 3).join(',').trim();
 }
 
 async function fetchLocation(location: Location) {

@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-import { RideSummary } from '../../components/common-components/ride-summary/ride-summary';
+import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { AuthService } from '../../../../core/services/auth-service';
 import { RideStatus } from '../../components/ride-confirmation-page/ride-status/ride-status';
 import { reverseGeocode, trimLocation } from '../../../../shared/utils/locationUtil';
@@ -26,6 +26,8 @@ export class PassengerRideConfirmationPage implements OnInit {
   isRideStarted = false;
   isReachedDestination = false;
   passengerPin: string = '';
+  fare: number = 0;
+  distanceKm: number = 0;
 
   constructor(
     private router: Router,
@@ -33,17 +35,16 @@ export class PassengerRideConfirmationPage implements OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private authService: AuthService,
     private ngZone: NgZone
-  ) {
-    this.passengerPickup = this.passengerRideService.pickup;
-    this.passengerDestination = this.passengerRideService.destination;
-
-    this.selectedDriver = this.passengerRideService.selectedDriver;
-  }
+  ) { }
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
 
   async ngOnInit() {
-    if (!this.passengerPickup || !this.selectedDriver) {
+    this.passengerPickup = this.passengerRideService.pickup;
+    this.passengerDestination = this.passengerRideService.destination;
+    this.selectedDriver = this.passengerRideService.selectedDriver;
+
+    if (!this.passengerPickup || !this.passengerDestination || !this.selectedDriver) {
       this.router.navigate(['/passenger/landing']);
       return;
     }
@@ -53,18 +54,14 @@ export class PassengerRideConfirmationPage implements OnInit {
       longitude: this.selectedDriver.longitude
     });
 
-    this.ngZone.run(() => {
-      this.driverLocation = {
-        latitude: this.selectedDriver.latitude,
-        longitude: this.selectedDriver.longitude,
-        name: this.selectedDriver.driverName,
-        popupLabel: `<b>Driver start point:</b> ${address}`
-      };
+    this.driverLocation = {
+      latitude: this.selectedDriver.latitude,
+      longitude: this.selectedDriver.longitude,
+      name: this.selectedDriver.driverName,
+      popupLabel: `<b>Driver start point:</b> ${address}`
+    };
 
-      this.changeDetectorRef.detectChanges();
-    });
-
-    this.changeDetectorRef.detectChanges();
+    this.changeDetectorRef.markForCheck();
 
     setTimeout(() => {
       if (this.mapComponent && this.selectedDriver && this.passengerPickup) {
@@ -88,12 +85,9 @@ export class PassengerRideConfirmationPage implements OnInit {
     this.loadPin();
   }
 
-  private clearRideState(): void {
-    this.passengerRideService.setPickup(null);
-    this.passengerRideService.setDestination(null);
-
-    this.passengerRideService.selectedDriver = null;
-    this.passengerRideService.rideRequestId = null;
+  get passengerPinDigits(): string[] {
+    const pin = this.passengerPin || '------';
+    return pin.split('');
   }
 
   startDestinationRide(): void {
@@ -117,12 +111,31 @@ export class PassengerRideConfirmationPage implements OnInit {
       next: (response) => {
         this.ngZone.run(() => {
           this.passengerPin = response.pin;
+
           this.changeDetectorRef.detectChanges();
         });
       },
       error: () => {
 
       }
+    });
+  }
+
+  goToPayment() {
+    const paymentState = {
+      fare: 200,
+      distanceKm: this.distanceKm,
+      driver: this.selectedDriver,
+      pickup: this.passengerPickup,
+      destination: this.passengerDestination,
+      driverId: this.selectedDriver.driverId,
+      rideRequestId: this.passengerRideService.rideRequestId
+    };
+
+    sessionStorage.setItem("payment_state", JSON.stringify(paymentState));
+
+    this.router.navigate(['passenger/payment'], {
+      state: paymentState
     });
   }
 }
