@@ -163,7 +163,7 @@ export class Register {
       },
 
       error: (error) => {
-
+        console.error('Error body:', JSON.stringify(error.error));
         this.snackBar.open(
           error?.error?.error || "Registration failed.",
           "close",

@@ -1,0 +1,158 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
+
+$lime:       #A5F50F;
+$dark:       #1A2129;
+$surface:    #212B35;
+$text:       #F9FAFB;
+$text-muted: rgba(#F9FAFB, 0.45);
+$border:     rgba(#fff, 0.08);
+$error:      #E24B4A;
+
+:host {
+  font-family: 'Satoshi Variable', 'Satoshi', sans-serif;
+  display: block;
+}
+
+.pin-verify-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: $dark;
+  min-height: 100%;
+}
+
+.pin-card {
+  width: 100%;
+  max-width: 340px;          
+  background: $surface;
+  border-radius: 14px;
+  border: 0.5px solid $border;
+  padding: 1.25rem 1.5rem;   
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba($lime, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    color: $lime;
+    font-size: 18px;
+  }
+
+  &__title {
+    color: $text;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    margin: 0 0 3px;
+  }
+
+  &__subtitle {
+    color: $text-muted;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 1.125rem;
+  }
+}
+
+.pin-row {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  margin-bottom: 0.625rem;
+  width: 100%;
+
+  &--error .pin-box {
+    animation: shake 0.3s ease;
+  }
+}
+
+.pin-box {
+  width: 40px;             
+  height: 46px;           
+  border-radius: 8px;
+  background: $dark;
+  border: 1.5px solid rgba(#fff, 0.1);
+  color: $text;
+  font-family: 'Satoshi Variable', 'Satoshi', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  caret-color: transparent;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-text-security: disc;
+
+  &::selection { background: transparent; }
+
+  &--active {
+    border-color: $lime;
+    box-shadow: 0 0 0 2px rgba($lime, 0.12);
+  }
+
+  &--filled {
+    border-color: rgba($lime, 0.4);
+    color: $lime;
+  }
+
+  &--error {
+    border-color: $error;
+    box-shadow: 0 0 0 2px rgba($error, 0.12);
+  }
+}
+
+.pin-status {
+  height: 18px;
+  font-size: 12px;
+  text-align: center;
+  color: transparent;
+  margin-bottom: 0.75rem;
+  transition: color 0.2s;
+  width: 100%;
+
+  &--success { color: $lime; }
+  &--error   { color: $error; }
+  &--info    { color: $text-muted; }
+}
+
+.verify-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: $lime;
+  color: $dark;
+  font-family: 'Satoshi Variable', 'Satoshi', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  letter-spacing: 0.01em;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover  { opacity: 0.88; }
+  &:not(:disabled):active { transform: scale(0.98); }
+  &--success              { opacity: 1 !important; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}

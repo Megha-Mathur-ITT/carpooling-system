@@ -90,11 +90,11 @@
 }
 
 .ls-dropdown {
+  z-index: 9999;
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 9999;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 16px;

@@ -8,7 +8,6 @@ import { Footer } from '../../../../core/layout/footer/footer';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { LocationService } from '../../../../core/services/location-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-import { RideRequestService } from '../../../../core/services/ride-request-service';
 import { SignalrService } from '../../../../core/services/signalr';
 import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { NearbyDriversList } from '../../components/ride-selection-page/nearby-drivers-list/nearby-drivers-list';
@@ -50,7 +49,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private locationService: LocationService,
     private passengerRideService: PassengerRideService,
-    private rideRequestService: RideRequestService,
     private changeDetectorRef: ChangeDetectorRef,
     private signalrService: SignalrService,
     private ngZone: NgZone,
@@ -150,17 +148,14 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       next: (response: any) => {
         this.drivers = [...response.drivers];
         this.isLoading = false;
-
         if (this.mapComponent) {
           this.mapComponent.updateDrivers(this.drivers);
         }
-
         this.changeDetectorRef.markForCheck();
       },
       error: (error) => {
         this.drivers = [];
         this.isLoading = false;
-
         if (error.status !== 404) {
           this.snackBar.open("Could not load nearby drivers. Retrying in 10 seconds.", 'close', {
             duration: 4000,
@@ -169,7 +164,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
             panelClass: ['error-snackbar']
           });
         }
-
         this.changeDetectorRef.detectChanges();
       }
     });
@@ -177,7 +171,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
   selectDriver(driver: any) {
     this.selectedDriver = driver;
-
     if (this.mapComponent) {
       this.mapComponent.centerOnDriver(driver.latitude, driver.longitude, driver.driverName);
     }
@@ -211,6 +204,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.signalrService.notifyDriver(
       this.selectedDriver.driverId,
       rideRequestId,
+      this.selectedDriver.sessionId,
       this.pickupLocation,
       this.destinationLocation
     );

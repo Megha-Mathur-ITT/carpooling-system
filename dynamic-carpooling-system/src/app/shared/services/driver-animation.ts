@@ -13,6 +13,7 @@ export class DriverAnimation {
   private destinationCoords: Location[] = [];
   private pickupIconUrl: string = '';
   private destinationIconUrl: string = '';
+  private reachedCallback: (() => void) | null = null;  
   private interval: any = null;
   private hasDriverReached = false;
   private passengerPickupAddress: string = '';
@@ -22,7 +23,11 @@ export class DriverAnimation {
     this.map = map;
     this.L = L;
     this.pickupIconUrl = pickupIconUrl;
-    this.destinationIconUrl = destinationIconUrl
+    this.destinationIconUrl = destinationIconUrl;
+  }
+
+  onDriverReachedPickup(cb: () => void): void { 
+    this.reachedCallback = cb;
   }
 
   private buildRouteUrl(pickup: Location, destination: Location) {
@@ -159,6 +164,13 @@ export class DriverAnimation {
     }).addTo(this.map);
   }
 
+  private drawBluePolyline(blueCoords: { latitude: number, longitude: number }[]): void {
+    this.bluePolyline = this.L.polyline(blueCoords.map(coord => [coord.latitude, coord.longitude]), {
+      color: '#0074D9',
+      weight: 5,
+      opacity: 0.85,
+    }).addTo(this.map);
+    
   private placeMarker(location: Location, icon: any, zIndexOffset: number, popupText?: string) {
     const marker = this.L.marker(
       [location.latitude, location.longitude],
@@ -216,25 +228,36 @@ export class DriverAnimation {
     }
   }
 
-  private placeArrivalMarkers(passengerPickup: Location): void {
-    this.placeMarker(
-      passengerPickup, 
-      this.makeLIcon(this.pickupIconUrl), 
-      500, 
-      `<b>Pickup point:</b> <br> ${this.passengerPickupAddress}`
-    );
-    this.placeDestinationMarker();
-  }
+  public onDriverReached(passengerPickupLatitude: number, passengerPickupLongitude: number) {
+    this.carMarker.setLatLng([passengerPickupLatitude, passengerPickupLongitude]);
 
-  private onDriverReached(passengerPickup: Location) {
-    this.carMarker?.setLatLng([passengerPickup.latitude, passengerPickup.longitude]);
-    this.greenPolyline = this.removeLayer(this.greenPolyline);
-    this.passengerMarker = this.removeLayer(this.passengerMarker);
-    this.placeArrivalMarkers(passengerPickup);
+    if (this.greenPolyline) {
+      this.map.removeLayer(this.greenPolyline);
+      this.greenPolyline = null;
+    }
+
+    if (this.map) {
+      this.map.eachLayer((layer: any) => {
+        if (layer.options?.title == "Pickup") {
+          this.map.removeLayer(layer);
+        }
+      });
+    }
+
+    this.makePickupIcon(passengerPickupLatitude, passengerPickupLongitude);
+    this.makeDestinationIcon();
+
+    if (this.passengerMarker) {
+      this.map.removeLayer(this.passengerMarker);
+      this.passengerMarker = null;
+    }
 
     if (this.bluePolyline) {
       this.map.fitBounds(this.bluePolyline.getBounds(), { padding: [60, 60] });
     }
+
+    console.log('DRIVER REACHED METHOD CALLED');
+    this.reachedCallback?.();  
   }
 
   public startDestinationAnimation(onReachedDestination?: () => void): void {
@@ -242,6 +265,21 @@ export class DriverAnimation {
       return;
     }
 
+    this.stop();
+    this.hasDriverReached = false;
+
+      const driverToPassenger = await this.fetchRoute(
+      driverLatitude, driverLongitude,
+      passengerPickupLatitude, passengerPickupLongitude
+    );
+
+    const passengerToDestination = await this.fetchRoute(
+      passengerPickupLatitude, passengerPickupLongitude,
+      passengerDestinationLatitude, passengerDestinationLongitude
+    );
+
+    if (!driverToPassenger) {
+      return;
     if (this.interval) {
       clearInterval(this.interval);
     }
