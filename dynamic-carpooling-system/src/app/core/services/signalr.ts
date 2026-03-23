@@ -110,6 +110,7 @@ export class SignalrService {
   notifyDriver(
     driverId: string,
     rideRequestId: string,
+    sessionId: string,
     pickup: any,
     destination: any
   ): void {
@@ -122,10 +123,13 @@ export class SignalrService {
     this.connection.invoke('NotifyDriver', {
       driverId,
       rideRequestId,
+      sessionId,
       pickupName: pickup.name,
       pickupLat: pickup.latitude,
       pickupLng: pickup.longitude,
-      destinationName: destination.name
+      destinationName: destination.name,
+      destinationLat: destination.latitude,   
+      destinationLng: destination.longitude   
     }).catch(error => {
       console.error('[SignalR] NotifyDriver failed:', error);
     });

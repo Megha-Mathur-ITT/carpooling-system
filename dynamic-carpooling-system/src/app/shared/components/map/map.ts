@@ -42,6 +42,12 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   @Input() showRadiusCircle: boolean = false;
   @Input() showRoute: boolean = true;
   @Output() mapReady$ = new EventEmitter<void>();
+  @Output() routeInfo = new EventEmitter<{
+    distanceKm: number;
+    durationMin: number;
+  }>();
+  @Output() driverReached = new EventEmitter<void>();
+    
 
   private driverMarkers: any[] = [];
   private radiusCircle: any = null;
@@ -163,6 +169,17 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         this.fitToPickupArea(this.pickup.latitude, this.pickup.longitude);
       }
     }
+  }
+
+  onDriverReachedPickup(cb: () => void) {
+    console.log('Callback registered');
+
+    this.driverAnimation.onDriverReachedPickup(() => {
+      console.log('CALLBACK FROM ANIMATION');
+
+      cb();
+      this.driverReached.emit();
+    });
   }
 
   startLiveLocation() {
@@ -353,6 +370,14 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         );
       }
 
+      const distanceKm = route.summary.totalDistance/1000;
+      const durationMin = route.summary.totalTime /60 ;
+
+      this.routeInfo.emit({
+        distanceKm: Number(distanceKm.toFixed(2)),
+        durationMin: Math.ceil(durationMin)
+      });
+      
       if (this.showRadiusCircle && this.pickup) {
         setTimeout(() => {
           this.fitToPickupArea(this.pickup.latitude, this.pickup.longitude);

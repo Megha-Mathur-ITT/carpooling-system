@@ -8,7 +8,6 @@
       </div>
     </div>
 
-    <!-- Custom timer bar — updates instantly every second -->
     <div class="timer-bar-wrapper">
       <div class="timer-bar"
         [style.width.%]="timerPercent"
@@ -19,8 +18,8 @@
 
     <div class="popup-body">
       <p><strong>Passenger:</strong> {{ request.passengerName }}</p>
-      <p><strong>Pickup:</strong> {{ request.pickup }}</p>
-      <p><strong>Destination:</strong> {{ request.destination }}</p>
+      <p><strong>Pickup:</strong> {{ request.pickup?.name }}</p>
+      <p><strong>Destination:</strong> {{ request.destination?.name }}</p>
     </div>
 
     <div class="popup-actions">

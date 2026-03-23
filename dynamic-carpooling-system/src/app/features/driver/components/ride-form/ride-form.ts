@@ -47,22 +47,32 @@ export class RideForm {
     });
   }
 
-  private detectCurrentLocation(): void {
+    private detectCurrentLocation(): void {
     if (!navigator.geolocation) return;
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        this.currentLat = latitude;
-        this.currentLng = longitude;
-        this.currentLocationName = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
 
-        const loc: SelectedLocation = { latitude, longitude, name: 'Current Location' };
-        this.pickup = loc;
-        this.currentLocationDetected.emit(loc);
-      },
-      () => { this.currentLocationName = 'Location unavailable'; }
-    );
+      this.currentLat = latitude;
+      this.currentLng = longitude;
+
+      const placeName = await this.fetchLocationName(latitude, longitude);
+
+      this.currentLocationName = placeName;
+
+      const loc: SelectedLocation = {
+        latitude,
+        longitude,
+        name: placeName
+      };
+
+      this.pickup = loc;
+
+      this.currentLocationDetected.emit(loc);
+
+    }, () => {
+      this.currentLocationName = 'Location unavailable';
+    });
   }
 
   private fetchVehicle(): void {
@@ -141,4 +151,20 @@ export class RideForm {
       }
     });
   }
+
+  private async fetchLocationName(lat: number, lng: number): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      { headers: { 'Accept-Language': 'en' } }
+    );
+
+    const data = await res.json();
+
+    return data.display_name || 'Current Location';
+  } catch (err) {
+    console.error('Reverse geocoding failed', err);
+    return 'Current Location';
+  }
+}
 }

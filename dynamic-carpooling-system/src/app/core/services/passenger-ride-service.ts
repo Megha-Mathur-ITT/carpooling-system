@@ -12,6 +12,13 @@ export class PassengerRideService {
 
   city: string = '';
   state: string = '';
+  passengerName: string = '';
+
+  distanceKm: number = 0;
+  durationMin: number = 0;
+  fare: number = 0;
+  pin: string = '';
+  bookingId: string = '';
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object
@@ -92,5 +99,16 @@ export class PassengerRideService {
 
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
+  }
+
+  setRouteInfo(distanceKm: number, durationMin: number): void {
+    this.distanceKm = distanceKm;
+    this.durationMin = durationMin;
+    this.fare = Math.round(distanceKm * 9);
+  }
+
+  setBookingResult(fare: number, pin: string): void {
+    this.fare = fare;  
+    this.pin = pin;
   }
 }
