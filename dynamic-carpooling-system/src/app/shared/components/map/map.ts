@@ -2,6 +2,8 @@ import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Input, OnChanges, Si
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { DriverActiveRidePanel } from '../../../features/driver/components/driver-active-ride-panel/driver-active-ride-panel';
 import { DriverAnimation } from '../../services/driver-animation';
+import { Location } from '../../../core/models/auth-model'
+import { trimLocation } from '../../utils/locationUtil';
 
 @Component({
   selector: 'app-map',
@@ -97,7 +99,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       [this.defaultPickup.latitude, this.defaultPickup.longitude],
       { icon: this.makePickupIcon(), title: 'Pickup' }
     ).addTo(this.map);
-    this.pickupMarker.bindPopup('<b>&#128205; Pickup</b><br>Jaipur, Rajasthan').openPopup();
+    this.pickupMarker.bindPopup('<b>Pickup</b><br>Jaipur, Rajasthan').openPopup();
 
     this.mapReady = true;
     this.driverAnimation.init(
@@ -184,8 +186,8 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if (!navigator.geolocation) return;
 
     this.watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
+      (position) => {
+        const { latitude, longitude } = position.coords;
 
         this.ngZone.run(() => {
           this.updateLiveDot(latitude, longitude);
@@ -253,7 +255,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    const { latitude, longitude, name } = location;
+    const { latitude, longitude, name, popupLabel } = location;
 
     if (this.pickupMarker) {
       this.pickupMarker.setLatLng([latitude, longitude]);
@@ -264,7 +266,8 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       ).addTo(this.map);
     }
 
-    this.pickupMarker.bindPopup(`<b> &#128205; Pickup</b><br>${name}`).openPopup();
+    const popup = popupLabel ?? `<b>Pickup:</b> ${trimLocation(name)}`;
+    this.pickupMarker.bindPopup(popup).openPopup();
 
     if (this.destinationMarker && !this.showRadiusCircle) {
       this.fitMapToBothMarkers();
@@ -292,7 +295,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       ).addTo(this.map);
     }
 
-    this.destinationMarker.bindPopup(`<b> &#127937; Destination</b><br>${name}`).openPopup();
+    this.destinationMarker.bindPopup(`<b>Destination</b><br>${trimLocation(name)}`).openPopup();
 
     if (!this.showRadiusCircle) {
       this.fitMapToBothMarkers();
@@ -440,9 +443,8 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       ).addTo(this.map);
 
       marker.bindPopup(`
-      <b>&#128663; ${driver.driverName}</b><br>
+      <b>${driver.driverName}</b><br>
       ${driver.vehicleName}<br>
-      ${driver.availableSeats} seats • ${driver.distanceKm} km away
     `);
 
       this.driverMarkers.push(marker);
@@ -515,23 +517,28 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public startDriverAnimation(
-    driverLatitude: number,
-    driverLongitude: number,
-    passengerPickupLatitude: number,
-    passengerPickupLongitude: number,
-    passengerDestinationLatitude: number,
-    passengerDestinationLongitude: number
+    driver: Location,
+    passengerPickup: Location,
+    passengerDestination: Location,
+    passengerPickupAddress: string,
+    passengerDestinationAddress: string,
+    onDriveArrived?: () => void
   ): void {
     this.driverAnimation.startAnimation(
-      driverLatitude,
-      driverLongitude,
-      passengerPickupLatitude,
-      passengerPickupLongitude,
-      passengerDestinationLatitude,
-      passengerDestinationLongitude);
+      driver,
+      passengerPickup,
+      passengerDestination,
+      passengerPickupAddress,
+      passengerDestinationAddress,
+      onDriveArrived,
+    )
   }
 
   public stopDriverAnimation(): void {
     this.driverAnimation.stop();
+  }
+
+  public startDestinationAnimation(onReachedDestination?: () => void): void {
+    this.driverAnimation.startDestinationAnimation(onReachedDestination);
   }
 }
