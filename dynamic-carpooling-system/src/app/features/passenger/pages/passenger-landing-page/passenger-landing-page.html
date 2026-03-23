@@ -1,47 +1,48 @@
-    <app-navbar></app-navbar>
+<app-navbar></app-navbar>
 
-    <div class="container passenger-landing-wrapper">
-        <div class="row align-items-start landing-row">
+<div class="container passenger-landing-wrapper">
+    <div class="row align-items-start landing-row">
 
-            <!-- Left side -->
-            <div class="col-12 col-lg-5 left-section border p-3">
+        <!-- Left side -->
+        <div class="col-12 col-lg-5 left-section border p-3">
 
+            <div class="passenger-address">
                 <p class="location-display">
                     <span class="location-details">
                         <i class="fa-sharp fa-solid fa-location-dot location-icon"></i>
                         {{ city || 'Detecting location...' }}{{ state ? ', ' + state : ''}}
                     </span>
                 </p>
-
-                <h1 class="passenger-heading">
-                    Request a <span class="accent-text">Ride</span>
-                </h1>
-
-                <!-- Pickup -->
-                <app-location-search placeholder="Pickup location" (locationSelected)="setPickup($event)"
-                    [currentLocation]="pickupLocation">
-                </app-location-search>
-
-                <!-- Drop -->
-                <app-location-search placeholder="Destination Location" (locationSelected)="setDestination($event)"
-                    [currentLocation]="destinationLocation">
-                </app-location-search>
-
-                <button class="primary-btn see-prices-button" (click)="goToRideSelectionPage()">
-                    See prices
-                </button>
-
             </div>
 
-            <!-- Right side -->
-            <div class="col-12 col-lg-7 right-section">
+            <h1 class="passenger-heading">
+                Request a <span class="accent-text">Ride</span>
+            </h1>
 
-                <div class="map-placeholder">
-                    <app-map [pickup]="pickupLocation" [destination]="destinationLocation">
-                    </app-map>
-                </div>
+            <!-- Pickup -->
+            <app-location-search placeholder="Pickup location" (locationSelected)="setPickup($event)"
+                [currentLocation]="pickupLocation"></app-location-search>
+
+            <!-- Drop -->
+            <app-location-search placeholder="Destination Location" (locationSelected)="setDestination($event)"
+                [currentLocation]="destinationLocation"></app-location-search>
+
+            <button class="primary-btn see-prices-button" (click)="goToRideSelectionPage()">
+                See prices
+            </button>
+
+        </div>
+
+        <!-- Right side -->
+        <div class="col-12 col-lg-7 right-section">
+            <div class="map-placeholder">
+                <app-map 
+                    [pickup]="pickupLocation" 
+                    [destination]="destinationLocation"
+                ></app-map>
             </div>
         </div>
     </div>
+</div>
 
-    <app-footer></app-footer>
+<app-footer></app-footer>

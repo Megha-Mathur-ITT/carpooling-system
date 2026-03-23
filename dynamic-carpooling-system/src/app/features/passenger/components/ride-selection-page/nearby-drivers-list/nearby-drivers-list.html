@@ -5,9 +5,12 @@
         No drivers found nearby.
     </div>
 
-    <app-driver-details-card *ngFor="let driver of drivers" [driverName]="driver.driverName"
-        [vehicleName]="driver.vehicleName" [eta]="driver.availableSeats + ' seats'"
-        [fare]="driver.distanceKm + ' km away'" (click)="driverSelected.emit(driver)"
-        (onRequestRide)="driverSelected.emit(driver); rideRequested.emit(driver)">
+    <app-driver-details-card *ngFor="let driver of drivers" 
+        [driverName]="driver.driverName"
+        [vehicleName]="driver.vehicleName" 
+        [eta]="driver.availableSeats + ' seats'"
+        [fare]="driver.distanceKm + ' km away'" 
+        (click)="onDriverClick(driver)"
+        (onRequestRide)="onRequestRideHandler(driver)">
     </app-driver-details-card>
 </ng-container>

@@ -6,41 +6,39 @@
 
             <!-- Right side -->
             <div class="col-12 col-lg-5 left-section border p-3">
-                
                 <h1 class="passenger-heading">
                     Ride Details
                 </h1>
 
-                <app-ride-summary
-                    [pickup]="pickupLocation"
+                <app-ride-summary 
+                    [pickup]="pickupLocation" 
                     [destination]="destinationLocation"
                 ></app-ride-summary>
 
-                <div *ngIf="!isWaiting">
-                    <app-nearby-drivers-list
-                    [drivers]="drivers"
+                <app-nearby-drivers-list *ngIf="!isWaiting"
+                    [drivers]="drivers" 
                     [isLoading]="isLoading"
-                    [selectedDriver]="selectedDriver"
+                    [selectedDriver]="selectedDriver" 
                     (driverSelected)="selectDriver($event)"
                     (rideRequested)="requestRide()"
                 ></app-nearby-drivers-list>
-                </div>
 
-                <div *ngIf="isWaiting" class="waiting-state">
-                    <h3>Request Sent!</h3>
-                    <p>Waiting for <strong>{{ selectedDriver?.driverName }}</strong> to respond...</p>
-                    <button class="btn btn-outline-danger mt-3" (click)="cancelRequest()">
-                        Cancel Request
-                    </button>
-                </div>
+                <app-ride-request-pending *ngIf="isWaiting"
+                    [driverName] = "selectedDriver?.name"
+                    (onCancel) = "cancelRequest()"
+                ></app-ride-request-pending>
 
             </div>
 
             <!-- Left side -->
             <div class="col-12 col-lg-7 right-section">
                 <div class="map-placeholder">
-                    <app-map [pickup]="pickupLocation" [destination]="destinationLocation" [drivers]="drivers"
-                        [showRadiusCircle]="true"></app-map>
+                    <app-map 
+                        [pickup]="pickupLocation" 
+                        [destination]="destinationLocation" 
+                        [drivers]="drivers"
+                        [showRadiusCircle]="true"
+                    ></app-map>
                 </div>
             </div>
         </div>

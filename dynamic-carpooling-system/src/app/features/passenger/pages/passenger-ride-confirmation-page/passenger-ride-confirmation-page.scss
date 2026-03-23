@@ -1,5 +1,8 @@
+@use 'abstracts/variables' as *;
+
 .confirmation-wrapper {
   min-height: calc(100vh - 140px);
+  background: $text-light;
 
   .landing-row {
     min-height: calc(100vh - 140px);
@@ -10,37 +13,84 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  gap: 0;
+  background: #fff;
+  border-right: 1px solid #e5e7eb !important;
+  overflow-y: auto;
+  padding: 28px 24px !important;
 }
 
-.status-section {
-  padding: 12px 0;
+.pin-box {
+  background: $primary-dark;
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: center;
+  margin: 16px 0;
+
+  p {
+    font-size: 12px;
+    font-weight: 700;
+    color: $accent-green;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .pin-digits {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: 12px;
+    color: $accent-green;
+    font-family: monospace;
+    margin: 4px 0 10px;
+  }
+
+  small {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+  }
 }
 
 .ride-details {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-top: 8px;
+  gap: 0;
+  margin-top: 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .detail-row {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   .detail-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #6c757d;
+    font-size: 11px;
+    font-weight: 700;
+    color: #9ca3af;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
   }
 
   .detail-value {
     font-size: 14px;
-    color: #212529;
-    word-break: break-word;
+    font-weight: 600;
+    color: $primary-dark;
+    text-align: right;
   }
+}
+
+hr {
+  border-color: #f3f4f6;
+  margin: 16px 0;
 }
 
 app-map {
