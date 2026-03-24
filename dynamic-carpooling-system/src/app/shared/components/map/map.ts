@@ -47,7 +47,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     durationMin: number;
   }>();
   @Output() driverReached = new EventEmitter<void>();
-    
+
 
   private driverMarkers: any[] = [];
   private radiusCircle: any = null;
@@ -370,14 +370,14 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         );
       }
 
-      const distanceKm = route.summary.totalDistance/1000;
-      const durationMin = route.summary.totalTime /60 ;
+      const distanceKm = route.summary.totalDistance / 1000;
+      const durationMin = route.summary.totalTime / 60;
 
       this.routeInfo.emit({
         distanceKm: Number(distanceKm.toFixed(2)),
         durationMin: Math.ceil(durationMin)
       });
-      
+
       if (this.showRadiusCircle && this.pickup) {
         setTimeout(() => {
           this.fitToPickupArea(this.pickup.latitude, this.pickup.longitude);
@@ -538,7 +538,12 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     this.driverAnimation.stop();
   }
 
-  public startDestinationAnimation(onReachedDestination?: () => void): void {
-    this.driverAnimation.startDestinationAnimation(onReachedDestination);
+  public startDestinationAnimation(
+    passengerPickup: Location,
+    passengerDestination: Location,
+    driverLocation: Location,
+    onReachedDestination?: () => void
+  ): void {
+    this.driverAnimation.startDestinationAnimation(passengerPickup, passengerDestination, driverLocation, onReachedDestination);
   }
 }

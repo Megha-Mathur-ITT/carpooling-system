@@ -97,7 +97,11 @@ export class PassengerRideConfirmationPage implements OnInit {
     this.changeDetectorRef.detectChanges();
 
     if (this.mapComponent) {
-      this.mapComponent.startDestinationAnimation(() => {
+      this.mapComponent.startDestinationAnimation(
+        this.passengerPickup,
+        this.passengerDestination,
+        this.driverLocation,
+        () => {
         this.isRideStarted = false;
         this.isReachedDestination = true;
         this.changeDetectorRef.markForCheck();

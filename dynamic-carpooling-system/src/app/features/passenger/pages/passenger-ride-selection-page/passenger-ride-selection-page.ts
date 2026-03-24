@@ -12,6 +12,7 @@ import { SignalrService } from '../../../../core/services/signalr';
 import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { NearbyDriversList } from '../../components/ride-selection-page/nearby-drivers-list/nearby-drivers-list';
 import { RideRequestPending } from '../../components/ride-selection-page/ride-request-pending/ride-request-pending';
+import { RideRequestService } from '../../../../core/services/ride-request-service';
 
 @Component({
   selector: 'app-passenger-ride-selection',
@@ -52,7 +53,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private signalrService: SignalrService,
     private ngZone: NgZone,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private rideRequestService: RideRequestService
   ) { }
 
   ngOnInit() {

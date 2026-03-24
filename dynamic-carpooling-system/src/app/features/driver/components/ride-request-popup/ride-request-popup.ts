@@ -53,7 +53,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private passengerRideService: PassengerRideService
-  ) {}
+  ) { }
 
   ngOnChanges() {
     if (this.request) {
@@ -104,21 +104,8 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   }
 
   accept() {
-  this.stopTimer();
-  this.isLoading = true;
-  
-  this.rideRequestService.respondToRequest(
-    this.request.requestId,
-    'Accepted'
-  ).subscribe({
-    next: (res) => { 
-      this.accepted.emit(); 
-      this.isLoading = false; 
-    },
-    error: (err) => { 
-      console.error('Accept error:', err);
-      this.isLoading = false; 
-    }
+    this.stopTimer();
+    this.isLoading = true;
 
     this.rideRequestService.respondToRequest(
       this.request!.requestId, 'Accepted'
@@ -158,8 +145,9 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
         console.error('Respond to request error:', err);
         this.isLoading = false;
       }
-    });
+    })
   }
+
 
   reject() {
     this.stopTimer();
