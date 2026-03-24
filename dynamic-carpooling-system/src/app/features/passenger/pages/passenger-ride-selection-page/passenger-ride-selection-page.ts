@@ -97,15 +97,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             this.isWaiting = false;
             this.selectedDriver = null;
-            this.changeDetectorRef.detectChanges();
-            
-            setTimeout(() => {
-              this.snackBar.open(
-                'Driver declined. Please choose another.',
-                'Close',
-                { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-              );
-            })
+            this.changeDetectorRef.markForCheck();
+
+            this.snackBar.open(
+              'Driver declined. Please choose another.',
+              'Close',
+              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+            );
           })
         }
       })
@@ -118,14 +116,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         if (data) {
           this.ngZone.run(() => {
             this.isWaiting = false;
-            this.changeDetectorRef.detectChanges();
-            setTimeout(() => {
-              this.snackBar.open(
-                'Driver accepted your ride!',
-                'Close',
-                { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
-              );
-            })
+            this.changeDetectorRef.markForCheck();
+
+            this.snackBar.open(
+              'Driver accepted your ride!',
+              'Close',
+              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
+            );
 
             this.router.navigate(['/passenger/ride-confirmation']);
           });

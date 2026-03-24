@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Location } from '../../core/models/auth-model'
+import { trimLocation } from '../utils/locationUtil';
 
 @Injectable({ providedIn: 'root' })
 export class DriverAnimation {
@@ -100,7 +101,7 @@ export class DriverAnimation {
       passengerPickup,
       this.makeDivIcon("black", "&#128100"),
       1500,
-      `<b>Passenger Pickup point:</b> <br> ${this.passengerPickupAddress}`
+      `<b>Passenger Pickup point:</b>`
     );
 
     if (this.coords.length > 0) {
@@ -235,7 +236,6 @@ export class DriverAnimation {
       this.map.fitBounds(this.bluePolyline.getBounds(), { padding: [60, 60] });
     }
 
-    console.log('DRIVER REACHED METHOD CALLED');
     this.reachedCallback?.();
   }
 
@@ -243,31 +243,63 @@ export class DriverAnimation {
     passengerPickup: Location,
     passengerDestination: Location,
     driverLocation: Location,
-    onReachedDestination?: () => void) {
-    if (!this.destinationCoords || this.destinationCoords.length < 2) {
-      return;
-    }
-
+    onReachedDestination?: () => void
+  ) {
+    const savedDestinationCoords = [...this.destinationCoords];
     this.stop();
-    this.hasDriverReached = false;
 
-    const driverToPassenger = await this.fetchRoute(driverLocation, passengerPickup);
+    if (!savedDestinationCoords || savedDestinationCoords.length < 2) {
+      const fetched = await this.fetchRoute(passengerPickup, passengerDestination);
+      if (!fetched || fetched.length < 2) {
+        return;
+      }
 
-    const passengerToDestination = await this.fetchRoute(passengerPickup, passengerDestination);
-
-    if (!driverToPassenger) {
-      return;
+      savedDestinationCoords.push(...fetched);
     }
 
-    if (this.interval) {
-      clearInterval(this.interval);
+    this.bluePolyline = this.drawPolyline(savedDestinationCoords, 'blue', false);
+    this.map.fitBounds(
+      this.L.latLngBounds(savedDestinationCoords.map(c => [c.latitude, c.longitude])),
+      { padding: [60, 60] }
+    );
+
+    if (!this.carMarker) {
+      this.carMarker = this.placeMarker(
+        passengerPickup,
+        this.makeDivIcon('#39d353', '&#128663;'),
+        2000,
+        'Driver'
+      );
+    } else {
+      this.carMarker.setLatLng([passengerPickup.latitude, passengerPickup.longitude]);
     }
 
-    this.interval = this.animateAlongRoute([...this.destinationCoords], this.bluePolyline, () => {
+    this.passengerMarker = this.L.marker(
+      [passengerPickup.latitude, passengerPickup.longitude],
+      {
+        icon: this.makeLIcon(this.pickupIconUrl),
+        zIndexOffset: 1500,
+        title: 'Passenger Pickup point'
+      }
+    )
+    .addTo(this.map)
+    .bindPopup(`<b>Passenger</b>`);
+
+    const destinationMarker = this.placeMarker(
+      passengerDestination,
+      this.makeLIcon(this.destinationIconUrl),
+      1500,
+      `<b>Destination:</b> ${trimLocation(this.passengerDestinationAddress)}`
+    );
+
+    this.interval = this.animateAlongRoute([...savedDestinationCoords], this.bluePolyline, () => {
+      this.map.removeLayer(destinationMarker);
       onReachedDestination?.();
     });
+
+    this.hasDriverReached = false;
   }
- 
+
   private removeLayer(layer: any): null {
     if (layer && this.map) {
       this.map.removeLayer(layer);

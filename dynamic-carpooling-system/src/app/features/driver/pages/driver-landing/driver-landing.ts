@@ -65,44 +65,38 @@ export class DriverLanding implements OnInit, OnDestroy {
     }
 
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
-      if (request) {
-        this.incomingRequest = request;
-        this.cdr.detectChanges();
-
-        const incomingId = request.rideRequestId ?? request.requestId;
-        const existingId = this.incomingRequest?.requestId ?? this.incomingRequest?.rideRequestId;
-
-        if (incomingId && existingId && incomingId === existingId) {
-          return;
-        }
-
-
-        this.incomingRequest = {
-          requestId: incomingId,
-          sessionId: request.sessionId,
-          passengerName: request.passengerName,
-          pickup: {
-            latitude: request.pickupLat,
-            longitude: request.pickupLng,
-            name: request.pickupName
-          },
-          destination: {
-            latitude: request.destinationLat,
-            longitude: request.destinationLng,
-            name: request.destinationName
-          }
-        };
-
-        console.log('Driver received request:', this.incomingRequest);
-        this.cdr.detectChanges();
-      };
-
-      this.signalrService.rideRequested$.subscribe(request => {
-        if (request === null && this.incomingRequest !== null) {
+      if (request === null) {
+        if (this.incomingRequest !== null) {
           this.incomingRequest = null;
           this.cdr.detectChanges();
         }
-      });
+
+        return;
+      }
+
+      if (!request.pickupLat || !request.pickupLng || !request.destinationLat || !request.destinationLng) {
+        console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
+        return;
+      }
+
+      this.incomingRequest = {
+        requestId: request.requestId ?? request.rideRequestId,
+        sessionId: request.sessionId,
+        passengerName: request.passengerName,
+        passengerId: request.passengerId,
+        pickup: {
+          latitude: request.pickupLat,
+          longitude: request.pickupLng,
+          name: request.pickupName
+        },
+        destination: {
+          latitude: request.destinationLat,
+          longitude: request.destinationLng,
+          name: request.destinationName
+        }
+      };
+
+      this.cdr.detectChanges();
     });
   }
 

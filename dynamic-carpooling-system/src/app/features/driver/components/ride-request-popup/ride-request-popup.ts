@@ -7,23 +7,8 @@ import { RideRequestService } from '../../../../core/services/ride-request-servi
 import { BookingService } from '../../../../core/services/booking-service';
 import { Router } from '@angular/router';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-
-interface LocationDto {
-  latitude: number;
-  longitude: number;
-  name: string;
-}
-
-interface RideRequest {
-  requestId: string;
-  passengerId: string;
-  passengerName: string;
-  pickup: LocationDto;
-  destination: LocationDto;
-  requestedAt: string;
-  rideRequestStatus: string;
-  sessionId: string;
-}
+import { RideRequest } from '../../services/ride-session'; 
+import { trimLocation } from '../../../../shared/utils/locationUtil'; 
 
 @Component({
   selector: 'app-ride-request-popup',
@@ -40,12 +25,14 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
 
   @Output() accepted = new EventEmitter<void>();
   @Output() rejected = new EventEmitter<void>();
+  
+  readonly trimLocation = trimLocation;
 
   isLoading = false;
   timeLeft = 30;
   timerPercent = 100;
   private timer: any = null;
-
+  
   constructor(
     private rideRequestService: RideRequestService,
     private bookingService: BookingService,
@@ -124,6 +111,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
               acceptedBooking.pin
             );
             this.passengerRideService.bookingId = acceptedBooking.bookingId;
+            this.passengerRideService.setPassengerId(this.request!.passengerId);  
             this.passengerRideService.selectedDriver = {
               latitude: this.currentDriverLat,
               longitude: this.currentDriverLng,

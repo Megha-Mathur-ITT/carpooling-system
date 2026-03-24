@@ -37,7 +37,7 @@ export class TripDetails implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit() {
     const pickup = this.rideService.pickup;
@@ -52,22 +52,18 @@ export class TripDetails implements OnInit, OnDestroy {
     this.rideData = { pickup, destination, driver };
 
     setTimeout(() => {
-      if (this.mapComponent && this.rideData) {
-        this.mapComponent.startDriverAnimation(
-          this.rideData.driver.latitude,
-          this.rideData.driver.longitude,
-          this.rideData.pickup.latitude,
-          this.rideData.pickup.longitude,
-          this.rideData.destination.latitude,
-          this.rideData.destination.longitude
+      if (this.mapComponent) {
+        this.mapComponent.startDestinationAnimation(
+          this.rideData.pickup,
+          this.rideData.destination,
+          this.rideData.driver,
+          () => {
+            this.ngZone.run(() => {
+              this.hasReachedDestination = true;
+              this.router.navigate(['/driver/trip-details']);
+            });
+          }
         );
-
-        this.mapComponent.onDriverReachedPickup(() => {
-          this.ngZone.run(() => {
-            this.hasReachedDestination = true;
-            this.cdr.detectChanges();
-          });
-        });
       }
     }, 1000);
   }
@@ -79,7 +75,9 @@ export class TripDetails implements OnInit, OnDestroy {
   }
 
   completeRide() {
-    if (!this.rideService.bookingId || this.isCompleting) return;
+    if (!this.rideService.bookingId || this.isCompleting) {
+      return;
+    }
 
     this.isCompleting = true;
 

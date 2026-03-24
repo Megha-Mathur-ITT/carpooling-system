@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -9,6 +9,9 @@ import { RideSummary } from '../../../../shared/components/ride-summary/ride-sum
 import { AuthService } from '../../../../core/services/auth-service';
 import { RideStatus } from '../../components/ride-confirmation-page/ride-status/ride-status';
 import { reverseGeocode, trimLocation } from '../../../../shared/utils/locationUtil';
+import { Subscription } from 'rxjs';
+import { SignalrService } from '../../../../core/services/signalr';
+import { resolve } from 'path';
 
 @Component({
   selector: 'app-passenger-ride-confirmation',
@@ -17,7 +20,7 @@ import { reverseGeocode, trimLocation } from '../../../../shared/utils/locationU
   templateUrl: './passenger-ride-confirmation-page.html',
   styleUrl: './passenger-ride-confirmation-page.scss'
 })
-export class PassengerRideConfirmationPage implements OnInit {
+export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
   passengerPickup: any = null;
   passengerDestination: any = null;
   selectedDriver: any = null;
@@ -29,12 +32,20 @@ export class PassengerRideConfirmationPage implements OnInit {
   fare: number = 0;
   distanceKm: number = 0;
 
+  isPinVerified = false;
+  isPinFailed = false;
+  pinAttempts = 0;
+  readonly maxPinAttempts = 3;
+
+  private pinSub!: Subscription;
+
   constructor(
     private router: Router,
     private passengerRideService: PassengerRideService,
     private changeDetectorRef: ChangeDetectorRef,
     private authService: AuthService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private signalrService: SignalrService
   ) { }
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
@@ -62,6 +73,7 @@ export class PassengerRideConfirmationPage implements OnInit {
     };
 
     this.changeDetectorRef.markForCheck();
+    await this.loadPin();
 
     setTimeout(() => {
       if (this.mapComponent && this.selectedDriver && this.passengerPickup) {
@@ -82,7 +94,34 @@ export class PassengerRideConfirmationPage implements OnInit {
       }
     }, 1500);
 
-    this.loadPin();
+    this.listenToEventPinVerified();
+  }
+
+  listenToEventPinVerified() {
+    this.pinSub = this.signalrService.pinVerified$.subscribe(data => {
+      this.ngZone.run(() => {
+        if (data.success) {
+          this.isPinVerified = true;
+          this.isPinFailed = false;
+          this.isDriverArrived = true;
+
+          this.changeDetectorRef.detectChanges();
+
+          setTimeout(() => this.startDestinationRide(), 1500);
+        } else {
+          this.pinAttempts++;
+          this.isPinFailed = true;
+          this.isDriverArrived = true;
+          this.changeDetectorRef.detectChanges();
+
+          if (this.pinAttempts >= this.maxPinAttempts) {
+            setTimeout(() => {
+              this.router.navigate(['/passenger/landing']);
+            }, 2000);
+          }
+        }
+      });
+    });
   }
 
   get passengerPinDigits(): string[] {
@@ -102,26 +141,29 @@ export class PassengerRideConfirmationPage implements OnInit {
         this.passengerDestination,
         this.driverLocation,
         () => {
-        this.isRideStarted = false;
-        this.isReachedDestination = true;
-        this.changeDetectorRef.markForCheck();
-      }
+          this.isRideStarted = false;
+          this.isReachedDestination = true;
+          this.changeDetectorRef.markForCheck();
+        }
       );
     }
   }
 
-  private loadPin(): void {
-    this.authService.getMyPin().subscribe({
-      next: (response) => {
-        this.ngZone.run(() => {
-          this.passengerPin = response.pin;
-
-          this.changeDetectorRef.detectChanges();
-        });
-      },
-      error: () => {
-
-      }
+  private loadPin(): Promise<void> {
+    return new Promise((resolve) => {
+      this.authService.getMyPin().subscribe({
+        next: (response) => {
+          this.ngZone.run(() => {
+            this.passengerPin = response.pin;
+            this.changeDetectorRef.detectChanges();
+            
+            resolve();
+          });
+        },
+        error: () => {
+          resolve();
+        }
+      });
     });
   }
 
@@ -141,5 +183,9 @@ export class PassengerRideConfirmationPage implements OnInit {
     this.router.navigate(['passenger/payment'], {
       state: paymentState
     });
+  }
+
+  ngOnDestroy() {
+    this.pinSub?.unsubscribe();
   }
 }

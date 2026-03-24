@@ -3,11 +3,28 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../core/environments/environment';
 
+export interface LocationDto {
+  latitude: number;
+  longitude: number;
+  name: string;
+}
+
 export interface StartSessionDto {
   vehicleId: string;
-  pickup: string;
-  dropoff: string;
+  pickup: LocationDto;
+  destination: LocationDto;
   availableSeats?: number;
+}
+
+export interface RideRequest {
+  requestId: string;
+  passengerId: string;
+  passengerName: string;
+  pickup: LocationDto;
+  destination: LocationDto;
+  requestedAt: string;
+  rideRequestStatus: string;
+  sessionId: string;
 }
 
 @Injectable({
@@ -17,7 +34,7 @@ export class RideSessionService {
   private readonly baseUrl = `${environment.apiBaseUrl}/RideSession`;
   private readonly vehicleUrl = `${environment.apiBaseUrl}/Vehicle`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getMyVehicle(): Observable<any> {
     return this.http.get(`${this.vehicleUrl}/mine`);

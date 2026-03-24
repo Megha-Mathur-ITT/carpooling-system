@@ -171,13 +171,9 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onDriverReachedPickup(cb: () => void) {
-    console.log('Callback registered');
-
+  onDriverReachedPickup(callBack: () => void) {
     this.driverAnimation.onDriverReachedPickup(() => {
-      console.log('CALLBACK FROM ANIMATION');
-
-      cb();
+      callBack();
       this.driverReached.emit();
     });
   }

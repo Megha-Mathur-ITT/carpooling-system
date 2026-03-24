@@ -11,6 +11,7 @@ import { PassengerRideService } from '../../../../core/services/passenger-ride-s
 import { Subscription } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
+import { SignalrService } from '../../../../core/services/signalr';
 
 @Component({
   selector: 'app-driver-ride-active',
@@ -30,13 +31,10 @@ export class DriverRideActive implements OnInit, OnDestroy {
 
   rideData: any = null;
   rideLoaded: boolean = false;
-
   passengerName: string = '';
-
   showPinVerification: boolean = false;
 
   private sub: Subscription | null = null;
-
   @ViewChild(MapComponent) mapComponent!: MapComponent;
 
   constructor(
@@ -44,17 +42,15 @@ export class DriverRideActive implements OnInit, OnDestroy {
     public passengerRideService: PassengerRideService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-    private bookingService: BookingService
-  ) {}
+    private bookingService: BookingService,
+    private signalrService: SignalrService
+  ) { }
 
   ngOnInit() {
-
     const pickup = this.passengerRideService.pickup;
     const destination = this.passengerRideService.destination;
     const driver = this.passengerRideService.selectedDriver;
     this.passengerName = this.passengerRideService.passengerName;
-
-    console.log('Service Data:', pickup, destination, driver);
 
     if (!pickup || !destination || !driver) {
       this.router.navigate(['/driver/landing']);
@@ -62,13 +58,12 @@ export class DriverRideActive implements OnInit, OnDestroy {
     }
 
     this.rideData = {
-      passengerName : this.passengerName,
+      passengerName: this.passengerName,
       pickup,
       destination,
       driver
     };
 
-    
     this.rideLoaded = true;
 
     setTimeout(() => {
@@ -83,25 +78,21 @@ export class DriverRideActive implements OnInit, OnDestroy {
       ) {
 
         this.mapComponent.onDriverReachedPickup(() => {
-
-            this.ngZone.run(() => {
-              this.showPinVerification = true;
-              this.cdr.markForCheck();
+          this.ngZone.run(() => {
+            this.showPinVerification = true;
+            this.cdr.markForCheck();
           });
         });
-        
-        console.log('Starting animation...');
 
         this.mapComponent.startDriverAnimation(
-          this.rideData.driver.latitude,
-          this.rideData.driver.longitude,
-          this.rideData.pickup.latitude,
-          this.rideData.pickup.longitude,
-          this.rideData.destination.latitude,
-          this.rideData.destination.longitude
+          this.rideData.driver,
+          this.rideData.pickup,
+          this.rideData.destination,
+          this.rideData.pickup?.name,
+          this.rideData.destination?.name
         );
       } else {
-        console.error('Missing coordinates → animation not started', this.rideData);
+        console.error('Missing coordinates- animation not started', this.rideData);
       }
     }, 1500);
   }
@@ -112,8 +103,6 @@ export class DriverRideActive implements OnInit, OnDestroy {
 
 
   onDriverReached() {
-    console.log('SHOW PIN NOW');
-
     this.ngZone.run(() => {
       this.showPinVerification = true;
     });
@@ -127,11 +116,23 @@ export class DriverRideActive implements OnInit, OnDestroy {
     this.bookingService.verifyPin(this.passengerRideService.bookingId, pin)
       .subscribe({
         next: () => {
+          this.signalrService.notifyPassengerPinVerified(
+            this.passengerRideService.passengerId,
+            true
+          );
+          
           this.showPinVerification = false;
+          this.cdr.detectChanges();
+
           this.router.navigate(['/driver/trip-details']);
         },
-        error: (err: any) => {
-          console.error('PIN verify failed:', err);
+        error: (error: any) => {
+          console.error('PIN verify failed:', error);
+
+          this.signalrService.notifyPassengerPinVerified(
+            this.passengerRideService.passengerId,
+            false
+          );
         }
       });
   }

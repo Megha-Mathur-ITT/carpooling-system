@@ -14,12 +14,14 @@ export class SignalrService {
   connectionStatus$ = new BehaviorSubject<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
   rideRequested$ = new BehaviorSubject<any>(null);
   rideAccepted$ = new BehaviorSubject<any>(null);
-  rideRejected$ = new BehaviorSubject<any>(null);
+  rideRejected$ = new Subject<any>();
   requestCancelled$ = new BehaviorSubject<any>(null);
 
   paymentConfirmed$ = new Subject<any>();
   paymentDenied$ = new Subject<any>();
   passengerPaid$ = new Subject<any>();
+
+  pinVerified$ = new Subject<{ success: boolean }>();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
@@ -125,6 +127,11 @@ export class SignalrService {
       console.log("[SignalR] PassengerPaid received:", data);
       this.passengerPaid$.next(data);
     })
+
+    this.connection.on('PinVerified', (data) => {
+      console.log('[SignalR] PinVerified received:', data);
+      this.pinVerified$.next(data);
+    });
   }
 
   notifyDriver(
@@ -148,8 +155,8 @@ export class SignalrService {
       pickupLat: pickup.latitude,
       pickupLng: pickup.longitude,
       destinationName: destination.name,
-      destinationLat: destination.latitude,   
-      destinationLng: destination.longitude   
+      destinationLat: destination.latitude,
+      destinationLng: destination.longitude
     }).catch(error => {
       console.error('[SignalR] NotifyDriver failed:', error);
     });
@@ -169,7 +176,7 @@ export class SignalrService {
       return;
     }
 
-    this.connection.invoke('CancelRequest', { 
+    this.connection.invoke('CancelRequest', {
       rideRequestId,
       driverId
     })
@@ -221,5 +228,16 @@ export class SignalrService {
     }).catch(error =>
       console.error('[SignalR] NotifyDriverPassengerPaid failed:', error)
     );
+  }
+
+  notifyPassengerPinVerified(passengerId: string, success: boolean): void {
+    if (!this.connection) {
+      return;
+    }
+
+    this.connection.invoke('NotifyPassengerPinVerified', {
+      passengerId,
+      success
+    }).catch(error => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
   }
 }

@@ -115,8 +115,16 @@ export class RideForm implements OnChanges {
 
     const dto = {
       vehicleId: this.vehicleId,
-      pickup: this.pickup!.name,
-      dropoff: this.destinationInternal!.name,
+      pickup: {
+        latitude: this.pickup!.latitude,
+        longitude: this.pickup!.longitude,
+        name: this.pickup!.name
+      },
+      destination: {
+        latitude: this.destinationInternal!.latitude,
+        longitude: this.destinationInternal!.longitude,
+        name: this.destinationInternal!.name
+      },
       availableSeats: this.seatCount
     };
 
