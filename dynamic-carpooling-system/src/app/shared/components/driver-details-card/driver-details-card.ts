@@ -15,4 +15,9 @@ export class DriverDetailsCard {
   @Input() eta!: string;
 
   @Output() onRequestRide  = new EventEmitter<void>()
+
+  requestRideHandler(event: Event) {
+    this.onRequestRide.emit();
+    event.stopPropagation()
+  }
 }

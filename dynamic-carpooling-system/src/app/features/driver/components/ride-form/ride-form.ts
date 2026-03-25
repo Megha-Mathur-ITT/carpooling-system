@@ -1,6 +1,12 @@
 import {
-  Component, Output, EventEmitter,
-  Inject, PLATFORM_ID, afterNextRender
+  Component,
+  Output,
+  EventEmitter,
+  Inject,
+  PLATFORM_ID,
+  OnChanges,
+  SimpleChanges,
+  Input
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,18 +24,21 @@ import { LocationService } from '../../../../core/services/location-service';
   templateUrl: './ride-form.html',
   styleUrl: './ride-form.scss',
 })
-export class RideForm {
+export class RideForm implements OnChanges {
 
   @Output() sessionStarted = new EventEmitter<void>();
   @Output() sessionStopped = new EventEmitter<void>();
   @Output() currentLocationDetected = new EventEmitter<SelectedLocation>();
   @Output() destinationSelected = new EventEmitter<SelectedLocation>();
 
+  @Input() currentLocation: SelectedLocation | null = null;
+  @Input() destination: SelectedLocation | null = null;
+
   currentLocationName: string = '';
   currentLat: number = 0;
   currentLng: number = 0;
   pickup: SelectedLocation | null = null;
-  destination: SelectedLocation | null = null;
+  destinationInternal: SelectedLocation | null = null;
   seatCount: number = 4;
 
   isOnline = false;
@@ -41,35 +50,36 @@ export class RideForm {
     private rideSessionService: RideSessionService,
     private locationService: LocationService
   ) {
-    afterNextRender(() => {
+    if (isPlatformBrowser(this.platformId)) {
       this.detectCurrentLocation();
       this.fetchVehicle();
-    });
+    }
   }
 
-    private detectCurrentLocation(): void {
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['currentLocation'] && this.currentLocation) {
+      this.pickup = this.currentLocation;
+      this.currentLocationName = this.currentLocation.name;
+    }
+    if (changes['destination'] && this.destination) {
+      this.destinationInternal = this.destination;
+    }
+  }
+
+  private detectCurrentLocation(): void {
     if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
-
       this.currentLat = latitude;
       this.currentLng = longitude;
-
       const placeName = await this.fetchLocationName(latitude, longitude);
-
       this.currentLocationName = placeName;
-
-      const loc: SelectedLocation = {
-        latitude,
-        longitude,
-        name: placeName
-      };
-
-      this.pickup = loc;
-
-      this.currentLocationDetected.emit(loc);
-
+      const loc: SelectedLocation = { latitude, longitude, name: placeName };
+      if (!this.pickup) {
+        this.pickup = loc;
+        this.currentLocationDetected.emit(loc);
+      }
     }, () => {
       this.currentLocationName = 'Location unavailable';
     });
@@ -78,12 +88,8 @@ export class RideForm {
   private fetchVehicle(): void {
     this.rideSessionService.getMyVehicle().subscribe({
       next: (vehicle: any) => {
-        console.log('[RideForm] Vehicle fetched:', vehicle);
         this.vehicleId = vehicle.vehicleId;
         this.seatCount = vehicle.maxSeats;
-      },
-      error: (err: any) => {
-        console.warn('[RideForm] No vehicle found:', err.status);
       }
     });
   }
@@ -95,12 +101,12 @@ export class RideForm {
   }
 
   onDestinationSelected(location: SelectedLocation): void {
-    this.destination = location;
+    this.destinationInternal = location;
     this.destinationSelected.emit(location);
   }
 
   canPublish(): boolean {
-    return !!this.pickup && !!this.destination && !!this.vehicleId && !this.isLoading;
+    return !!this.pickup && !!this.destinationInternal && !!this.vehicleId && !this.isLoading;
   }
 
   publishRide(): void {
@@ -109,27 +115,27 @@ export class RideForm {
 
     const dto = {
       vehicleId: this.vehicleId,
-      pickup: this.pickup!.name,
-      dropoff: this.destination!.name,
+      pickup: {
+        latitude: this.pickup!.latitude,
+        longitude: this.pickup!.longitude,
+        name: this.pickup!.name
+      },
+      destination: {
+        latitude: this.destinationInternal!.latitude,
+        longitude: this.destinationInternal!.longitude,
+        name: this.destinationInternal!.name
+      },
       availableSeats: this.seatCount
     };
-
-    console.log('[RideForm] Sending dto:', JSON.stringify(dto));
 
     this.rideSessionService.startSession(dto).subscribe({
       next: () => {
         this.isOnline = true;
-
-        this.locationService.updateLocation(
-          this.pickup!.latitude,
-          this.pickup!.longitude
-        );
-
+        this.locationService.updateLocation(this.pickup!.latitude, this.pickup!.longitude);
         this.sessionStarted.emit();
         this.isLoading = false;
       },
-      error: (err: any) => {
-        console.error('[RideForm] Failed to start session:', err.error);
+      error: () => {
         this.isLoading = false;
       }
     });
@@ -145,26 +151,22 @@ export class RideForm {
         this.sessionStopped.emit();
         this.isLoading = false;
       },
-      error: (err: any) => {
-        console.error('[RideForm] Failed to stop session:', err);
+      error: () => {
         this.isLoading = false;
       }
     });
   }
 
   private async fetchLocationName(lat: number, lng: number): Promise<string> {
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
-      { headers: { 'Accept-Language': 'en' } }
-    );
-
-    const data = await res.json();
-
-    return data.display_name || 'Current Location';
-  } catch (err) {
-    console.error('Reverse geocoding failed', err);
-    return 'Current Location';
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+        { headers: { 'Accept-Language': 'en' } }
+      );
+      const data = await res.json();
+      return data.display_name || 'Current Location';
+    } catch {
+      return 'Current Location';
+    }
   }
-}
 }

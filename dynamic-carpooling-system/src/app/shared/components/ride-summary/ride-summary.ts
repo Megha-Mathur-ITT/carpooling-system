@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input} from '@angular/core';
+import { trimLocation } from '../../utils/locationUtil';
 
 @Component({
   selector: 'app-ride-summary',
@@ -11,12 +12,5 @@ export class RideSummary {
   @Input() pickup: any = null;
   @Input() destination: any = null;
 
-  trimLocation(location: string): string {
-    if (!location) {
-      return '';
-    }
-
-    const parts = location.split(',');
-    return parts.slice(0, 4).join(',').trim();
-  }
+  readonly trimLocation = trimLocation;
 }

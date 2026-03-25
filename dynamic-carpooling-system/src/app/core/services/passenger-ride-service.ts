@@ -19,6 +19,7 @@ export class PassengerRideService {
   fare: number = 0;
   pin: string = '';
   bookingId: string = '';
+  passengerId: string = '';
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object
@@ -32,7 +33,7 @@ export class PassengerRideService {
     this.pickup = pickup;
 
     if (this.isBrowser()) {
-      if(pickup) {
+      if (pickup) {
         sessionStorage.setItem("pickup", JSON.stringify(pickup));
       }
       else {
@@ -45,7 +46,7 @@ export class PassengerRideService {
     this.destination = destination;
 
     if (this.isBrowser()) {
-      if(destination) {
+      if (destination) {
         sessionStorage.setItem("destination", JSON.stringify(destination));
       }
       else {
@@ -70,30 +71,28 @@ export class PassengerRideService {
     }
   }
 
-  loadFromStorage() {
-    if (!this.isBrowser()) {
-      return;
+  setRideRequestId(requestId: string | null) {
+    this.rideRequestId = requestId;
+
+    if (this.isBrowser()) {
+      if (requestId) {
+        sessionStorage.setItem("rideRequestId", requestId);
+      }
+      else {
+        sessionStorage.removeItem("rideRequestId");
+      }
     }
+  }
 
-    try {
-      const pickupStr = sessionStorage.getItem("pickup");
-      const destinationStr = sessionStorage.getItem("destination");
+  setSelectedDriver(driver: any) {
+    this.selectedDriver = driver;
 
-      this.pickup = pickupStr ? JSON.parse(pickupStr) : null;
-      this.destination = destinationStr ? JSON.parse(destinationStr) : null;
-
-      this.city = sessionStorage.getItem('city') || '';
-      this.state = sessionStorage.getItem('state') || '';
-    } catch {
-      sessionStorage.removeItem("pickup");
-      sessionStorage.removeItem("destination");
-      sessionStorage.removeItem("city");
-      sessionStorage.removeItem("state");
-
-      this.pickup = null;
-      this.destination = null;
-      this.city = '';
-      this.state = '';
+    if (this.isBrowser()) {
+      if (driver) {
+        sessionStorage.setItem('selectedDriver', JSON.stringify(driver));
+      } else {
+        sessionStorage.removeItem('selectedDriver');
+      }
     }
   }
 
@@ -108,7 +107,50 @@ export class PassengerRideService {
   }
 
   setBookingResult(fare: number, pin: string): void {
-    this.fare = fare;  
+    this.fare = fare;
     this.pin = pin;
+  }
+
+  setPassengerId(id: string): void {
+    this.passengerId = id;
+
+    if (this.isBrowser()) {
+      if (id) {
+        sessionStorage.setItem('passengerId', id);
+      } else {
+        sessionStorage.removeItem('passengerId');
+      }
+    }
+  }
+
+  loadFromStorage() {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    try {
+      const pickupPoint = sessionStorage.getItem("pickup");
+      const destinationPoint = sessionStorage.getItem("destination");
+      this.pickup = pickupPoint ? JSON.parse(pickupPoint) : null;
+      this.destination = destinationPoint ? JSON.parse(destinationPoint) : null;
+      this.city = sessionStorage.getItem('city') || '';
+      this.state = sessionStorage.getItem('state') || '';
+      this.rideRequestId = sessionStorage.getItem("rideRequestId") || null;
+      this.selectedDriver = JSON.parse(sessionStorage.getItem("selectedDriver") || "null");
+      this.passengerId = sessionStorage.getItem('passengerId') || '';
+    } catch {
+      sessionStorage.removeItem("pickup");
+      sessionStorage.removeItem("destination");
+      sessionStorage.removeItem("city");
+      sessionStorage.removeItem("state");
+      sessionStorage.removeItem("rideRequestId");
+
+      this.pickup = null;
+      this.destination = null;
+      this.city = '';
+      this.state = '';
+      this.rideRequestId = null;
+      this.passengerId = ''; 
+    }
   }
 }

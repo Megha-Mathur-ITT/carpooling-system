@@ -1,0 +1,80 @@
+    <div class="status-section">
+        <!-- Ride acceptes section -->
+        @if(!isDriverArrived && !isRideStarted && !isReachedDestination) {
+        <div class="status-badge green">
+            <span class="dot"></span>
+            On the way
+        </div>
+        <h5>Ride Accepted!</h5>
+        <p>
+            <strong>{{ driver.driverName }}</strong> has accepted your request and is heading to your pickup.
+        </p>
+        }
+
+        <!-- Driver arrived section -->
+        @if(isDriverArrived && !isRideStarted && !isReachedDestination) {
+        <div class="status-badge blue">
+            <span class="dot"></span>
+            Arrived
+        </div>
+        <h5>{{ driver.driverName }} is here!</h5>
+        <p>Waiting at your pickup point.</p>
+
+        <!-- PIN verification states -->
+        @if(!isPinVerified && !isPinFailed) {
+        <div class="pin-verification-notice">
+            <i class="fa-solid fa-lock fa-flip" style="color: rgb(165, 245, 5);"></i>
+            <p>Waiting for PIN verification...</p>
+            <small>Share your PIN with the driver</small>
+        </div>
+        }
+
+        @if(isPinFailed && !isPinVerified) {
+        <div class="pin-verification-notice pin-failed">
+            <i class="bi bi-x-circle-fill me-2 text-danger"></i>
+            <p class="text-danger">PIN verification failed</p>
+            <small>
+                @if(pinAttempts < 3) { 
+                    Please re-verify your PIN with the driver ({{ 3 - pinAttempts }} attempts left) 
+                }
+                @else { 
+                    Maximum attempts reached. Please contact support. 
+                } 
+            </small>
+        </div>
+        }
+
+        @if(isPinVerified) {
+        <div class="pin-verification-notice pin-success">
+            <i class="bi bi-check-circle-fill me-2 text-success"></i>
+            <p class="text-success">PIN Verified!</p>
+            <small>Your ride is confirmed. Enjoy your trip!</small>
+        </div>
+        }
+        }
+
+        <!-- Ride progress section -->
+        @if(isRideStarted && !isReachedDestination) {
+        <div class="status-badge amber">
+            <span class="dot"></span>
+            In progress
+        </div>
+        <h5>Ride in progress!</h5>
+        <p>
+            Heading to <strong>{{ trimLocation(destination?.name)}}</strong>
+        </p>
+        }
+
+        <!-- Ride completed section -->
+        @if(isReachedDestination) {
+        <div class="status-badge teal">
+            <span class="dot"></span>
+            Completed
+        </div>
+        <h5>Ride Completed</h5>
+        <p>You've arrived. Please pay your driver.</p>
+        <button class="button-pay" (click)="onPayDriver.emit()">
+            Pay your driver
+        </button>
+        }
+    </div>

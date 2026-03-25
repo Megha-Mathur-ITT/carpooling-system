@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import * as signalR from '@microsoft/signalr';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,14 @@ export class SignalrService {
   connectionStatus$ = new BehaviorSubject<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
   rideRequested$ = new BehaviorSubject<any>(null);
   rideAccepted$ = new BehaviorSubject<any>(null);
-  rideRejected$ = new BehaviorSubject<any>(null);
+  rideRejected$ = new Subject<any>();
+  requestCancelled$ = new BehaviorSubject<any>(null);
+
+  paymentConfirmed$ = new Subject<any>();
+  paymentDenied$ = new Subject<any>();
+  passengerPaid$ = new Subject<any>();
+
+  pinVerified$ = new Subject<{ success: boolean }>();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
@@ -86,8 +93,8 @@ export class SignalrService {
       setTimeout(() => this.rideRejected$.next(null), 100);
     });
 
-    this.connection.on('RideCancelled', (data) => {
-      console.log('[SignalR] RideCancelled received:', data);
+    this.connection.on('RequestCancelled', (data) => {
+      console.log('[SignalR] RequestCancelled received:', data);
       this.rideRequested$.next(null);
     });
 
@@ -104,6 +111,26 @@ export class SignalrService {
     this.connection.onclose(() => {
       this.connectionStatus$.next('disconnected');
       console.warn('[SignalR] Connection closed.');
+    });
+
+    this.connection.on('PaymentConfirmed', (data) => {
+      console.log('[SignalR] PaymentConfirmed received:', data);
+      this.paymentConfirmed$.next(data);
+    });
+
+    this.connection.on('PaymentDenied', (data) => {
+      console.log('[SignalR] PaymentDenied received:', data);
+      this.paymentDenied$.next(data);
+    });
+
+    this.connection.on('PassengerPaid', (data) => {
+      console.log("[SignalR] PassengerPaid received:", data);
+      this.passengerPaid$.next(data);
+    })
+
+    this.connection.on('PinVerified', (data) => {
+      console.log('[SignalR] PinVerified received:', data);
+      this.pinVerified$.next(data);
     });
   }
 
@@ -128,8 +155,8 @@ export class SignalrService {
       pickupLat: pickup.latitude,
       pickupLng: pickup.longitude,
       destinationName: destination.name,
-      destinationLat: destination.latitude,   
-      destinationLng: destination.longitude   
+      destinationLat: destination.latitude,
+      destinationLng: destination.longitude
     }).catch(error => {
       console.error('[SignalR] NotifyDriver failed:', error);
     });
@@ -140,15 +167,77 @@ export class SignalrService {
     this.rideRejected$.next(null);
   }
 
-  notifyCancelRide(rideRequestId: string): void {
+  notifyCancelRequest(
+    rideRequestId: string,
+    driverId: string
+  ): void {
     if (!this.connection) {
       console.warn('[SignalR] Not connected. Cannot cancel ride.');
       return;
     }
 
-    this.connection.invoke('CancelRide', { rideRequestId })
+    this.connection.invoke('CancelRequest', {
+      rideRequestId,
+      driverId
+    })
       .catch(error => {
-        console.error('[SignalR] CancelRide failed:', error);
+        console.error('[SignalR] CancelRequest failed:', error);
       });
+  }
+
+  notifyPaymentConfirmed(
+    passengerId: string,
+    rideRequestId: string
+  ) {
+    if (!this.connection) {
+      console.warn('[SignalR] Not connected. Cannot confirm payment.');
+      return;
+    }
+
+    this.connection.invoke('ConfirmPayment', {
+      passengerId,
+      rideRequestId
+    }).catch(error =>
+      console.error('[SignalR] ConfirmPayment failed:', error)
+    )
+  }
+
+  notifyPaymentDenied(passengerId: string, rideRequestId: string): void {
+    if (!this.connection) {
+      console.warn('[SignalR] Not connected. Cannot deny payment.');
+      return;
+    }
+
+    this.connection.invoke('DenyPayment', {
+      passengerId,
+      rideRequestId
+    }).catch(error =>
+      console.error('[SignalR] DenyPayment failed:', error)
+    );
+  }
+
+  notifyDriverPassengerPaid(driverId: string, rideRequestId: string): void {
+    if (!this.connection) {
+      console.warn('[SignalR] Not connected. Cannot deny payment.');
+      return;
+    }
+
+    this.connection.invoke("NotifyDriverPassengerPaid", {
+      driverId,
+      rideRequestId
+    }).catch(error =>
+      console.error('[SignalR] NotifyDriverPassengerPaid failed:', error)
+    );
+  }
+
+  notifyPassengerPinVerified(passengerId: string, success: boolean): void {
+    if (!this.connection) {
+      return;
+    }
+
+    this.connection.invoke('NotifyPassengerPinVerified', {
+      passengerId,
+      success
+    }).catch(error => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
   }
 }

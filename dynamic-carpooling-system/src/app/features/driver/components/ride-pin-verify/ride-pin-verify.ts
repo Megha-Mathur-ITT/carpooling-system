@@ -10,6 +10,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-ride-pin-verify',
@@ -24,7 +26,7 @@ export class RidePinVerify implements OnDestroy {
 
   @Output() pinVerified = new EventEmitter<string>();
   @Output() resendRequested = new EventEmitter<void>();
-  
+
   @ViewChildren('pinBox') pinBoxes!: QueryList<ElementRef<HTMLInputElement>>;
 
   pinControls = new FormArray(
@@ -33,11 +35,17 @@ export class RidePinVerify implements OnDestroy {
     )
   );
 
-  state: 'idle' | 'loading' | 'success' | 'error' = 'idle';
+  state: 'idle' | 'loading' | 'success' | 'error' | 'redirecting' = 'idle';
   statusMessage = '';
   resendCooldown = 0;
 
   private resendTimer: any;
+  private attempts = 0;
+  private maxAttempts = 3;
+  private redirectTimer: any = null;
+
+  constructor(private router: Router , private snackBar: MatSnackBar) {}
+
 
   get pin(): string {
     return this.pinControls.controls.map(c => c.value ?? '').join('');
@@ -49,6 +57,7 @@ export class RidePinVerify implements OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.resendTimer);
+    if (this.redirectTimer) clearTimeout(this.redirectTimer);
   }
 
   onKeyDown(event: KeyboardEvent, index: number): void {
@@ -108,7 +117,7 @@ export class RidePinVerify implements OnDestroy {
   onPaste(event: ClipboardEvent, index: number): void {
     event.preventDefault();
     const text = event.clipboardData?.getData('text') ?? '';
-    this.pasteFill(text);   
+    this.pasteFill(text);
   }
 
   private pasteFill(text: string): void {
@@ -127,19 +136,48 @@ export class RidePinVerify implements OnDestroy {
   }
 
   verify(): void {
-    if (!this.isComplete || this.state === 'loading') return;
+    if (!this.isComplete || this.state === 'loading' || this.state === 'redirecting') return;
+
     this.state = 'loading';
-    this.statusMessage = 'Verifying…';
+    this.statusMessage = 'Verifying...';
 
     setTimeout(() => {
-      if (this.pin === this.expectedPin) {  // ← compare against real PIN
+      if (this.pin === this.expectedPin) {
+        this.attempts = 0;
         this.state = 'success';
-        this.statusMessage = 'PIN verified — boarding confirmed!';
+        this.statusMessage = 'PIN verified. Boarding confirmed!';
         this.pinVerified.emit(this.pin);
       } else {
+        this.attempts++;
+        const remaining = this.maxAttempts - this.attempts;
+
+        this.snackBar.open('Wrong PIN ! Enter Again ','Close', {    
+              duration: 3000,    
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+              panelClass: 'custom-style',
+        });
+        
+        if (remaining <= 0) {
+          this.state = 'redirecting';
+            this.snackBar.open('Too Many Failed Attempts , Redirecting... ','Close', {    
+                duration: 3000,    
+                horizontalPosition: 'center',
+                verticalPosition: 'top',
+                panelClass: 'custom-style',
+          });
+          this.redirectTimer = setTimeout(() => {
+            this.router.navigate(['/driver/landing']);
+          }, 2000);
+          return;
+        }
+
         this.state = 'error';
-        this.statusMessage = 'Incorrect PIN. Please try again.';
-        setTimeout(() => this.reset(), 900);
+        this.statusMessage = remaining === 1
+          ? 'Incorrect PIN. Last attempt!'
+          : `Incorrect PIN. ${remaining} attempts remaining.`;
+
+        setTimeout(() => this.reset(), 1000);
       }
     }, 300);
   }
@@ -169,7 +207,7 @@ export class RidePinVerify implements OnDestroy {
   }
 
   boxState(index: number): 'active' | 'filled' | 'error' | '' {
-    if (this.state === 'error') return 'error';
+    if (this.state === 'error' || this.state === 'redirecting') return 'error';
     if (this.state === 'success') return 'filled';
     const val = this.pinControls.at(index).value;
     if (val) return 'filled';
