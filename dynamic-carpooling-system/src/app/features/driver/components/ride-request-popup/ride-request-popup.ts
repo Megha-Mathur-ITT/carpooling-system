@@ -37,7 +37,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
     private rideRequestService: RideRequestService,
     private bookingService: BookingService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef,
     private router: Router,
     private passengerRideService: PassengerRideService
   ) { }
@@ -60,7 +60,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
         this.ngZone.run(() => {
           this.timeLeft--;
           this.timerPercent = (this.timeLeft / 30) * 100;
-          this.cdr.markForCheck();
+          this.changeDetectorRef.markForCheck();
 
           if (this.timeLeft <= 0) {
             this.stopTimer();

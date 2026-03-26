@@ -1,69 +1,77 @@
 <app-navbar></app-navbar>
-
+ 
 <div class="receipt-wrapper">
-    <div class="receipt-card">
-
-        <div class="receipt-header">
-            <div class="success-icon">
-                <i class="fa-solid fa-circle-check fa-2xl" style="color: rgb(165, 245, 5);"></i>
-            </div>
-            <h1>You made it!</h1>
-            <p class="receipt-sub">Your ride has been completed successfully.</p>
-        </div>
-
-        <div class="fare-summary">
-            <span class="fare-label">Total Paid</span>
-            <span class="fare-amount">₹{{ fare }}</span>
-            <span class="fare-mode">Cash Payment</span>
-        </div>
-
-        <div class="receipt-details">
-            @if(isDriver) {
-            <div class="receipt-row">
-                <span class="receipt-label">Passenger</span>
-                <span class="receipt-value">{{ passenger?.passengerName }}</span>
-            </div>
-            }
-            @else {
-            <div class="receipt-row">
-                <span class="receipt-label">Driver</span>
-                <span class="receipt-value">{{ driver?.driverName }}</span>
-            </div>
-            <div class="receipt-row">
-                <span class="receipt-label">Vehicle</span>
-                <span class="receipt-value">{{ driver?.vehicleName }}</span>
-            </div>
-            }
-
-            <div class="receipt-row">
-                <span class="receipt-label">Distance</span>
-                <span class="receipt-value">{{ distanceKm }} km</span>
-            </div>
-        </div>
-
-        <div class="route-summary">
-            <div class="route-point">
-                <span class="dot dot-blue"></span>
-                <div>
-                    <span class="route-label">Pickup</span>
-                    <span class="route-value">{{ pickup?.name | slice:0:40 }}</span>
-                </div>
-            </div>
-            <div class="route-line"></div>
-            <div class="route-point">
-                <span class="dot dot-red"></span>
-                <div>
-                    <span class="route-label">Destination</span>
-                    <span class="route-value">{{ destination?.name | slice:0:40 }}</span>
-                </div>
-            </div>
-        </div>
-
-        <button class="button-done" (click)="goHome()">
-            Back to Home
-        </button>
-
+  <div class="receipt-card">
+ 
+    <div class="receipt-header">
+      <div class="success-icon">
+        <i class="fa-solid fa-circle-check fa-2xl" style="color: rgb(165, 245, 5);"></i>
+      </div>
+      <h1>You made it!</h1>
+      <p class="receipt-sub">Your ride has been completed successfully.</p>
     </div>
+ 
+    <div class="fare-summary">
+      <span class="fare-label">Total Paid</span>
+      <span class="fare-amount">₹{{ fare }}</span>
+      <span class="fare-mode">Cash Payment</span>
+    </div>
+ 
+    <div class="receipt-details">
+      @if(isDriver) {
+        <div class="receipt-row">
+          <span class="receipt-label">Passenger</span>
+          <span class="receipt-value">
+            {{ passenger?.passengerName || passenger?.name || '—' }}
+          </span>
+        </div>
+      } @else {
+        <div class="receipt-row">
+          <span class="receipt-label">Driver</span>
+          <span class="receipt-value">
+            {{ driver?.driverName || driver?.name || '—' }}
+          </span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Vehicle</span>
+          <span class="receipt-value">
+            {{ driver?.vehicleName || '—' }}
+          </span>
+        </div>
+      }
+ 
+      <div class="receipt-row">
+        <span class="receipt-label">Distance</span>
+        <span class="receipt-value">
+          {{ distanceKm ? (distanceKm + ' km') : '—' }}
+        </span>
+      </div>
+    </div>
+ 
+    <div class="route-summary">
+      <div class="route-point">
+        <span class="dot dot-blue"></span>
+        <div>
+          <span class="route-label">Pickup</span>
+          <span class="route-value">{{ pickupName | slice:0:40 }}</span>
+        </div>
+      </div>
+      <div class="route-line"></div>
+      <div class="route-point">
+        <span class="dot dot-red"></span>
+        <div>
+          <span class="route-label">Destination</span>
+          <span class="route-value">{{ destinationName | slice:0:40 }}</span>
+        </div>
+      </div>
+    </div>
+ 
+    <button class="button-done" (click)="goHome()">
+      Back to Home
+    </button>
+ 
+  </div>
 </div>
-
+ 
 <app-footer></app-footer>
+ 

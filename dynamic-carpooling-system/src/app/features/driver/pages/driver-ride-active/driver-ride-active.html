@@ -3,8 +3,8 @@
 <div class="driver-active-wrapper">
 
   <div class="left-section">
-    <app-passenger-details *ngIf="rideData" [ride]="rideData" [distance]="passengerRideService.distanceKm"
-      [eta]="passengerRideService.durationMin" [fare]="passengerRideService.fare">
+    <app-passenger-details *ngIf="rideData" [ride]="rideData" [distance]="distanceKm" [eta]="durationMin"
+      [fare]="passengerRideService.fare">
     </app-passenger-details>
   </div>
 

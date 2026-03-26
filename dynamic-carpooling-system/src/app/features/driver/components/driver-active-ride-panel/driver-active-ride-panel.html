@@ -20,19 +20,11 @@
         <app-ride-summary [pickup]="activeRide?.pickupName"
             [destination]="activeRide?.destinationName"></app-ride-summary>
     </div>
-
-    <div class="status-strip">
-        <i class="bi bi-car-front-fill"></i>
-        <span>Drive to pickup point</span>
-    </div>
     }
 
     @if(isPaymentPending) {
-    <app-payment-confirm
-        [activeRide]="activeRide"
-        (confirmed)="onPaymentConfirmed()"
-        (denied)="onPaymentDenied()"
-    ></app-payment-confirm>
+    <app-payment-confirm [activeRide]="activeRide" (confirmed)="onPaymentConfirmed()"
+        (denied)="onPaymentDenied()"></app-payment-confirm>
     }
 
 </div>

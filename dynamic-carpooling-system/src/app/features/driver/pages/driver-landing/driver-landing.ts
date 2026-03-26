@@ -11,7 +11,8 @@ import { RideRequestPopup } from '../../components/ride-request-popup/ride-reque
 import { SelectedLocation } from '../../../../shared/components/location-search/location-search';
 import { SignalrService } from '../../../../core/services/signalr';
 import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel/driver-active-ride-panel';
-
+import { DriverRideService } from '../../services/driver-ride-service';
+ 
 @Component({
   selector: 'app-driver-landing',
   imports: [CommonModule, MapComponent, NavbarComponent, Footer, Toggler, RideForm, RideRequestPopup, DriverActiveRidePanel],
@@ -24,61 +25,54 @@ export class DriverLanding implements OnInit, OnDestroy {
   isOnline = false;
   incomingRequest: any = null;
   activeRide: any = null;
-
+ 
   private sub!: Subscription;
-
+ 
   constructor(
-    private cdr: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef,
     private signalrService: SignalrService,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router
+    private router: Router,
+    private rideService: DriverRideService
   ) { }
-
-
+ 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      const savedPickup = sessionStorage.getItem('pickup');
-      if (savedPickup) {
-        this.pickup = JSON.parse(savedPickup);
-      }
-
-      const savedDestination = sessionStorage.getItem('destination');
-      if (savedDestination) {
-        this.destination = JSON.parse(savedDestination);
-      }
-
-      const savedOnline = sessionStorage.getItem('isOnline');
-      this.isOnline = savedOnline === 'true';
-    }
-
-    this.signalrService.connect();
-
-    if (isPlatformBrowser(this.platformId)) {
-      const savedDriverActiveSession = sessionStorage.getItem("driver_active_ride");
-
+      this.pickup = this.rideService.getPickup();
+      this.destination = this.rideService.getDestination();
+      this.isOnline = this.rideService.getIsOnline();
+ 
+      const savedDriverActiveSession = sessionStorage.getItem('driver_active_ride');
       if (savedDriverActiveSession) {
-        this.activeRide = JSON.parse(savedDriverActiveSession);
-        this.isOnline = true;
-
-        this.cdr.detectChanges();
+        const parsed = JSON.parse(savedDriverActiveSession);
+ 
+        if (parsed?.rideRequestId && parsed?.passengerName) {
+          this.activeRide = parsed;
+          this.isOnline = true;
+        } else {
+          sessionStorage.removeItem('driver_active_ride');
+        }
+ 
+        this.changeDetectorRef.detectChanges();
       }
     }
-
+ 
+    this.signalrService.connect();
+ 
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
       if (request === null) {
         if (this.incomingRequest !== null) {
           this.incomingRequest = null;
-          this.cdr.detectChanges();
+          this.changeDetectorRef.detectChanges();
         }
-
         return;
       }
-
+ 
       if (!request.pickupLat || !request.pickupLng || !request.destinationLat || !request.destinationLng) {
         console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
         return;
       }
-
+ 
       this.incomingRequest = {
         requestId: request.requestId ?? request.rideRequestId,
         sessionId: request.sessionId,
@@ -95,15 +89,15 @@ export class DriverLanding implements OnInit, OnDestroy {
           name: request.destinationName
         }
       };
-
-      this.cdr.detectChanges();
+ 
+      this.changeDetectorRef.detectChanges();
     });
   }
-
+ 
   ngOnDestroy() {
     this.sub?.unsubscribe();
   }
-
+ 
   onRequestAccepted() {
     this.activeRide = {
       rideRequestId: this.incomingRequest.requestId,
@@ -112,71 +106,70 @@ export class DriverLanding implements OnInit, OnDestroy {
       pickupName: this.incomingRequest.pickup,
       destinationName: this.incomingRequest.destination,
       fare: 200
-    }
-
+    };
+ 
     if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem("driver_active_ride", JSON.stringify(this.activeRide));
+      sessionStorage.setItem('driver_active_ride', JSON.stringify(this.activeRide));
     }
-
+ 
     this.incomingRequest = null;
-    this.cdr.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
-
+ 
   onRequestRejected() {
     this.incomingRequest = null;
-    this.cdr.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
-
+ 
   onCurrentLocationDetected(location: SelectedLocation) {
     this.pickup = location;
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('pickup', JSON.stringify(location));
-    }
-    this.cdr.detectChanges();
+    this.rideService.setPickup(location);
+    this.changeDetectorRef.detectChanges();
   }
-
+ 
   onDestinationSelected(location: SelectedLocation) {
     this.destination = location;
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('destination', JSON.stringify(location));
-    }
-    this.cdr.detectChanges();
+    this.rideService.setDestination(location);
+    this.changeDetectorRef.detectChanges();
   }
-
+ 
   onSessionStarted() {
     this.isOnline = true;
+    this.activeRide = null;
+    this.rideService.setIsOnline(true);
     if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('isOnline', 'true');
+      sessionStorage.removeItem('driver_active_ride');
     }
-    this.cdr.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
-
+ 
   onSessionStopped() {
     this.isOnline = false;
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('isOnline', 'false');
-    }
-    this.cdr.detectChanges();
+    this.rideService.setIsOnline(false);
+    this.rideService.clearAll();
+    this.changeDetectorRef.detectChanges();
   }
-
+ 
   onRideCompleted() {
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.removeItem('driver_active_ride');
       sessionStorage.removeItem('driver_payment_pending');
     }
-
+ 
     this.activeRide = null;
     this.isOnline = false;
-    this.cdr.detectChanges();
+    this.rideService.clearAll();
+    this.changeDetectorRef.detectChanges();
   }
-
+ 
   onRideCancelled() {
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.removeItem('driver_active_ride');
       sessionStorage.removeItem('driver_payment_pending');
     }
-
+ 
     this.activeRide = null;
-    this.cdr.detectChanges();
+    this.changeDetectorRef.detectChanges();
   }
 }
+ 

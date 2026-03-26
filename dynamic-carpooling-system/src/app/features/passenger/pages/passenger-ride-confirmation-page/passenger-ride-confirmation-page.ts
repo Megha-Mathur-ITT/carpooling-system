@@ -11,7 +11,6 @@ import { RideStatus } from '../../components/ride-confirmation-page/ride-status/
 import { reverseGeocode, trimLocation } from '../../../../shared/utils/locationUtil';
 import { Subscription } from 'rxjs';
 import { SignalrService } from '../../../../core/services/signalr';
-import { resolve } from 'path';
 
 @Component({
   selector: 'app-passenger-ride-confirmation',

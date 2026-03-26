@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Location } from '../../core/models/auth-model'
 import { trimLocation } from '../utils/locationUtil';
 
-@Injectable({ providedIn: 'root' })
 export class DriverAnimation {
   private map: any = null;
   private L: any = null;
@@ -81,7 +80,7 @@ export class DriverAnimation {
 
   private setupDestinationRoute(destinationCoords: Location[]) {
     this.destinationCoords = [...destinationCoords];
-    this.bluePolyline = this.drawPolyline(destinationCoords, "blue", false);
+    // this.bluePolyline = this.drawPolyline(destinationCoords, "blue", false);
   }
 
   private fitMapToRoute(
@@ -120,11 +119,15 @@ export class DriverAnimation {
     polyline: any,
     onComplete: () => void
   ): any {
-    return setInterval(() => {
+    const intervalReference = setInterval(() => {
       if (coords.length <= 1) {
-        clearInterval(this.interval);
-        onComplete();
+        clearInterval(intervalReference);
 
+        if (polyline && this.map) {
+          this.map.removeLayer(polyline);
+        }
+
+        onComplete();
         return;
       }
 
@@ -136,8 +139,13 @@ export class DriverAnimation {
       }
 
       this.carMarker?.setLatLng([next.latitude, next.longitude]);
-      polyline?.setLatLngs(coords.map(c => [c.latitude, c.longitude]));
+
+      if (polyline && coords.length > 0) {
+        polyline.setLatLngs(coords.map(coord => [coord.latitude, coord.longitude]));
+      }
     }, 1000);
+
+    return intervalReference;
   }
 
   private startMoving(passengerPickup: Location, onDriverArrived?: () => void): void {
@@ -282,8 +290,8 @@ export class DriverAnimation {
         title: 'Passenger Pickup point'
       }
     )
-    .addTo(this.map)
-    .bindPopup(`<b>Passenger</b>`);
+      .addTo(this.map)
+      .bindPopup(`<b>Passenger</b>`);
 
     const destinationMarker = this.placeMarker(
       passengerDestination,
@@ -292,10 +300,12 @@ export class DriverAnimation {
       `<b>Destination:</b> ${trimLocation(this.passengerDestinationAddress)}`
     );
 
-    this.interval = this.animateAlongRoute([...savedDestinationCoords], this.bluePolyline, () => {
-      this.map.removeLayer(destinationMarker);
-      onReachedDestination?.();
-    });
+    this.interval = this.animateAlongRoute(
+      [...savedDestinationCoords],
+      this.bluePolyline, () => {
+        this.map.removeLayer(destinationMarker);
+        onReachedDestination?.();
+      });
 
     this.hasDriverReached = false;
   }

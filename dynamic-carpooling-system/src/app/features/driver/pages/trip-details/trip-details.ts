@@ -35,7 +35,7 @@ export class TripDetails implements OnInit, OnDestroy {
     private bookingService: BookingService,
     private router: Router,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef,
     private snackBar: MatSnackBar
   ) { }
 
@@ -80,6 +80,7 @@ export class TripDetails implements OnInit, OnDestroy {
     }
 
     this.isCompleting = true;
+    this.changeDetectorRef.detectChanges();
 
     this.bookingService.completeBooking(this.rideService.bookingId).subscribe({
       next: () => {
