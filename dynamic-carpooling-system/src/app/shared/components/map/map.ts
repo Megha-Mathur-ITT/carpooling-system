@@ -92,7 +92,6 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
     this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
     this.pickupMarker = this.L.marker(
@@ -313,10 +312,6 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   createRoute() {
-    if (!this.showRoute) {
-      return;
-    }
-
     if (!this.mapReady || !this.pickupMarker || !this.destinationMarker) {
       return;
     }

@@ -10,27 +10,27 @@
 
     <div class="detail-row">
       <span class="label">Pickup</span>
-      <span class="value">{{ ride.pickup?.name }}</span>
+      <span class="value">{{ ride.pickup?.name?.split(',').slice(0,3).join(',') }}</span>
     </div>
 
     <div class="detail-row">
       <span class="label">Destination</span>
-      <span class="value">{{ ride.destination?.name }}</span>
+      <span class="value">{{ ride.destination?.name?.split(',').slice(0,3).join(',') }}</span>
     </div>
 
     <div class="detail-row">
       <span class="label">Distance</span>
-      <span class="value">{{ distance ? (distance + ' km') : 'Calculating...' }}</span>
+      <span class="value">{{ distance > 0 ? (distance + ' km') : 'Calculating...' }}</span>
     </div>
 
     <div class="detail-row">
       <span class="label">Fare</span>
-      <span class="value price">{{ fare ? ('₹' + fare) : 'Calculating...' }}</span>
+      <span class="value price">{{ fare > 0 ? ('₹' + fare) : 'Calculating...' }}</span>
     </div>
 
     <div class="detail-row">
       <span class="label">ETA</span>
-      <span class="value">{{ eta ? (eta + ' mins') : 'Calculating...' }}</span>
+      <span class="value">{{ eta > 0 ? (eta + ' mins') : 'Calculating...' }}</span>
     </div>
 
   </div>

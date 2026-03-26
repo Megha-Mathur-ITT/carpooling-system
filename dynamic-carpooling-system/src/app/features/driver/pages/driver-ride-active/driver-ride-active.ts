@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
 import { SignalrService } from '../../../../core/services/signalr';
+import { DriverRideService } from '../../services/driver-ride-service';
 
 @Component({
   selector: 'app-driver-ride-active',
@@ -33,6 +34,9 @@ export class DriverRideActive implements OnInit, OnDestroy {
   rideLoaded: boolean = false;
   passengerName: string = '';
   showPinVerification: boolean = false;
+  distanceKm: number = 0;
+  durationMin: number = 0;
+  fare: number = 0;
 
   private sub: Subscription | null = null;
   @ViewChild(MapComponent) mapComponent!: MapComponent;
@@ -43,7 +47,8 @@ export class DriverRideActive implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
     private bookingService: BookingService,
-    private signalrService: SignalrService
+    private signalrService: SignalrService,
+    private driverRideService: DriverRideService
   ) { }
 
   ngOnInit() {
@@ -99,8 +104,19 @@ export class DriverRideActive implements OnInit, OnDestroy {
 
   onRouteInfo(data: { distanceKm: number; durationMin: number }) {
     this.passengerRideService.setRouteInfo(data.distanceKm, data.durationMin);
-  }
+    this.distanceKm = this.passengerRideService.distanceKm;
+    this.durationMin = this.passengerRideService.durationMin;
+    this.driverRideService.setFare(this.fare);
+    this.driverRideService.setDistanceKm(data.distanceKm);
 
+    const raw = sessionStorage.getItem('receipt_state');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      parsed.distanceKm = data.distanceKm;
+      sessionStorage.setItem('receipt_state', JSON.stringify(parsed));
+   }
+    this.cdr.detectChanges()
+  }
 
   onDriverReached() {
     this.ngZone.run(() => {
@@ -120,7 +136,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
             this.passengerRideService.passengerId,
             true
           );
-          
+
           this.showPinVerification = false;
           this.cdr.detectChanges();
 

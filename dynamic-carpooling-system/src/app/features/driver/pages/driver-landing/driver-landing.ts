@@ -11,14 +11,25 @@ import { RideRequestPopup } from '../../components/ride-request-popup/ride-reque
 import { SelectedLocation } from '../../../../shared/components/location-search/location-search';
 import { SignalrService } from '../../../../core/services/signalr';
 import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel/driver-active-ride-panel';
+import { DriverRideService } from '../../services/driver-ride-service';
 
 @Component({
   selector: 'app-driver-landing',
-  imports: [CommonModule, MapComponent, NavbarComponent, Footer, Toggler, RideForm, RideRequestPopup, DriverActiveRidePanel],
+  imports: [
+    CommonModule,
+    MapComponent,
+    NavbarComponent,
+    Footer,
+    Toggler,
+    RideForm,
+    RideRequestPopup,
+    DriverActiveRidePanel
+  ],
   templateUrl: './driver-landing.html',
   styleUrl: './driver-landing.scss',
 })
 export class DriverLanding implements OnInit, OnDestroy {
+
   pickup: SelectedLocation | null = null;
   destination: SelectedLocation | null = null;
   isOnline = false;
@@ -31,46 +42,33 @@ export class DriverLanding implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private signalrService: SignalrService,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router
+    private router: Router,
+    private rideService: DriverRideService
   ) { }
-
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      const savedPickup = sessionStorage.getItem('pickup');
-      if (savedPickup) {
-        this.pickup = JSON.parse(savedPickup);
+      this.pickup = this.rideService.getPickup();
+      this.destination = this.rideService.getDestination();
+      this.isOnline = this.rideService.getIsOnline();
+      this.activeRide = this.rideService.getActiveRide();
+
+      if (!this.activeRide?.rideRequestId || !this.activeRide?.passengerName) {
+        this.rideService.setActiveRide(null);
+        this.activeRide = null;
       }
 
-      const savedDestination = sessionStorage.getItem('destination');
-      if (savedDestination) {
-        this.destination = JSON.parse(savedDestination);
-      }
-
-      const savedOnline = sessionStorage.getItem('isOnline');
-      this.isOnline = savedOnline === 'true';
+      this.cdr.detectChanges();
     }
 
     this.signalrService.connect();
 
-    if (isPlatformBrowser(this.platformId)) {
-      const savedDriverActiveSession = sessionStorage.getItem("driver_active_ride");
-
-      if (savedDriverActiveSession) {
-        this.activeRide = JSON.parse(savedDriverActiveSession);
-        this.isOnline = true;
-
-        this.cdr.detectChanges();
-      }
-    }
-
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
-      if (request === null) {
-        if (this.incomingRequest !== null) {
+      if (!request) {
+        if (this.incomingRequest) {
           this.incomingRequest = null;
           this.cdr.detectChanges();
         }
-
         return;
       }
 
@@ -109,15 +107,11 @@ export class DriverLanding implements OnInit, OnDestroy {
       rideRequestId: this.incomingRequest.requestId,
       passengerName: this.incomingRequest.passengerName,
       passengerId: this.incomingRequest.passengerId,
-      pickupName: this.incomingRequest.pickup,
-      destinationName: this.incomingRequest.destination,
-      fare: 200
-    }
+      pickupName: this.incomingRequest.pickup.name,
+      destinationName: this.incomingRequest.destination.name,
+    };
 
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem("driver_active_ride", JSON.stringify(this.activeRide));
-    }
-
+    this.rideService.setActiveRide(this.activeRide);
     this.incomingRequest = null;
     this.cdr.detectChanges();
   }
@@ -129,54 +123,47 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   onCurrentLocationDetected(location: SelectedLocation) {
     this.pickup = location;
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('pickup', JSON.stringify(location));
-    }
+    this.rideService.setPickup(location);
     this.cdr.detectChanges();
   }
 
   onDestinationSelected(location: SelectedLocation) {
     this.destination = location;
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('destination', JSON.stringify(location));
-    }
+    this.rideService.setDestination(location);
     this.cdr.detectChanges();
   }
 
   onSessionStarted() {
     this.isOnline = true;
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('isOnline', 'true');
-    }
+    this.activeRide = null;
+
+    this.rideService.setIsOnline(true);
     this.cdr.detectChanges();
   }
 
   onSessionStopped() {
     this.isOnline = false;
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('isOnline', 'false');
-    }
+
+    this.rideService.setIsOnline(false);
+    this.rideService.clearAll();
+    this.pickup = null;
+    this.destination = null;
+
     this.cdr.detectChanges();
   }
 
   onRideCompleted() {
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.removeItem('driver_active_ride');
-      sessionStorage.removeItem('driver_payment_pending');
-    }
-
     this.activeRide = null;
     this.isOnline = false;
+    this.rideService.clearAll();
+    this.pickup = null;
+    this.destination = null;
     this.cdr.detectChanges();
   }
 
   onRideCancelled() {
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.removeItem('driver_active_ride');
-      sessionStorage.removeItem('driver_payment_pending');
-    }
-
     this.activeRide = null;
+    this.rideService.setActiveRide(null);
     this.cdr.detectChanges();
   }
 }
