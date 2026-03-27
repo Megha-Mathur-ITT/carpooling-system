@@ -24,8 +24,14 @@
   </div>
 </div>
 
-<app-ride-request-popup *ngIf="incomingRequest" [request]="incomingRequest" [currentDriverLat]="pickup?.latitude ?? 0"
-  [currentDriverLng]="pickup?.longitude ?? 0" (accepted)="onRequestAccepted()" (rejected)="onRequestRejected()">
+<app-ride-request-popup *ngIf="pendingRequests.length === 1" [request]="pendingRequests[0]"
+  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()"
+  (rejected)="onRequestRejected()">
 </app-ride-request-popup>
+
+<app-ride-request-panel *ngIf="pendingRequests.length > 1" [requests]="pendingRequests"
+  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()"
+  (allRejected)="onAllRejected()">
+</app-ride-request-panel>
 
 <app-footer></app-footer>
