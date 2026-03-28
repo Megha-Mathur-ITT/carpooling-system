@@ -1,0 +1,7 @@
+<div class="waiting-state">
+    <h3>Request Sent!</h3>
+    <p>Waiting for <strong>{{ driverName }}</strong> to respond...</p>
+    <button class="btn btn-outline-danger mt-3" (click)="onCancel.emit()">
+        Cancel Request
+    </button>
+</div>

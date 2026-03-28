@@ -51,8 +51,6 @@ export class LocationService {
       },
       { enableHighAccuracy: true, maximumAge: 5000 }
     );
-
-    console.log('[Location] Tracking started.');
   }
 
   stopTracking(): void {
@@ -61,7 +59,6 @@ export class LocationService {
       this.watchId = null;
       this.lastLat = null;
       this.lastLng = null;
-      console.log('[Location] Tracking stopped.');
     }
   }
 

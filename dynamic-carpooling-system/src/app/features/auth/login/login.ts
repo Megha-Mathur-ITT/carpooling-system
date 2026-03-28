@@ -64,8 +64,10 @@ export class Login {
 
     const payload = this.buildPayload();
 
+    debugger
     this.authService.login(payload).subscribe({
       next: () => {
+        debugger
         this.signalrService.connect();
         
         this.snackBar.open("Login successful!", 'close', {

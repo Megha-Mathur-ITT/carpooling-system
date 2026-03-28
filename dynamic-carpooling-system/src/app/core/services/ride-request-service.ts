@@ -13,7 +13,7 @@ export class RideRequestService {
     pickup: any,
     destination: any
   ): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/create`, {
+    const body: RideRequestCreateDto = {
       pickup: {
         name: pickup.name,
         latitude: pickup.latitude,
@@ -24,7 +24,9 @@ export class RideRequestService {
         latitude: destination.latitude,
         longitude: destination.longitude
       }
-    });
+    }
+
+    return this.http.post<any>(`${this.baseUrl}/create`, body);
   }
 
   respondToRequest(
@@ -45,9 +47,5 @@ export class RideRequestService {
     return this.http.post(
       `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
     );
-  }
-
-  cancelRide(rideRequestId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/cancel/${rideRequestId}`, {});
   }
 }

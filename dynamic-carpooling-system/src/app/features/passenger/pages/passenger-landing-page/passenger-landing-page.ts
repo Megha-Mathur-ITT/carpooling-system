@@ -2,14 +2,13 @@ import { Component, OnInit, afterNextRender, inject, NgZone, ChangeDetectorRef }
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { LocationSearchComponent } from '../../../../shared/components/location-search/location-search';
-
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequestService } from '../../../../core/services/ride-request-service';
+import { getAddressDetails } from '../../../../shared/utils/locationUtil';
 
 @Component({
   selector: 'app-passenger-landing-page',
@@ -57,12 +56,12 @@ export class PassengerLandingPage implements OnInit {
       this.changeDetectionRef.detectChanges();
     }
 
-    if(this.passengerRideService.city) {
+    if (this.passengerRideService.city) {
       this.city = this.passengerRideService.city;
       this.changeDetectionRef.detectChanges();
     }
 
-    if(this.passengerRideService.state) {
+    if (this.passengerRideService.state) {
       this.state = this.passengerRideService.state;
       this.changeDetectionRef.detectChanges();
     }
@@ -111,36 +110,22 @@ export class PassengerLandingPage implements OnInit {
 
   async fetchLocation(latitude: number, longitude: number) {
     try {
-      const result = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
-        {
-          headers: { 'Accept-Language': 'en' }
-        }
-      );
-
-      const data = await result.json();
-      const address = data.address;
+      const { city, state, displayName } = await getAddressDetails({ latitude, longitude });
 
       this.ngZone.run(() => {
-        this.city =
-          address?.state_district ??
-          address?.city ??
-          address?.village ??
-          address?.country ??
-          '';
-
-        this.state = address?.state ?? '';
-        this.passengerRideService.setCity(this.city);
-        this.passengerRideService.setState(this.state);
+        this.city = city;
+        this.state = state;
+        this.passengerRideService.setCity(city);
+        this.passengerRideService.setState(state);
 
         this.pickupLocation = {
           latitude: latitude,
           longitude: longitude,
-          name: data.display_name,
+          name: displayName,
         };
         this.passengerRideService.setPickup(this.pickupLocation);
 
-        this.changeDetectionRef.detectChanges(); 
+        this.changeDetectionRef.detectChanges();
       })
 
     } catch (error) {
@@ -185,7 +170,8 @@ export class PassengerLandingPage implements OnInit {
     this.rideRequestService.createRide(this.pickupLocation, this.destinationLocation)
       .subscribe({
         next: (response) => {
-          this.passengerRideService.rideRequestId = response.requestId;
+          this.passengerRideService.setRideRequestId(response.requestId);
+          
           this.router.navigate(['/passenger/ride-selection']);
         },
         error: () => {

@@ -143,8 +143,6 @@ export class Register {
 
     const payload = this.buildPayload();
 
-    console.log("Register Payload:", payload); // debug log
-
     this.authService.register(payload).subscribe({
 
       next: () => {
@@ -165,7 +163,7 @@ export class Register {
       },
 
       error: (error) => {
-
+        console.error('Error body:', JSON.stringify(error.error));
         this.snackBar.open(
           error?.error?.error || "Registration failed.",
           "close",

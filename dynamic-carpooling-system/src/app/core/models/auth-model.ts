@@ -29,3 +29,12 @@ export interface JwtPayload {
     email: string;
     role: string; 
 }
+
+export interface PinRequest {
+    pin: string
+}
+
+export interface Location {
+    latitude: number,
+    longitude: number,
+}

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OfflineTogglerPage } from './offline-toggler-page';
+import { PaymentConfirm } from './payment-confirm';
 
-describe('OfflineTogglerPage', () => {
-  let component: OfflineTogglerPage;
-  let fixture: ComponentFixture<OfflineTogglerPage>;
+describe('PaymentConfirm', () => {
+  let component: PaymentConfirm;
+  let fixture: ComponentFixture<PaymentConfirm>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OfflineTogglerPage]
+      imports: [PaymentConfirm]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(OfflineTogglerPage);
+    fixture = TestBed.createComponent(PaymentConfirm);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

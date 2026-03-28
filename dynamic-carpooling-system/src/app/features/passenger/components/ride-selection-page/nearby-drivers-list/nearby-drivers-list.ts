@@ -15,4 +15,13 @@ export class NearbyDriversList {
 
   @Output() driverSelected = new EventEmitter<any>();
   @Output() rideRequested = new EventEmitter<any>();
+
+  onRequestRideHandler(driver: any) {
+    this.driverSelected.emit(driver);
+    this.rideRequested.emit(driver);
+  }
+
+  onDriverClick(driver: any) {
+    this.driverSelected.emit(driver);
+  }
 }

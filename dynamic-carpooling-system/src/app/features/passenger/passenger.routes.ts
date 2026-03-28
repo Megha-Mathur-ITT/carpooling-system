@@ -18,10 +18,31 @@ export const PASSENGER_ROUTES: Routes = [
         .then(m => m.PassengerRideSelection)
   },
   {
-    path: 'passenger/ride-confirmation',  
+    path: 'passenger/ride-confirmation',
     canActivate: [authGuard, roleGuard('Passenger')],
     loadComponent: () =>
       import('./pages/passenger-ride-confirmation-page/passenger-ride-confirmation-page')
         .then(m => m.PassengerRideConfirmationPage)
+  },
+  {
+    path: 'passenger/payment',
+    canActivate: [authGuard, roleGuard('Passenger')],
+    loadComponent: () =>
+      import('./pages/passenger-payment-page/passenger-payment-page')
+        .then(module => module.PassengerPaymentPage)
+  },
+  {
+    path: 'passenger/receipt',
+    canActivate: [authGuard, roleGuard('Passenger')],
+    loadComponent: () =>
+      import('../../shared/components/ride-receipt/ride-receipt')
+        .then(module => module.RideReceipt)
+  },
+  {
+    path: 'passenger/history',
+    canActivate: [authGuard, roleGuard('Passenger')],
+    loadComponent: () =>
+      import('./pages/passenger-history/passenger-history')
+        .then(module => module.PassengerHistory)
   }
 ];

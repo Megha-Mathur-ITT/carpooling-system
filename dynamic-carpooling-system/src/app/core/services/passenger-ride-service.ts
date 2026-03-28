@@ -12,6 +12,14 @@ export class PassengerRideService {
 
   city: string = '';
   state: string = '';
+  passengerName: string = '';
+
+  distanceKm: number = 0;
+  durationMin: number = 0;
+  fare: number = 0;
+  pin: string = '';
+  bookingId: string = '';
+  passengerId: string = '';
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object
@@ -25,7 +33,7 @@ export class PassengerRideService {
     this.pickup = pickup;
 
     if (this.isBrowser()) {
-      if(pickup) {
+      if (pickup) {
         sessionStorage.setItem("pickup", JSON.stringify(pickup));
       }
       else {
@@ -38,7 +46,7 @@ export class PassengerRideService {
     this.destination = destination;
 
     if (this.isBrowser()) {
-      if(destination) {
+      if (destination) {
         sessionStorage.setItem("destination", JSON.stringify(destination));
       }
       else {
@@ -63,34 +71,117 @@ export class PassengerRideService {
     }
   }
 
+  setRideRequestId(requestId: string | null) {
+    this.rideRequestId = requestId;
+
+    if (this.isBrowser()) {
+      if (requestId) {
+        sessionStorage.setItem("rideRequestId", requestId);
+      }
+      else {
+        sessionStorage.removeItem("rideRequestId");
+      }
+    }
+  }
+
+  setSelectedDriver(driver: any) {
+    this.selectedDriver = driver;
+
+    if (this.isBrowser()) {
+      if (driver) {
+        sessionStorage.setItem('selectedDriver', JSON.stringify(driver));
+      } else {
+        sessionStorage.removeItem('selectedDriver');
+      }
+    }
+  }
+
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
+
+  setRouteInfo(distanceKm: number, durationMin: number): void {
+    this.distanceKm = distanceKm;
+    this.durationMin = durationMin;
+    this.fare = Math.round(distanceKm * 9);
+
+    if (this.isBrowser()) {
+      sessionStorage.setItem('distanceKm', distanceKm.toString());
+      sessionStorage.setItem('durationMin', durationMin.toString());
+      sessionStorage.setItem('fare', this.fare.toString());
+    }
+  }
+
+  setBookingResult(fare: number, pin: string): void {
+    this.fare = fare;
+    this.pin = pin;
+  }
+
+  setPassengerId(id: string): void {
+    this.passengerId = id;
+
+    if (this.isBrowser()) {
+      if (id) {
+        sessionStorage.setItem('passengerId', id);
+      } else {
+        sessionStorage.removeItem('passengerId');
+      }
+    }
+  }
+
   loadFromStorage() {
     if (!this.isBrowser()) {
       return;
     }
 
     try {
-      const pickupStr = sessionStorage.getItem("pickup");
-      const destinationStr = sessionStorage.getItem("destination");
+      const pickupPoint = sessionStorage.getItem("pickup");
+      const destinationPoint = sessionStorage.getItem("destination");
 
-      this.pickup = pickupStr ? JSON.parse(pickupStr) : null;
-      this.destination = destinationStr ? JSON.parse(destinationStr) : null;
-
+      this.pickup = pickupPoint ? JSON.parse(pickupPoint) : null;
+      this.destination = destinationPoint ? JSON.parse(destinationPoint) : null;
       this.city = sessionStorage.getItem('city') || '';
       this.state = sessionStorage.getItem('state') || '';
+      this.rideRequestId = sessionStorage.getItem("rideRequestId") || null;
+      this.selectedDriver = JSON.parse(sessionStorage.getItem("selectedDriver") || "null");
+      this.passengerId = sessionStorage.getItem('passengerId') || '';
+      this.distanceKm = parseFloat(sessionStorage.getItem('distanceKm') || '0');
+      this.durationMin = parseFloat(sessionStorage.getItem('durationMin') || '0');
+      this.fare = parseFloat(sessionStorage.getItem('fare') || '0');
     } catch {
-      sessionStorage.removeItem("pickup");
-      sessionStorage.removeItem("destination");
-      sessionStorage.removeItem("city");
-      sessionStorage.removeItem("state");
-
-      this.pickup = null;
-      this.destination = null;
-      this.city = '';
-      this.state = '';
+      this.clearAll();
     }
   }
 
-  private isBrowser(): boolean {
-    return isPlatformBrowser(this.platformId);
+  clearAll() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    sessionStorage.removeItem("pickup");
+    sessionStorage.removeItem("destination");
+    sessionStorage.removeItem("city");
+    sessionStorage.removeItem("state");
+    sessionStorage.removeItem("rideRequestId");
+    sessionStorage.removeItem("selectedDriver");
+    sessionStorage.removeItem("passengerId");
+    sessionStorage.removeItem("distanceKm");
+    sessionStorage.removeItem("durationMin");
+    sessionStorage.removeItem("fare");
+    sessionStorage.removeItem("pin");
+    sessionStorage.removeItem("bookingId");
+
+    this.pickup = null;
+    this.destination = null;
+    this.city = '';
+    this.state = '';
+    this.rideRequestId = null;
+    this.selectedDriver = null;
+    this.passengerId = '';
+    this.distanceKm = 0;
+    this.durationMin = 0;
+    this.fare = 0;
+    this.pin = '';
+    this.bookingId = '';
   }
 }

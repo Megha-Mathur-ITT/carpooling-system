@@ -1,3 +1,5 @@
+@use 'abstracts/_variables' as *;
+
 $accent: #2563eb;
 $accent-light: #eff6ff;
 $success: #16a34a;
@@ -128,24 +130,6 @@ $text-muted: #6b7280;
     }
 }
 
-.call-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: $success-bg;
-    color: $success;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.15s;
-
-    &:hover {
-        background: darken($success-bg, 4%);
-    }
-}
-
 .route-card {
     border: 1px solid $border;
     border-radius: 12px;
@@ -211,42 +195,4 @@ $text-muted: #6b7280;
     display: flex;
     gap: 10px;
     margin-top: 4px;
-}
-
-.btn-complete {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 0;
-    background: $success;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-
-    &:hover {
-        background: darken($success, 6%);
-    }
-}
-
-.btn-cancel-ride {
-    padding: 11px 18px;
-    border: 1.5px solid $border;
-    background: transparent;
-    color: $text-muted;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.15s, color 0.15s;
-
-    &:hover {
-        border-color: $danger;
-        color: $danger;
-    }
 }

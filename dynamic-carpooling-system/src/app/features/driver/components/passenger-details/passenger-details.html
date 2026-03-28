@@ -1,0 +1,37 @@
+<div class="card passenger-card shadow-sm" *ngIf="ride">
+  <div class="card-body">
+
+    <h5 class="card-title">Passenger Details</h5>
+
+    <div class="detail-row">
+      <span class="label">Name</span>
+      <span class="value">{{ ride.passengerName }}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="label">Pickup</span>
+      <span class="value">{{ ride.pickup?.name }}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="label">Destination</span>
+      <span class="value">{{ ride.destination?.name }}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="label">Distance</span>
+      <span class="value">{{ distance ? (distance + ' km') : 'Calculating...' }}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="label">Fare</span>
+      <span class="value price">{{ fare ? ('₹' + fare) : 'Calculating...' }}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="label">ETA</span>
+      <span class="value">{{ eta ? (eta + ' mins') : 'Calculating...' }}</span>
+    </div>
+
+  </div>
+</div>

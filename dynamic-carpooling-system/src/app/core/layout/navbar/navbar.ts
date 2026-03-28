@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth-service';
 })
 export class NavbarComponent {
   isLoggedIn = false;
+  userRole: any = null;
 
   constructor(
     private router: Router,
@@ -24,6 +25,7 @@ export class NavbarComponent {
   ngOnInit() {
     this.authService.loggedInUserRole.subscribe(role => {
       this.isLoggedIn = role !== null;
+      this.userRole = role;
     });
   }
 
@@ -37,8 +39,16 @@ export class NavbarComponent {
 
   logout() {
     this.authService.logout();
-    // this.router.navigate(['/auth/login']);
+    this.router.navigate(['/']);
   }
 
   isCollapsed = true;
+
+  navigateToHistory() {
+    if (this.userRole === 1) {
+      this.router.navigate(['/passenger/history']);
+    } else if (this.userRole === 2) {
+      this.router.navigate(['/driver/history']);
+    }
+  }
 }

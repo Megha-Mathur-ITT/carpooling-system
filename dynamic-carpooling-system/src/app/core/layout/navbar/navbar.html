@@ -16,7 +16,10 @@
       </button>
     </div>
 
-    <div *ngIf="isLoggedIn" class="ms-auto d-flex gap-2">
+    <div *ngIf="isLoggedIn" class="ms-auto d-flex align-items-center gap-3">
+      <div class="profile-icon" (click)="navigateToHistory()" style="cursor: pointer; font-size: 1.5rem;">
+        <i class="bi bi-person-circle text-light"></i>
+      </div>
       <button class="btn btn-outline-light" (click)="logout()">
         Logout
       </button>

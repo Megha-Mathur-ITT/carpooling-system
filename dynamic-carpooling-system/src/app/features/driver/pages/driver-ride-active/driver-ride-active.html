@@ -1,0 +1,27 @@
+<app-navbar></app-navbar>
+
+<div class="driver-active-wrapper">
+
+  <div class="left-section">
+    <app-passenger-details *ngIf="rideData" [ride]="rideData" [distance]="distanceKm" [eta]="durationMin"
+      [fare]="passengerRideService.fare">
+    </app-passenger-details>
+  </div>
+
+  <div class="right-section">
+    <ng-container *ngIf="rideLoaded && rideData">
+      <app-map [pickup]="rideData?.pickup" [destination]="rideData?.destination" [showRoute]="false"
+        (routeInfo)="onRouteInfo($event)">
+      </app-map>
+    </ng-container>
+  </div>
+
+</div>
+
+<div *ngIf="showPinVerification" class="pin-overlay">
+  <app-ride-pin-verify [rideId]="rideData?.rideId" [expectedPin]="passengerRideService.pin"
+    (pinVerified)="onPinVerified($event)">
+  </app-ride-pin-verify>
+</div>
+
+<app-footer></app-footer>
