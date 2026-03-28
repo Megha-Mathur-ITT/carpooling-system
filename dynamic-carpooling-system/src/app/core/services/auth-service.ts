@@ -7,13 +7,13 @@ import { environment } from '../environments/environment';
 import { jwtDecode } from 'jwt-decode';
 import { SignalrService } from './signalr';
 import { DriverRideService } from '../../features/driver/services/driver-ride-service';
+import { PassengerRideService } from './passenger-ride-service';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class AuthService {
-
   private readonly baseUrl = `${environment.apiBaseUrl}/Auth`
   private readonly TOKEN_KEY = "auth_token";
   private userRoleSubject = new BehaviorSubject<UserRole | null>(null);
@@ -23,6 +23,7 @@ export class AuthService {
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     private signalrService: SignalrService,
+    private passengerService: PassengerRideService,
     private driverRideService: DriverRideService
   ) {
     if (isPlatformBrowser(this.platformId)) {
@@ -35,6 +36,7 @@ export class AuthService {
   }
 
   login(data: LoginRequest) {
+    debugger
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, data)
       .pipe(
         tap(response => {
@@ -52,6 +54,7 @@ export class AuthService {
     if (this.isBrowser()) {
       this.signalrService.disconnect();
       localStorage.removeItem(this.TOKEN_KEY);
+      this.passengerService.clearAll();
       this.driverRideService.clearAll();
       this.userRoleSubject.next(null);
     }

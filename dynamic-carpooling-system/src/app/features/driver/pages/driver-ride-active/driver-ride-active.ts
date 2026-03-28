@@ -13,7 +13,6 @@ import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
 import { SignalrService } from '../../../../core/services/signalr';
 import { DriverRideService } from '../../services/driver-ride-service';
-
 @Component({
   selector: 'app-driver-ride-active',
   standalone: true,
@@ -29,7 +28,7 @@ import { DriverRideService } from '../../services/driver-ride-service';
   styleUrls: ['./driver-ride-active.scss']
 })
 export class DriverRideActive implements OnInit, OnDestroy {
-
+ 
   rideData: any = null;
   rideLoaded: boolean = false;
   passengerName: string = '';
@@ -40,16 +39,17 @@ export class DriverRideActive implements OnInit, OnDestroy {
 
   private sub: Subscription | null = null;
   @ViewChild(MapComponent) mapComponent!: MapComponent;
-
+ 
   constructor(
     private router: Router,
     public passengerRideService: PassengerRideService,
     private ngZone: NgZone,
+    private changeDetectorRef: ChangeDetectorRef,
     private cdr: ChangeDetectorRef,
     private bookingService: BookingService,
     private signalrService: SignalrService,
     private driverRideService: DriverRideService
-  ) { }
+  ) {}
 
   ngOnInit() {
     const pickup = this.passengerRideService.pickup;
@@ -61,7 +61,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
       this.router.navigate(['/driver/landing']);
       return;
     }
-
+ 
     this.rideData = {
       passengerName: this.passengerName,
       pickup,
@@ -70,7 +70,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
     };
 
     this.rideLoaded = true;
-
+ 
     setTimeout(() => {
       if (
         this.mapComponent &&
@@ -81,14 +81,14 @@ export class DriverRideActive implements OnInit, OnDestroy {
         this.rideData?.destination?.latitude &&
         this.rideData?.destination?.longitude
       ) {
-
+ 
         this.mapComponent.onDriverReachedPickup(() => {
           this.ngZone.run(() => {
             this.showPinVerification = true;
+            this.changeDetectorRef.markForCheck();
             this.cdr.markForCheck();
           });
         });
-
         this.mapComponent.startDriverAnimation(
           this.rideData.driver,
           this.rideData.pickup,
@@ -101,11 +101,12 @@ export class DriverRideActive implements OnInit, OnDestroy {
       }
     }, 1500);
   }
-
+ 
   onRouteInfo(data: { distanceKm: number; durationMin: number }) {
     this.passengerRideService.setRouteInfo(data.distanceKm, data.durationMin);
     this.distanceKm = this.passengerRideService.distanceKm;
     this.durationMin = this.passengerRideService.durationMin;
+    this.fare = this.passengerRideService.fare;
     this.driverRideService.setFare(this.fare);
     this.driverRideService.setDistanceKm(data.distanceKm);
 
@@ -114,20 +115,20 @@ export class DriverRideActive implements OnInit, OnDestroy {
       const parsed = JSON.parse(raw);
       parsed.distanceKm = data.distanceKm;
       sessionStorage.setItem('receipt_state', JSON.stringify(parsed));
-   }
-    this.cdr.detectChanges()
+    }
+    this.changeDetectorRef.detectChanges();
+    this.cdr.detectChanges();
   }
-
   onDriverReached() {
     this.ngZone.run(() => {
       this.showPinVerification = true;
     });
   }
-
+ 
   get ridePin(): string {
     return this.passengerRideService.pin;
   }
-
+ 
   onPinVerified(pin: string): void {
     this.bookingService.verifyPin(this.passengerRideService.bookingId, pin)
       .subscribe({
@@ -136,10 +137,11 @@ export class DriverRideActive implements OnInit, OnDestroy {
             this.passengerRideService.passengerId,
             true
           );
-
           this.showPinVerification = false;
+          this.changeDetectorRef.detectChanges();
           this.cdr.detectChanges();
-
+          
+          this.mapComponent.stopDriverAnimation();
           this.router.navigate(['/driver/trip-details']);
         },
         error: (error: any) => {
@@ -152,8 +154,10 @@ export class DriverRideActive implements OnInit, OnDestroy {
         }
       });
   }
-
+ 
   ngOnDestroy() {
     this.sub?.unsubscribe();
+    this.mapComponent?.stopDriverAnimation();
   }
 }
+ 

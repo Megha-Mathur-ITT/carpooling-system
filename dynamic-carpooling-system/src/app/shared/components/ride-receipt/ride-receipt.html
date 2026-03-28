@@ -13,7 +13,7 @@
 
     <div class="fare-summary">
       <span class="fare-label">Total Paid</span>
-      <span class="fare-amount">₹{{ fare }}</span>
+      <span class="fare-amount">₹{{ fare | number:'1.2-2' }}</span>
       <span class="fare-mode">Cash Payment</span>
     </div>
 
@@ -43,7 +43,7 @@
       <div class="receipt-row">
         <span class="receipt-label">Distance</span>
         <span class="receipt-value">
-          {{ distanceKm ? (distanceKm + ' km') : '—' }}
+          {{ (distanceKm !== null && distanceKm !== undefined) ? (distanceKm | number:'1.2-2') + ' km' : '—' }}
         </span>
       </div>
     </div>

@@ -88,7 +88,9 @@ export class DriverRideService {
   }
 
   clearAll(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
 
     sessionStorage.removeItem('pickup');
     sessionStorage.removeItem('destination');
@@ -96,7 +98,17 @@ export class DriverRideService {
     sessionStorage.removeItem('seatCount');
     sessionStorage.removeItem('driver_active_ride');
     sessionStorage.removeItem('driver_payment_pending');
+    sessionStorage.removeItem('driver_ride_completed');
     sessionStorage.removeItem('distanceKm');
     sessionStorage.removeItem('driverFare');
+    sessionStorage.removeItem('rideRequestId');
+    sessionStorage.removeItem('selectedDriver');
+    sessionStorage.removeItem('passengerId');
+    sessionStorage.removeItem('bookingId');
+    sessionStorage.removeItem('city');
+    sessionStorage.removeItem('state');
+    sessionStorage.removeItem('fare');
+    sessionStorage.removeItem('durationMin');
+    sessionStorage.removeItem('pin');
   }
 }

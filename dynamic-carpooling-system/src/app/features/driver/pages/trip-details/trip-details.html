@@ -24,55 +24,43 @@
     </div>
 
     <div class="details">
-            <div class="trip-stats d-flex gap-3 mt-3">
+      <div class="trip-stats d-flex gap-3 mt-3">
         <div class="trip-stat">
-            <i class="bi bi-cash-coin me-1"></i>
-            <span>₹{{ rideService.fare }}</span>
-        </div>
-        <div class="trip-stat">
-            <i class="bi bi-speedometer2 me-1"></i>
-            <span>{{ rideService.distanceKm }} km</span>
+          <i class="bi bi-cash-coin me-1"></i>
+          <span>₹{{ rideService.fare }}</span>
         </div>
         <div class="trip-stat">
-            <i class="bi bi-clock me-1"></i>
-            <span>{{ rideService.durationMin }} min</span>
+          <i class="bi bi-speedometer2 me-1"></i>
+          <span>{{ rideService.distanceKm }} km</span> 
         </div>
         <div class="trip-stat">
-            <i class="bi bi-person me-1"></i>
-            <span>{{ rideService.passengerName }}</span>
+          <i class="bi bi-clock me-1"></i>
+          <span>{{ rideService.durationMin }} min</span>
         </div>
+        <div class="trip-stat">
+          <i class="bi bi-person me-1"></i>  
+          <span>{{ rideService.passengerName }}</span>
         </div>
+      </div>
     </div>
-    </div>
-    
+  </div>
 
   <div class="trip-map">
-    <app-map
-      *ngIf="rideData"
-      [pickup]="rideData.pickup"
-      [destination]="rideData.destination"
-      [showRoute]="true">
+    <app-map *ngIf="rideData" [pickup]="rideData.pickup" [destination]="rideData.destination" [showRoute]="false">
     </app-map>
   </div>
 
   <div class="trip-footer" *ngIf="hasReachedDestination">
-    <div class="trip-reached-badge">
-      <i class="bi bi-geo-alt-fill me-2"></i>
+    <div class="trip-reached-badge"> 
+      <i class="bi bi-geo-alt-fill me-2"></i> 
       Destination reached
     </div>
-    <button
-      class="btn trip-complete-btn w-100"
-      [disabled]="isCompleting"
-      (click)="completeRide()">
-      <span
-        *ngIf="isCompleting"
-        class="spinner-border spinner-border-sm me-2"
-        role="status"
-        aria-hidden="true">
+    <button class="btn trip-complete-btn w-100" [disabled]="isCompleting" (click)="completeRide()">
+      <span *ngIf="isCompleting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true">
       </span>
       <i *ngIf="!isCompleting" class="bi bi-flag-fill me-2"></i>
       {{ isCompleting ? 'Completing…' : 'Complete Ride' }}
-    </button>
+    </button> 
   </div>
 
   <div class="trip-footer" *ngIf="!hasReachedDestination">

@@ -23,5 +23,12 @@ export const DRIVER_ROUTES: Routes = [
     loadComponent: () =>
       import('../../shared/components/ride-receipt/ride-receipt')
         .then(module => module.RideReceipt)
+  },
+  {
+    path: 'driver/history',
+    canActivate: [authGuard, roleGuard('Driver')],
+    loadComponent: () =>
+      import('./pages/driver-history/driver-history')
+        .then(module => module.DriverHistory)
   }
 ];  

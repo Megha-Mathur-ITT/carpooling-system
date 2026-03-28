@@ -104,6 +104,12 @@ export class PassengerRideService {
     this.distanceKm = distanceKm;
     this.durationMin = durationMin;
     this.fare = Math.round(distanceKm * 9);
+
+    if (this.isBrowser()) {
+      sessionStorage.setItem('distanceKm', distanceKm.toString());
+      sessionStorage.setItem('durationMin', durationMin.toString());
+      sessionStorage.setItem('fare', this.fare.toString());
+    }
   }
 
   setBookingResult(fare: number, pin: string): void {
@@ -131,6 +137,7 @@ export class PassengerRideService {
     try {
       const pickupPoint = sessionStorage.getItem("pickup");
       const destinationPoint = sessionStorage.getItem("destination");
+
       this.pickup = pickupPoint ? JSON.parse(pickupPoint) : null;
       this.destination = destinationPoint ? JSON.parse(destinationPoint) : null;
       this.city = sessionStorage.getItem('city') || '';
@@ -138,19 +145,43 @@ export class PassengerRideService {
       this.rideRequestId = sessionStorage.getItem("rideRequestId") || null;
       this.selectedDriver = JSON.parse(sessionStorage.getItem("selectedDriver") || "null");
       this.passengerId = sessionStorage.getItem('passengerId') || '';
+      this.distanceKm = parseFloat(sessionStorage.getItem('distanceKm') || '0');
+      this.durationMin = parseFloat(sessionStorage.getItem('durationMin') || '0');
+      this.fare = parseFloat(sessionStorage.getItem('fare') || '0');
     } catch {
-      sessionStorage.removeItem("pickup");
-      sessionStorage.removeItem("destination");
-      sessionStorage.removeItem("city");
-      sessionStorage.removeItem("state");
-      sessionStorage.removeItem("rideRequestId");
-
-      this.pickup = null;
-      this.destination = null;
-      this.city = '';
-      this.state = '';
-      this.rideRequestId = null;
-      this.passengerId = ''; 
+      this.clearAll();
     }
+  }
+
+  clearAll() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    sessionStorage.removeItem("pickup");
+    sessionStorage.removeItem("destination");
+    sessionStorage.removeItem("city");
+    sessionStorage.removeItem("state");
+    sessionStorage.removeItem("rideRequestId");
+    sessionStorage.removeItem("selectedDriver");
+    sessionStorage.removeItem("passengerId");
+    sessionStorage.removeItem("distanceKm");
+    sessionStorage.removeItem("durationMin");
+    sessionStorage.removeItem("fare");
+    sessionStorage.removeItem("pin");
+    sessionStorage.removeItem("bookingId");
+
+    this.pickup = null;
+    this.destination = null;
+    this.city = '';
+    this.state = '';
+    this.rideRequestId = null;
+    this.selectedDriver = null;
+    this.passengerId = '';
+    this.distanceKm = 0;
+    this.durationMin = 0;
+    this.fare = 0;
+    this.pin = '';
+    this.bookingId = '';
   }
 }

@@ -22,6 +22,7 @@ export class SignalrService {
   passengerPaid$ = new Subject<any>();
 
   pinVerified$ = new Subject<{ success: boolean }>();
+  driverRated$ = new Subject<void>();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
@@ -132,6 +133,11 @@ export class SignalrService {
       console.log('[SignalR] PinVerified received:', data);
       this.pinVerified$.next(data);
     });
+
+    this.connection.on('DriverRated', () => {
+      console.log('[SignalR] DriverRated received');
+      this.driverRated$.next();
+    });
   }
 
   notifyDriver(
@@ -240,7 +246,6 @@ export class SignalrService {
       success
     }).catch(error => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
   }
-
   notifyPassengerRejected(passengerId: string, rideRequestId: string): void {
     if (!this.connection) return;
 

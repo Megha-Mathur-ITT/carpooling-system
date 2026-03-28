@@ -6,6 +6,7 @@ import { Footer } from '../../../../core/layout/footer/footer';
 import { Subscription } from 'rxjs';
 import { filter, first } from 'rxjs/operators';
 import { SignalrService } from '../../../../core/services/signalr';
+import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 
 @Component({
   selector: 'app-passenger-payment-page',
@@ -32,6 +33,7 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
     private signalrService: SignalrService,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
+    public rideService: PassengerRideService
   ) { }
 
   ngOnInit(): void {
@@ -54,7 +56,7 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
     const freshNavigationState = this.router.getCurrentNavigation()?.extras?.state;
     const state = freshNavigationState ?? history.state ?? JSON.parse(sessionStorage.getItem('payment_state') || 'null');
 
-    if (!state?.fare) {
+    if (!state || state.fare === undefined || state.fare === null) {
       this.router.navigate(['/passenger/landing']);
       return false;
     }
