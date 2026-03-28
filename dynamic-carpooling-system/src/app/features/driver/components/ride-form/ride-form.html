@@ -11,14 +11,9 @@
         <span class="dot dot-blue"></span>
         Your Location
       </label>
-      <div class="gps-display" *ngIf="currentLocationName">
-        <i class="bi bi-geo-alt-fill me-2 text-primary"></i>
-        <span>{{ currentLocationName }}</span>
-      </div>
-      <div class="override-hint">
-        <app-location-search placeholder="Override current location..." (locationSelected)="onPickupSelected($event)">
-        </app-location-search>
-      </div>
+      <app-location-search placeholder="Detecting your location..." [currentLocation]="pickup"
+        (locationSelected)="onPickupSelected($event)">
+      </app-location-search>
     </div>
 
     <div class="field-divider-line"></div>
@@ -28,7 +23,8 @@
         <span class="dot dot-red"></span>
         Destination
       </label>
-      <app-location-search placeholder="Where are you going?" (locationSelected)="onDestinationSelected($event)">
+      <app-location-search placeholder="Where are you going?" [currentLocation]="destinationInternal"
+        (locationSelected)="onDestinationSelected($event)">
       </app-location-search>
     </div>
 
@@ -73,7 +69,6 @@
         <i class="bi bi-circle-fill dot-blue-sm"></i>
         {{ pickup?.name }}
       </span>
-      <i class="bi bi-arrow-right mx-2 text-muted"></i>
       <span class="route-point">
         <i class="bi bi-geo-alt-fill dot-red-sm"></i>
         {{ destinationInternal?.name }}

@@ -71,11 +71,27 @@ export class DriverRideService {
     sessionStorage.setItem('driverFare', value.toString());
   }
 
+  getActiveRide(): any {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    const data = sessionStorage.getItem('driver_active_ride');
+    return data ? JSON.parse(data) : null;
+  }
+
+  setActiveRide(ride: any): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (ride) {
+      sessionStorage.setItem('driver_active_ride', JSON.stringify(ride));
+    } else {
+      sessionStorage.removeItem('driver_active_ride');
+    }
+  }
+
   clearAll(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-    
+
     sessionStorage.removeItem('pickup');
     sessionStorage.removeItem('destination');
     sessionStorage.removeItem('isOnline');

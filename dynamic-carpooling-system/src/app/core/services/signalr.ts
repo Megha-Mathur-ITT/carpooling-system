@@ -246,4 +246,12 @@ export class SignalrService {
       success
     }).catch(error => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
   }
+  notifyPassengerRejected(passengerId: string, rideRequestId: string): void {
+    if (!this.connection) return;
+
+    this.connection.invoke('NotifyPassengerRejected', {
+      passengerId,
+      rideRequestId
+    }).catch(err => console.error('[SignalR] NotifyPassengerRejected failed:', err));
+  }
 }

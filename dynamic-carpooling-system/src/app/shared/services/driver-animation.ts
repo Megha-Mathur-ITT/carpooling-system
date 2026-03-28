@@ -300,12 +300,10 @@ export class DriverAnimation {
       `<b>Destination:</b> ${trimLocation(this.passengerDestinationAddress)}`
     );
 
-    this.interval = this.animateAlongRoute(
-      [...savedDestinationCoords],
-      this.bluePolyline, () => {
-        this.map.removeLayer(destinationMarker);
-        onReachedDestination?.();
-      });
+    this.interval = this.animateAlongRoute([...savedDestinationCoords], this.bluePolyline, () => {
+      this.map.removeLayer(destinationMarker);
+      onReachedDestination?.();
+    });
 
     this.hasDriverReached = false;
   }

@@ -12,6 +12,7 @@ import { reverseGeocode, trimLocation } from '../../../../shared/utils/locationU
 import { Subscription } from 'rxjs';
 import { SignalrService } from '../../../../core/services/signalr';
 
+
 @Component({
   selector: 'app-passenger-ride-confirmation',
   standalone: true,
@@ -203,7 +204,6 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.pinSub?.unsubscribe();
   }
-
   private calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const toRadians = (degrees: number) => degrees * Math.PI / 180;
     const R = 6371;

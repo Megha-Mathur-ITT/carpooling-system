@@ -1,8 +1,8 @@
 <app-navbar></app-navbar>
- 
+
 <div class="receipt-wrapper">
   <div class="receipt-card">
- 
+
     <div class="receipt-header">
       <div class="success-icon">
         <i class="fa-solid fa-circle-check fa-2xl" style="color: rgb(165, 245, 5);"></i>
@@ -10,36 +10,36 @@
       <h1>You made it!</h1>
       <p class="receipt-sub">Your ride has been completed successfully.</p>
     </div>
- 
+
     <div class="fare-summary">
       <span class="fare-label">Total Paid</span>
       <span class="fare-amount">₹{{ fare | number:'1.2-2' }}</span>
       <span class="fare-mode">Cash Payment</span>
     </div>
- 
+
     <div class="receipt-details">
       @if(isDriver) {
-        <div class="receipt-row">
-          <span class="receipt-label">Passenger</span>
-          <span class="receipt-value">
-            {{ passenger?.passengerName || passenger?.name || '—' }}
-          </span>
-        </div>
+      <div class="receipt-row">
+        <span class="receipt-label">Passenger</span>
+        <span class="receipt-value">
+          {{ passenger?.passengerName || passenger?.name || '—' }}
+        </span>
+      </div>
       } @else {
-        <div class="receipt-row">
-          <span class="receipt-label">Driver</span>
-          <span class="receipt-value">
-            {{ driver?.driverName || driver?.name || '—' }}
-          </span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-label">Vehicle</span>
-          <span class="receipt-value">
-            {{ driver?.vehicleName || '—' }}
-          </span>
-        </div>
+      <div class="receipt-row">
+        <span class="receipt-label">Driver</span>
+        <span class="receipt-value">
+          {{ driver?.driverName || driver?.name || '—' }}
+        </span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-label">Vehicle</span>
+        <span class="receipt-value">
+          {{ driver?.vehicleName || '—' }}
+        </span>
+      </div>
       }
- 
+
       <div class="receipt-row">
         <span class="receipt-label">Distance</span>
         <span class="receipt-value">
@@ -47,7 +47,7 @@
         </span>
       </div>
     </div>
- 
+
     <div class="route-summary">
       <div class="route-point">
         <span class="dot dot-blue"></span>
@@ -65,13 +65,12 @@
         </div>
       </div>
     </div>
- 
+
     <button class="button-done" (click)="goHome()">
       Back to Home
     </button>
- 
+
   </div>
 </div>
- 
+
 <app-footer></app-footer>
- 

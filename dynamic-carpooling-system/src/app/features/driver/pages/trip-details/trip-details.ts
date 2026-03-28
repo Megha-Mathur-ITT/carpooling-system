@@ -37,6 +37,7 @@ export class TripDetails implements OnInit, OnDestroy {
     private router: Router,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
     private snackBar: MatSnackBar,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
@@ -64,7 +65,6 @@ export class TripDetails implements OnInit, OnDestroy {
           sessionStorage.setItem('driver_active_ride', JSON.stringify(ar));
       }
     }
-
     setTimeout(() => {
       if (this.mapComponent) {
         this.mapComponent.startDestinationAnimation(

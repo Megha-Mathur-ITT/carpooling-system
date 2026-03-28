@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
 import { SignalrService } from '../../../../core/services/signalr';
- 
+import { DriverRideService } from '../../services/driver-ride-service';
 @Component({
   selector: 'app-driver-ride-active',
   standalone: true,
@@ -36,7 +36,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
   distanceKm: number = 0;
   durationMin: number = 0;
   fare: number = 0;
- 
+
   private sub: Subscription | null = null;
   @ViewChild(MapComponent) mapComponent!: MapComponent;
  
@@ -45,16 +45,18 @@ export class DriverRideActive implements OnInit, OnDestroy {
     public passengerRideService: PassengerRideService,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
     private bookingService: BookingService,
-    private signalrService: SignalrService
-  ) { }
- 
+    private signalrService: SignalrService,
+    private driverRideService: DriverRideService
+  ) {}
+
   ngOnInit() {
     const pickup = this.passengerRideService.pickup;
     const destination = this.passengerRideService.destination;
     const driver = this.passengerRideService.selectedDriver;
     this.passengerName = this.passengerRideService.passengerName;
- 
+
     if (!pickup || !destination || !driver) {
       this.router.navigate(['/driver/landing']);
       return;
@@ -66,7 +68,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
       destination,
       driver
     };
- 
+
     this.rideLoaded = true;
  
     setTimeout(() => {
@@ -84,9 +86,9 @@ export class DriverRideActive implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             this.showPinVerification = true;
             this.changeDetectorRef.markForCheck();
+            this.cdr.markForCheck();
           });
         });
- 
         this.mapComponent.startDriverAnimation(
           this.rideData.driver,
           this.rideData.pickup,
@@ -105,10 +107,18 @@ export class DriverRideActive implements OnInit, OnDestroy {
     this.distanceKm = this.passengerRideService.distanceKm;
     this.durationMin = this.passengerRideService.durationMin;
     this.fare = this.passengerRideService.fare;
+    this.driverRideService.setFare(this.fare);
+    this.driverRideService.setDistanceKm(data.distanceKm);
+
+    const raw = sessionStorage.getItem('receipt_state');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      parsed.distanceKm = data.distanceKm;
+      sessionStorage.setItem('receipt_state', JSON.stringify(parsed));
+    }
     this.changeDetectorRef.detectChanges();
+    this.cdr.detectChanges();
   }
- 
- 
   onDriverReached() {
     this.ngZone.run(() => {
       this.showPinVerification = true;
@@ -127,16 +137,16 @@ export class DriverRideActive implements OnInit, OnDestroy {
             this.passengerRideService.passengerId,
             true
           );
- 
           this.showPinVerification = false;
           this.changeDetectorRef.detectChanges();
+          this.cdr.detectChanges();
           
           this.mapComponent.stopDriverAnimation();
           this.router.navigate(['/driver/trip-details']);
         },
         error: (error: any) => {
           console.error('PIN verify failed:', error);
- 
+
           this.signalrService.notifyPassengerPinVerified(
             this.passengerRideService.passengerId,
             false

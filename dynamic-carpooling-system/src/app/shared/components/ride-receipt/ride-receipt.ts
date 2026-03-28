@@ -62,9 +62,14 @@ export class RideReceipt implements OnInit {
   goHome(): void {
     sessionStorage.removeItem('receipt_state');
     this.driverRideService.clearAll();
-  this.passengerRideService.clearAll();
+    this.passengerRideService.clearAll();
 
-  this.router.navigate(['/']);
+    const role = this.authService.getUserRole();
+    if (role === UserRole.Driver) {
+      this.router.navigate(['/driver/landing']);
+    } else {
+      this.router.navigate(['/passenger/landing']);
+    }
   }
 
   get pickupName(): string {

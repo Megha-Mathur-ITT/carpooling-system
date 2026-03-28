@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { Subscription } from 'rxjs';
 import { PaymentConfirm } from '../payment-confirm/payment-confirm';
+import { DriverRideService } from '../../services/driver-ride-service';
 
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 
@@ -29,7 +30,8 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
     private changeDetectorRef: ChangeDetectorRef,
-    public passengerRideService: PassengerRideService
+    public passengerRideService: PassengerRideService,
+    private driverRideService: DriverRideService
   ) { }
 
   ngOnInit(): void {
@@ -65,6 +67,8 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
       sessionStorage.removeItem('driver_payment_pending');
     }
 
+    const fare = this.driverRideService.getFare();
+    const distanceKm = this.driverRideService.getDistanceKm();
     this.signalrService.notifyPaymentConfirmed(
       this.activeRide.passengerId,
       this.activeRide.rideRequestId
@@ -72,8 +76,8 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
 
     this.router.navigate(['/driver/receipt'], {
       state: {
-        fare: this.passengerRideService.fare || this.activeRide.fare,
-        distanceKm: this.passengerRideService.distanceKm || this.activeRide.distanceKm || 0,
+        fare: this.passengerRideService.fare || fare || this.activeRide.fare,
+        distanceKm: this.passengerRideService.distanceKm || distanceKm || this.activeRide.distanceKm || 0,
         isDriver: true,
         passenger: {
           passengerName: this.activeRide.passengerName

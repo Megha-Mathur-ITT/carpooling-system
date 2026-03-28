@@ -48,7 +48,7 @@ export class AuthService {
 
   register(data: RegisterRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/register`, data);
-  }
+  } 
 
   logout(): void {
     if (this.isBrowser()) {

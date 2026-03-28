@@ -49,7 +49,6 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   }>();
   @Output() driverReached = new EventEmitter<void>();
  
- 
   private driverMarkers: any[] = [];
   private radiusCircle: any = null;
  
@@ -93,7 +92,6 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
  
     this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
  
     this.pickupMarker = this.L.marker(
@@ -317,7 +315,6 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if(!this.showRoute) {
       return;
     }
-    
     if (!this.mapReady || !this.pickupMarker || !this.destinationMarker) {
       return;
     }
@@ -366,15 +363,13 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
           (c: any) => ({ lat: c.lat, lng: c.lng })
         );
       }
- 
       const distanceKm = route.summary.totalDistance / 1000;
       const durationMin = route.summary.totalTime / 60;
- 
       this.routeInfo.emit({
         distanceKm: Number(distanceKm.toFixed(2)),
         durationMin: Math.ceil(durationMin)
       });
- 
+
       if (this.showRadiusCircle && this.pickup) {
         setTimeout(() => {
           this.fitToPickupArea(this.pickup.latitude, this.pickup.longitude);
@@ -534,7 +529,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   public stopDriverAnimation(): void {
     this.driverAnimation.stop();
   }
- 
+
   public startDestinationAnimation(
     passengerPickup: Location,
     passengerDestination: Location,
