@@ -37,5 +37,12 @@ export const PASSENGER_ROUTES: Routes = [
     loadComponent: () =>
       import('../../shared/components/ride-receipt/ride-receipt')
         .then(module => module.RideReceipt)
+  },
+  {
+    path: 'passenger/history',
+    canActivate: [authGuard, roleGuard('Passenger')],
+    loadComponent: () =>
+      import('./pages/passenger-history/passenger-history')
+        .then(module => module.PassengerHistory)
   }
 ];

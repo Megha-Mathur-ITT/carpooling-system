@@ -12,7 +12,8 @@ import { Subscription } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
 import { SignalrService } from '../../../../core/services/signalr';
- 
+import { DriverRideService } from '../../services/driver-ride-service';
+
 @Component({
   selector: 'app-driver-ride-active',
   standalone: true,
@@ -45,10 +46,12 @@ export class DriverRideActive implements OnInit, OnDestroy {
     public passengerRideService: PassengerRideService,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
     private bookingService: BookingService,
-    private signalrService: SignalrService
-  ) { }
- 
+    private signalrService: SignalrService,
+    private driverRideService: DriverRideService
+  ) {}
+
   ngOnInit() {
     const pickup = this.passengerRideService.pickup;
     const destination = this.passengerRideService.destination;
@@ -84,9 +87,9 @@ export class DriverRideActive implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             this.showPinVerification = true;
             this.changeDetectorRef.markForCheck();
+            this.cdr.markForCheck();
           });
         });
- 
         this.mapComponent.startDriverAnimation(
           this.rideData.driver,
           this.rideData.pickup,
@@ -108,7 +111,18 @@ export class DriverRideActive implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
   }
  
- 
+    this.driverRideService.setFare(this.fare);
+    this.driverRideService.setDistanceKm(data.distanceKm);
+
+    const raw = sessionStorage.getItem('receipt_state');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      parsed.distanceKm = data.distanceKm;
+      sessionStorage.setItem('receipt_state', JSON.stringify(parsed));
+    }
+    this.changeDetectorRef.detectChanges();
+    this.cdr.detectChanges();
+  }
   onDriverReached() {
     this.ngZone.run(() => {
       this.showPinVerification = true;

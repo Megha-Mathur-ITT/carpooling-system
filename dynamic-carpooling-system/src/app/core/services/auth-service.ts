@@ -36,6 +36,7 @@ export class AuthService {
   }
 
   login(data: LoginRequest) {
+    debugger
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, data)
       .pipe(
         tap(response => {
@@ -47,7 +48,7 @@ export class AuthService {
 
   register(data: RegisterRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/register`, data);
-  }
+  } 
 
   logout(): void {
     if (this.isBrowser()) {

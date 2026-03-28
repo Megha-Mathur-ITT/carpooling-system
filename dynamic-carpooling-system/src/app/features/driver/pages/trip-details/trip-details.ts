@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { NgZone, ChangeDetectorRef } from '@angular/core';
+import { NgZone, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
@@ -36,7 +37,9 @@ export class TripDetails implements OnInit, OnDestroy {
     private router: Router,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
-    private snackBar: MatSnackBar
+    private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   ngOnInit() {
@@ -51,6 +54,17 @@ export class TripDetails implements OnInit, OnDestroy {
 
     this.rideData = { pickup, destination, driver };
 
+    const dist = this.calculateDistanceKm(pickup.latitude, pickup.longitude, destination.latitude, destination.longitude);
+    this.rideService.distanceKm = Number(dist.toFixed(1));
+
+    if (isPlatformBrowser(this.platformId)) {
+      const activeRideRaw = sessionStorage.getItem('driver_active_ride');
+      if (activeRideRaw) {
+          const ar = JSON.parse(activeRideRaw);
+          ar.distanceKm = this.rideService.distanceKm;
+          sessionStorage.setItem('driver_active_ride', JSON.stringify(ar));
+      }
+    }
     setTimeout(() => {
       if (this.mapComponent) {
         this.mapComponent.startDestinationAnimation(
@@ -103,5 +117,17 @@ export class TripDetails implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  private calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const toRadians = (degrees: number) => degrees * Math.PI / 180;
+    const R = 6371;
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   }
 }

@@ -1,0 +1,124 @@
+<app-navbar></app-navbar>
+ 
+<div class="navbar2">
+  <h1>Trip History</h1>
+  <p>All your completed and past trips</p>
+</div>
+ 
+<div class="main-container">
+ 
+  <div class="stats-container">
+ 
+    <div class="stat-card stat-accent">
+      <div class="stat-value">{{ totalTrips }}</div>
+      <div class="stat-label">Total trips</div>
+    </div>
+ 
+    <div class="stat-card stat-accent">
+      <div class="stat-value">₹{{ totalEarned | number:'1.0-0' }}</div>
+      <div class="stat-label">Total earned</div>
+    </div>
+ 
+    <div class="stat-card">
+      <div class="stat-value">{{ avgRating || '—' }}</div>
+      <div class="stat-label">Your rating</div>
+    </div>
+  </div>
+ 
+  <div class="table-container">
+
+    <ng-container *ngIf="isLoading">
+      <table class="table">
+        <thead><tr>
+          <th>Passenger</th><th>Route</th><th>Status</th><th>Earned</th>
+        </tr></thead>
+        <tbody>
+          <tr *ngFor="let i of [1,2,3,4,5]" class="rh-skeleton-row">
+            <td><div class="rh-skel rh-skel-peer"></div></td>
+            <td><div class="rh-skel rh-skel-route"></div></td>
+            <td><div class="rh-skel rh-skel-badge"></div></td>
+            <td><div class="rh-skel rh-skel-fare"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+
+    <div *ngIf="!isLoading && errorMsg" class="rh-empty"><p>{{ errorMsg }}</p></div>
+
+    <div *ngIf="!isLoading && !errorMsg && history.length === 0" class="rh-empty">
+      <p>No trips found yet.</p>
+    </div>
+ 
+    <ng-container *ngIf="!isLoading && !errorMsg && history.length > 0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Passenger</th>
+            <th>Route</th>
+            <th>Status</th>
+            <th>Earned</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let trip of history; let i = index; trackBy: trackByTrip">
+
+            <tr
+              *ngIf="i === 0 || monthLabel(history[i-1].dateAndTime) !== monthLabel(trip.dateAndTime)"
+              class="month-row">
+              <td colspan="4">{{ monthLabel(trip.dateAndTime) }}</td>
+            </tr>
+ 
+            <tr class="rh-data-row">
+
+              <td>
+                <div class="user-cell">
+                  <div class="avatar" [ngClass]="avatarClass(i)">
+                    {{ trip.passengers.length > 0 ? initials(trip.passengers[0].passengerName) : '—' }}
+                  </div>
+                  <div>
+                    <div class="user-name">
+                      {{ trip.passengers.length > 0 ? trip.passengers[0].passengerName : 'No passengers' }}
+                      <span *ngIf="trip.passengers.length > 1" class="rh-extra-count">
+                        +{{ trip.passengers.length - 1 }} more
+                      </span>
+                    </div>
+                    <div class="user-sub">{{ trip.passengers.length }} seat(s)</div>
+                  </div>
+                </div>
+              </td>
+ 
+              <td>
+                <div class="route-cell">
+                  <div class="route-row">
+                    <div class="dot dot-pickup"></div>
+                    <span>{{ shortLocation(trip.startingLocation) }}</span>
+                  </div>
+                  <div class="route-line-vertical"></div>
+                  <div class="route-row">
+                    <div class="dot dot-destination"></div>
+                    <span>{{ shortLocation(trip.destinationLocation) }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-done':    tripStatus(trip) === 'completed',
+                  'badge-cancel':  tripStatus(trip) === 'cancelled',
+                  'badge-pending': tripStatus(trip) === 'pending'
+                }">
+                  {{ tripStatus(trip) | titlecase }}
+                </span>
+              </td>
+ 
+              <td><span class="fare">{{ formatFare(trip.totalFare) }}</span></td>
+ 
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </ng-container>
+ 
+  </div>
+ 
+</div>

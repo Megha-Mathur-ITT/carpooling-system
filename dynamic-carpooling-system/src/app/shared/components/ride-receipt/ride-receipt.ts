@@ -36,14 +36,14 @@ export class RideReceipt implements OnInit {
 
     const navState = history.state;
 
-    if (navState?.fare) {
+    if (navState && navState.fare !== undefined && navState.fare !== null) {
       sessionStorage.setItem('receipt_state', JSON.stringify(navState));
     }
 
     const raw = sessionStorage.getItem('receipt_state');
-    const state = navState?.fare ? navState : (raw ? JSON.parse(raw) : null);
+    const state = (navState && navState.fare !== undefined && navState.fare !== null) ? navState : (raw ? JSON.parse(raw) : null);
 
-    if (!state?.fare) {
+    if (!state || state.fare === undefined || state.fare === null) {
       this.router.navigate(['/passenger/landing']);
       return;
     }
@@ -62,9 +62,14 @@ export class RideReceipt implements OnInit {
   goHome(): void {
     sessionStorage.removeItem('receipt_state');
     this.driverRideService.clearAll();
-  this.passengerRideService.clearAll();
+    this.passengerRideService.clearAll();
 
-  this.router.navigate(['/']);
+    const role = this.authService.getUserRole();
+    if (role === UserRole.Driver) {
+      this.router.navigate(['/']);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   get pickupName(): string {

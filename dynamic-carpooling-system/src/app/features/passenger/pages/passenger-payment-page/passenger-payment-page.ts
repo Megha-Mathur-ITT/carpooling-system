@@ -56,7 +56,7 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
     const freshNavigationState = this.router.getCurrentNavigation()?.extras?.state;
     const state = freshNavigationState ?? history.state ?? JSON.parse(sessionStorage.getItem('payment_state') || 'null');
 
-    if (!state?.fare) {
+    if (!state || state.fare === undefined || state.fare === null) {
       this.router.navigate(['/passenger/landing']);
       return false;
     }

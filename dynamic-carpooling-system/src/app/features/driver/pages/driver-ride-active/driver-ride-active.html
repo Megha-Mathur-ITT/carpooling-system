@@ -10,7 +10,7 @@
 
   <div class="right-section">
     <ng-container *ngIf="rideLoaded && rideData">
-      <app-map [pickup]="rideData?.pickup" [destination]="rideData?.destination" [showRoute]="false"
+      <app-map [pickup]="rideData?.pickup" [destination]="rideData?.destination" [showRoute]="true"
         (routeInfo)="onRouteInfo($event)">
       </app-map>
     </ng-container>
