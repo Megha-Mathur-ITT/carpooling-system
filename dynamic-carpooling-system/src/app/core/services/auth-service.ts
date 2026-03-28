@@ -36,7 +36,6 @@ export class AuthService {
   }
 
   login(data: LoginRequest) {
-    debugger
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, data)
       .pipe(
         tap(response => {

@@ -120,7 +120,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
   }
  
   onPinVerified(pin: string): void {
-    this.bookingService.verifyPin(this.passengerRideService.bookingId, pin)
+    this.bookingService.verifyPin(this.passengerRideService.bookingId, this.passengerRideService.rideRequestId, pin)
       .subscribe({
         next: () => {
           this.signalrService.notifyPassengerPinVerified(
