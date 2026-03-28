@@ -91,7 +91,7 @@ export class DriverRideService {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-
+    
     sessionStorage.removeItem('pickup');
     sessionStorage.removeItem('destination');
     sessionStorage.removeItem('isOnline');

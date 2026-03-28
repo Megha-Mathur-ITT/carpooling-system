@@ -107,10 +107,11 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
             this.passengerRideService.setDestination(this.request!.destination);
             this.passengerRideService.passengerName = acceptedBooking.passengerName;
             this.passengerRideService.setBookingResult(
-              acceptedBooking.fare,
-              acceptedBooking.pin
+              acceptedBooking.fares?.[0] ?? acceptedBooking.fare?.[0] ?? 0,
+              acceptedBooking.piNs?.[0] ?? acceptedBooking.pin ?? ''
             );
-            this.passengerRideService.bookingId = acceptedBooking.bookingId;
+            this.passengerRideService.setBookingId(acceptedBooking.bookingId ?? '');
+            this.passengerRideService.setRideRequestId(this.request!.requestId);
             this.passengerRideService.setPassengerId(this.request!.passengerId);  
             this.passengerRideService.selectedDriver = {
               latitude: this.currentDriverLat,

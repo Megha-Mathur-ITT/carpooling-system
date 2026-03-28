@@ -6,7 +6,8 @@ import {
   ElementRef,
   Input,
   Output,
-  EventEmitter
+  EventEmitter,
+  ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -44,7 +45,7 @@ export class RidePinVerify implements OnDestroy {
   private maxAttempts = 3;
   private redirectTimer: any = null;
 
-  constructor(private router: Router , private snackBar: MatSnackBar) {}
+  constructor(private router: Router, private snackBar: MatSnackBar, private changeDetectorRef: ChangeDetectorRef) { }
 
 
   get pin(): string {
@@ -109,6 +110,7 @@ export class RidePinVerify implements OnDestroy {
     this.state = 'idle';
     this.statusMessage = '';
 
+    this.changeDetectorRef.detectChanges();
     if (index < 5) {
       this.focusBox(index + 1);
     }
@@ -127,6 +129,7 @@ export class RidePinVerify implements OnDestroy {
     this.focusBox(nextIndex);
     this.state = 'idle';
     this.statusMessage = '';
+    this.changeDetectorRef.detectChanges();
   }
 
   private focusBox(index: number): void {
@@ -140,32 +143,32 @@ export class RidePinVerify implements OnDestroy {
 
     this.state = 'loading';
     this.statusMessage = 'Verifying...';
+    this.changeDetectorRef.detectChanges();
 
     setTimeout(() => {
       if (this.pin === this.expectedPin) {
         this.attempts = 0;
         this.state = 'success';
         this.statusMessage = 'PIN verified. Boarding confirmed!';
+        this.changeDetectorRef.detectChanges();
         this.pinVerified.emit(this.pin);
+
       } else {
         this.attempts++;
         const remaining = this.maxAttempts - this.attempts;
 
-        this.snackBar.open('Wrong PIN ! Enter Again ','Close', {    
-              duration: 3000,    
-              horizontalPosition: 'center',
-              verticalPosition: 'top',
-              panelClass: 'custom-style',
-        });
-        
         if (remaining <= 0) {
           this.state = 'redirecting';
-            this.snackBar.open('Too Many Failed Attempts , Redirecting... ','Close', {    
-                duration: 3000,    
-                horizontalPosition: 'center',
-                verticalPosition: 'top',
-                panelClass: 'custom-style',
+          this.statusMessage = '';
+          this.changeDetectorRef.detectChanges();
+
+          this.snackBar.open('Too Many Failed Attempts, Redirecting...', 'Close', {
+            duration: 3000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: 'custom-style',
           });
+
           this.redirectTimer = setTimeout(() => {
             this.router.navigate(['/driver/landing']);
           }, 2000);
@@ -176,6 +179,14 @@ export class RidePinVerify implements OnDestroy {
         this.statusMessage = remaining === 1
           ? 'Incorrect PIN. Last attempt!'
           : `Incorrect PIN. ${remaining} attempts remaining.`;
+        this.changeDetectorRef.detectChanges();
+
+        this.snackBar.open('Wrong PIN! Enter Again', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: 'custom-style',
+        });
 
         setTimeout(() => this.reset(), 1000);
       }
@@ -186,6 +197,8 @@ export class RidePinVerify implements OnDestroy {
     this.pinControls.controls.forEach(c => c.setValue(''));
     this.state = 'idle';
     this.statusMessage = '';
+    this.changeDetectorRef.detectChanges();
+
     this.focusBox(0);
   }
 

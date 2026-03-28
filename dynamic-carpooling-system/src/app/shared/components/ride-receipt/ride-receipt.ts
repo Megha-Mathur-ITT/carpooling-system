@@ -66,9 +66,9 @@ export class RideReceipt implements OnInit {
 
     const role = this.authService.getUserRole();
     if (role === UserRole.Driver) {
-      this.router.navigate(['/driver/landing']);
+      this.router.navigate(['/']);
     } else {
-      this.router.navigate(['/passenger/landing']);
+      this.router.navigate(['/']);
     }
   }
 

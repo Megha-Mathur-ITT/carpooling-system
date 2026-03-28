@@ -13,6 +13,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
 import { SignalrService } from '../../../../core/services/signalr';
 import { DriverRideService } from '../../services/driver-ride-service';
+
 @Component({
   selector: 'app-driver-ride-active',
   standalone: true,
@@ -36,7 +37,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
   distanceKm: number = 0;
   durationMin: number = 0;
   fare: number = 0;
-
+ 
   private sub: Subscription | null = null;
   @ViewChild(MapComponent) mapComponent!: MapComponent;
  
@@ -56,7 +57,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
     const destination = this.passengerRideService.destination;
     const driver = this.passengerRideService.selectedDriver;
     this.passengerName = this.passengerRideService.passengerName;
-
+ 
     if (!pickup || !destination || !driver) {
       this.router.navigate(['/driver/landing']);
       return;
@@ -68,7 +69,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
       destination,
       driver
     };
-
+ 
     this.rideLoaded = true;
  
     setTimeout(() => {
@@ -107,6 +108,9 @@ export class DriverRideActive implements OnInit, OnDestroy {
     this.distanceKm = this.passengerRideService.distanceKm;
     this.durationMin = this.passengerRideService.durationMin;
     this.fare = this.passengerRideService.fare;
+    this.changeDetectorRef.detectChanges();
+  }
+ 
     this.driverRideService.setFare(this.fare);
     this.driverRideService.setDistanceKm(data.distanceKm);
 
@@ -130,23 +134,23 @@ export class DriverRideActive implements OnInit, OnDestroy {
   }
  
   onPinVerified(pin: string): void {
-    this.bookingService.verifyPin(this.passengerRideService.bookingId, pin)
+    this.bookingService.verifyPin(this.passengerRideService.bookingId, this.passengerRideService.rideRequestId, pin)
       .subscribe({
         next: () => {
           this.signalrService.notifyPassengerPinVerified(
             this.passengerRideService.passengerId,
             true
           );
+ 
           this.showPinVerification = false;
           this.changeDetectorRef.detectChanges();
-          this.cdr.detectChanges();
           
           this.mapComponent.stopDriverAnimation();
           this.router.navigate(['/driver/trip-details']);
         },
         error: (error: any) => {
           console.error('PIN verify failed:', error);
-
+ 
           this.signalrService.notifyPassengerPinVerified(
             this.passengerRideService.passengerId,
             false

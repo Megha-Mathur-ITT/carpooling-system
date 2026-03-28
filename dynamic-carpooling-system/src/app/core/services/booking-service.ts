@@ -15,11 +15,11 @@ export class BookingService {
     );
   }
 
-  verifyPin(bookingId: string, pin: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/verifypin/${bookingId}`, { pin });
+  verifyPin(bookingId: string, rideRequestId: string, pin: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/verifypin/${bookingId}/${rideRequestId}`, { pin });
   }
 
-  completeBooking(bookingId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/complete/${bookingId}`, {});
+  completeBooking(bookingId: string, rideRequestId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/complete/${bookingId}/${rideRequestId}`, {});
   }
 }

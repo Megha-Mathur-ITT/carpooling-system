@@ -63,8 +63,7 @@ export class Login {
     }
 
     const payload = this.buildPayload();
-
-    debugger
+    
     this.authService.login(payload).subscribe({
       next: () => {
         debugger
