@@ -7,23 +7,8 @@ import { RideRequestService } from '../../../../core/services/ride-request-servi
 import { BookingService } from '../../../../core/services/booking-service';
 import { Router } from '@angular/router';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-
-interface LocationDto {
-  latitude: number;
-  longitude: number;
-  name: string;
-}
-
-interface RideRequest {
-  requestId: string;
-  passengerId: string;
-  passengerName: string;
-  pickup: LocationDto;
-  destination: LocationDto;
-  requestedAt: string;
-  rideRequestStatus: string;
-  sessionId: string;
-}
+import { RideRequest } from '../../services/ride-session'; 
+import { trimLocation } from '../../../../shared/utils/locationUtil'; 
 
 @Component({
   selector: 'app-ride-request-popup',
@@ -40,12 +25,14 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
 
   @Output() accepted = new EventEmitter<void>();
   @Output() rejected = new EventEmitter<void>();
+  
+  readonly trimLocation = trimLocation;
 
   isLoading = false;
   timeLeft = 30;
   timerPercent = 100;
   private timer: any = null;
-
+  
   constructor(
     private rideRequestService: RideRequestService,
     private bookingService: BookingService,
@@ -53,7 +40,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private passengerRideService: PassengerRideService
-  ) {}
+  ) { }
 
   ngOnChanges() {
     if (this.request) {
@@ -104,21 +91,8 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   }
 
   accept() {
-  this.stopTimer();
-  this.isLoading = true;
-  
-  this.rideRequestService.respondToRequest(
-    this.request.requestId,
-    'Accepted'
-  ).subscribe({
-    next: (res) => { 
-      this.accepted.emit(); 
-      this.isLoading = false; 
-    },
-    error: (err) => { 
-      console.error('Accept error:', err);
-      this.isLoading = false; 
-    }
+    this.stopTimer();
+    this.isLoading = true;
 
     this.rideRequestService.respondToRequest(
       this.request!.requestId, 'Accepted'
@@ -137,6 +111,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
               acceptedBooking.pin
             );
             this.passengerRideService.bookingId = acceptedBooking.bookingId;
+            this.passengerRideService.setPassengerId(this.request!.passengerId);  
             this.passengerRideService.selectedDriver = {
               latitude: this.currentDriverLat,
               longitude: this.currentDriverLng,
@@ -158,8 +133,9 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
         console.error('Respond to request error:', err);
         this.isLoading = false;
       }
-    });
+    })
   }
+
 
   reject() {
     this.stopTimer();

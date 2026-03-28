@@ -35,6 +35,7 @@ export class RideForm implements OnChanges {
   @Input() destination: SelectedLocation | null = null;
 
   currentLocationName: string = '';
+  destinationName: string = '';
   currentLat: number = 0;
   currentLng: number = 0;
   pickup: SelectedLocation | null = null;
@@ -63,6 +64,7 @@ export class RideForm implements OnChanges {
     }
     if (changes['destination'] && this.destination) {
       this.destinationInternal = this.destination;
+      this.destinationName = this.destination.name; 
     }
   }
 
@@ -102,6 +104,7 @@ export class RideForm implements OnChanges {
 
   onDestinationSelected(location: SelectedLocation): void {
     this.destinationInternal = location;
+    this.destinationName = location.name;
     this.destinationSelected.emit(location);
   }
 
@@ -115,8 +118,16 @@ export class RideForm implements OnChanges {
 
     const dto = {
       vehicleId: this.vehicleId,
-      pickup: this.pickup!.name,
-      dropoff: this.destinationInternal!.name,
+      pickup: {
+        latitude: this.pickup!.latitude,
+        longitude: this.pickup!.longitude,
+        name: this.pickup!.name
+      },
+      destination: {
+        latitude: this.destinationInternal!.latitude,
+        longitude: this.destinationInternal!.longitude,
+        name: this.destinationInternal!.name
+      },
       availableSeats: this.seatCount
     };
 
@@ -161,4 +172,4 @@ export class RideForm implements OnChanges {
       return 'Current Location';
     }
   }
-}
+} 

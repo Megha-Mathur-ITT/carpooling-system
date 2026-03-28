@@ -6,6 +6,7 @@ import { LoginRequest, LoginResponse, RegisterRequest, UserRole, JwtPayload, Pin
 import { environment } from '../environments/environment';
 import { jwtDecode } from 'jwt-decode';
 import { SignalrService } from './signalr';
+import { DriverRideService } from '../../features/driver/services/driver-ride-service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private signalrService: SignalrService
+    private signalrService: SignalrService,
+    private driverRideService: DriverRideService
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.loadUserFromToken();
@@ -44,12 +46,13 @@ export class AuthService {
 
   register(data: RegisterRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/register`, data);
-  }
+  } 
 
   logout(): void {
     if (this.isBrowser()) {
       this.signalrService.disconnect();
       localStorage.removeItem(this.TOKEN_KEY);
+      this.driverRideService.clearAll();
       this.userRoleSubject.next(null);
     }
   }

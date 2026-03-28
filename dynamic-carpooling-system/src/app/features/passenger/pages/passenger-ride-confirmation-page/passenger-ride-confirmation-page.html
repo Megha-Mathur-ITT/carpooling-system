@@ -20,7 +20,9 @@
         [isDriverArrived]="isDriverArrived" 
         [isRideStarted]="isRideStarted"
         [isReachedDestination]="isReachedDestination" 
-        (onStartRide)="startDestinationRide()"
+        [isPinVerified]="isPinVerified"
+        [isPinFailed]="isPinFailed"
+        [pinAttempts]="pinAttempts"
         (onPayDriver)="goToPayment()"
       ></app-ride-status>
 
@@ -54,7 +56,11 @@
     </ng-template>
 
     <div class="col-md-7 p-0">
-      <app-map [pickup]="driverLocation" [destination]="passengerPickup" [showRoute]="false"></app-map>
+      <app-map 
+        [pickup]="driverLocation" 
+        [destination]="passengerPickup" 
+        [showRoute]="false"
+      ></app-map>
     </div>
 
   </div>

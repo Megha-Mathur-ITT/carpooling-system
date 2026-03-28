@@ -12,6 +12,7 @@ import { SignalrService } from '../../../../core/services/signalr';
 import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { NearbyDriversList } from '../../components/ride-selection-page/nearby-drivers-list/nearby-drivers-list';
 import { RideRequestPending } from '../../components/ride-selection-page/ride-request-pending/ride-request-pending';
+import { RideRequestService } from '../../../../core/services/ride-request-service';
 
 @Component({
   selector: 'app-passenger-ride-selection',
@@ -52,7 +53,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private signalrService: SignalrService,
     private ngZone: NgZone,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private rideRequestService: RideRequestService
   ) { }
 
   ngOnInit() {
@@ -95,15 +97,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             this.isWaiting = false;
             this.selectedDriver = null;
-            this.changeDetectorRef.detectChanges();
-            
-            setTimeout(() => {
-              this.snackBar.open(
-                'Driver declined. Please choose another.',
-                'Close',
-                { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-              );
-            })
+            this.changeDetectorRef.markForCheck();
+
+            this.snackBar.open(
+              'Driver declined. Please choose another.',
+              'Close',
+              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+            );
           })
         }
       })
@@ -116,14 +116,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         if (data) {
           this.ngZone.run(() => {
             this.isWaiting = false;
-            this.changeDetectorRef.detectChanges();
-            setTimeout(() => {
-              this.snackBar.open(
-                'Driver accepted your ride!',
-                'Close',
-                { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
-              );
-            })
+            this.changeDetectorRef.markForCheck();
+
+            this.snackBar.open(
+              'Driver accepted your ride!',
+              'Close',
+              { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['success-snackbar'] }
+            );
 
             this.router.navigate(['/passenger/ride-confirmation']);
           });

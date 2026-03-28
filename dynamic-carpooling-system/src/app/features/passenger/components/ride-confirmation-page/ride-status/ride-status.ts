@@ -14,9 +14,12 @@ export class RideStatus {
   @Input() isDriverArrived = false;
   @Input() isRideStarted = false;
   @Input() isReachedDestination = false;
+  @Input() isPinVerified = false;
+  @Input() isPinFailed = false;
+  @Input() pinAttempts = 0;
 
-  @Output() onStartRide = new EventEmitter<void>();
   @Output() onPayDriver = new EventEmitter<void>();
 
   readonly trimLocation = trimLocation;
+  readonly maxPinAttempts = 3;
 }

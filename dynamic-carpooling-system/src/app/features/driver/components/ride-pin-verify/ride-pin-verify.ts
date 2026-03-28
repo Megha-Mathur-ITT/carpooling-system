@@ -138,8 +138,6 @@ export class RidePinVerify implements OnDestroy {
   verify(): void {
     if (!this.isComplete || this.state === 'loading' || this.state === 'redirecting') return;
 
-    console.log('expectedPin:', this.expectedPin, '| entered:', this.pin);
-
     this.state = 'loading';
     this.statusMessage = 'Verifying...';
 
