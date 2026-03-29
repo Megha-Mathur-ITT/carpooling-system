@@ -15,6 +15,7 @@ import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel
 import { DriverRideService } from '../../services/driver-ride-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequest } from '../../services/ride-session';
+
 @Component({
   selector: 'app-driver-landing',
   imports: [
@@ -57,6 +58,20 @@ export class DriverLanding implements OnInit, OnDestroy {
       this.pickup = this.rideService.getPickup();
       this.destination = this.rideService.getDestination();
       this.isOnline = this.rideService.getIsOnline();
+ 
+      const savedDriverActiveSession = sessionStorage.getItem('driver_active_ride');
+      if (savedDriverActiveSession) {
+        const parsed = JSON.parse(savedDriverActiveSession);
+ 
+        if (parsed?.rideRequestId && parsed?.passengerName) {
+          this.activeRide = parsed;
+          this.isOnline = true;
+        } else {
+          sessionStorage.removeItem('driver_active_ride');
+        }
+ 
+        this.changeDetectorRef.detectChanges();
+      }
       this.activeRide = this.rideService.getActiveRide();
 
       if (!this.activeRide?.rideRequestId || !this.activeRide?.passengerName) {
@@ -83,6 +98,7 @@ export class DriverLanding implements OnInit, OnDestroy {
         console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
         return;
       }
+    
       this.incomingRequest = {
         requestId: request.rideRequestId || request.requestId,
         sessionId: request.sessionId,
@@ -136,9 +152,15 @@ export class DriverLanding implements OnInit, OnDestroy {
  
   onRequestRejected() {
     this.incomingRequest = null;
+    this.changeDetectorRef.detectChanges();
+  }
+ 
+  onCurrentLocationDetected(location: SelectedLocation) {
+    this.pickup = location;
     if (this.pendingRequests.length > 0) {
       this.pendingRequests = this.pendingRequests.slice(1);
     }
+    
     this.changeDetectorRef.detectChanges();
   }
 
@@ -189,6 +211,7 @@ export class DriverLanding implements OnInit, OnDestroy {
  
     this.activeRide = null;
     this.isOnline = false;
+    this.rideService.clearAll();
     this.pendingRequests = [];
     this.rideService.clearAll();
     this.pickup = null;

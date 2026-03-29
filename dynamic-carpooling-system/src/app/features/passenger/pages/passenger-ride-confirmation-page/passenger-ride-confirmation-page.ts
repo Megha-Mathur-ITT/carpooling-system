@@ -12,7 +12,6 @@ import { reverseGeocode, trimLocation } from '../../../../shared/utils/locationU
 import { Subscription } from 'rxjs';
 import { SignalrService } from '../../../../core/services/signalr';
 
-
 @Component({
   selector: 'app-passenger-ride-confirmation',
   standalone: true,

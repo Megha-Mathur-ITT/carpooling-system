@@ -103,7 +103,7 @@ export class TripDetails implements OnInit, OnDestroy {
     this.isCompleting = true;
     this.changeDetectorRef.detectChanges();
 
-    this.bookingService.completeBooking(this.rideService.bookingId).subscribe({
+    this.bookingService.completeBooking(this.rideService.bookingId, this.rideService.rideRequestId).subscribe({
       next: () => {
         this.snackBar.open('Ride completed successfully!', 'Close', {
           duration: 3000,

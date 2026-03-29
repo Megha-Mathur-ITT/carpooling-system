@@ -7,7 +7,7 @@ import { isPlatformBrowser } from '@angular/common';
 export class PassengerRideService {
   pickup: any = null;
   destination: any = null;
-  rideRequestId: string | null = null;
+  rideRequestId: string = '';
   selectedDriver: any = null;
 
   city: string = '';
@@ -71,7 +71,7 @@ export class PassengerRideService {
     }
   }
 
-  setRideRequestId(requestId: string | null) {
+  setRideRequestId(requestId: string) {
     this.rideRequestId = requestId;
 
     if (this.isBrowser()) {
@@ -113,11 +113,9 @@ export class PassengerRideService {
   setBookingResult(fare: number, pin: string): void {
     this.fare = fare;
     this.pin = pin;
-    
-    if (this.isBrowser()) {
-      sessionStorage.setItem('fare', fare.toString());
-      sessionStorage.setItem('pin', pin);
-    }
+
+    sessionStorage.setItem('fare', fare.toString());
+    sessionStorage.setItem('pin', pin);
   }
 
   setPassengerId(id: string): void {
@@ -128,6 +126,18 @@ export class PassengerRideService {
         sessionStorage.setItem('passengerId', id);
       } else {
         sessionStorage.removeItem('passengerId');
+      }
+    }
+  }
+
+  setBookingId(id: string): void {
+    this.bookingId = id;
+
+    if (this.isBrowser()) {
+      if (id) {
+        sessionStorage.setItem('bookingId', id);
+      } else {
+        sessionStorage.removeItem('bookingId');
       }
     }
   }
@@ -145,12 +155,14 @@ export class PassengerRideService {
       this.destination = destinationPoint ? JSON.parse(destinationPoint) : null;
       this.city = sessionStorage.getItem('city') || '';
       this.state = sessionStorage.getItem('state') || '';
-      this.rideRequestId = sessionStorage.getItem("rideRequestId") || null;
+      this.rideRequestId = sessionStorage.getItem("rideRequestId") || '';
       this.selectedDriver = JSON.parse(sessionStorage.getItem("selectedDriver") || "null");
       this.passengerId = sessionStorage.getItem('passengerId') || '';
       this.distanceKm = parseFloat(sessionStorage.getItem('distanceKm') || '0');
       this.durationMin = parseFloat(sessionStorage.getItem('durationMin') || '0');
       this.fare = parseFloat(sessionStorage.getItem('fare') || '0');
+      this.pin = sessionStorage.getItem('pin') || '';
+      this.bookingId = sessionStorage.getItem('bookingId') || '';
     } catch {
       this.clearAll();
     }
@@ -178,7 +190,7 @@ export class PassengerRideService {
     this.destination = null;
     this.city = '';
     this.state = '';
-    this.rideRequestId = null;
+    this.rideRequestId = '';
     this.selectedDriver = null;
     this.passengerId = '';
     this.distanceKm = 0;

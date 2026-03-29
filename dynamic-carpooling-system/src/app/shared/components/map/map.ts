@@ -369,7 +369,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         distanceKm: Number(distanceKm.toFixed(2)),
         durationMin: Math.ceil(durationMin)
       });
-
+ 
       if (this.showRadiusCircle && this.pickup) {
         setTimeout(() => {
           this.fitToPickupArea(this.pickup.latitude, this.pickup.longitude);
@@ -529,7 +529,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   public stopDriverAnimation(): void {
     this.driverAnimation.stop();
   }
-
+ 
   public startDestinationAnimation(
     passengerPickup: Location,
     passengerDestination: Location,
