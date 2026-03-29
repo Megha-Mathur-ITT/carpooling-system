@@ -100,6 +100,10 @@ export class DriverLanding implements OnInit, OnDestroy {
       }
     
       this.incomingRequest = {
+        requestId: request.rideRequestId || request.requestId,
+        sessionId: request.sessionId,
+        passengerName: request.passengerName,
+        passengerId: request.passengerId,
         pickup: {
           latitude: request.pickupLat,
           longitude: request.pickupLng,

@@ -64,7 +64,8 @@
       <app-map 
         [pickup]="driverLocation" 
         [destination]="passengerPickup" 
-        [showRoute]="false"
+        [showRoute]="true"
+        (routeInfo)="onRouteInfo($event)"
       ></app-map>
     </div>
 

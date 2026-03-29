@@ -71,6 +71,18 @@ export class DriverRideActive implements OnInit, OnDestroy {
     };
  
     this.rideLoaded = true;
+
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      this.distanceKm = this.driverRideService.getDistanceKm() || this.passengerRideService.distanceKm || 0;
+      this.durationMin = this.passengerRideService.durationMin || 0;
+      this.fare = this.driverRideService.getFare() || this.passengerRideService.fare || 0;
+    }
+
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      if (sessionStorage.getItem('driver_showPinVerification') === 'true') {
+        this.showPinVerification = true;
+      }
+    }
  
     setTimeout(() => {
       if (
@@ -95,7 +107,10 @@ export class DriverRideActive implements OnInit, OnDestroy {
           this.rideData.pickup,
           this.rideData.destination,
           this.rideData.pickup?.name,
-          this.rideData.destination?.name
+          this.rideData.destination?.name,
+          () => {
+            this.onDriverReached();
+          }
         );
       } else {
         console.error('Missing coordinates- animation not started', this.rideData);
@@ -104,7 +119,8 @@ export class DriverRideActive implements OnInit, OnDestroy {
   }
  
   onRouteInfo(data: { distanceKm: number; durationMin: number }) {
-    this.passengerRideService.setRouteInfo(data.distanceKm, data.durationMin);
+    const roundedDistance = Number(data.distanceKm.toFixed(2));
+    this.passengerRideService.setRouteInfo(roundedDistance, data.durationMin);
     this.distanceKm = this.passengerRideService.distanceKm;
     this.durationMin = this.passengerRideService.durationMin;
     this.fare = this.passengerRideService.fare;
@@ -112,7 +128,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
   }
  
     this.driverRideService.setFare(this.fare);
-    this.driverRideService.setDistanceKm(data.distanceKm);
+    this.driverRideService.setDistanceKm(roundedDistance);
 
     const raw = sessionStorage.getItem('receipt_state');
     if (raw) {
@@ -126,6 +142,10 @@ export class DriverRideActive implements OnInit, OnDestroy {
   onDriverReached() {
     this.ngZone.run(() => {
       this.showPinVerification = true;
+      sessionStorage.setItem('driver_showPinVerification', 'true');
+      this.changeDetectorRef.markForCheck();
+      this.cdr.markForCheck();
+      this.changeDetectorRef.detectChanges();
     });
   }
  
@@ -143,6 +163,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
           );
  
           this.showPinVerification = false;
+          sessionStorage.removeItem('driver_showPinVerification');
           this.changeDetectorRef.detectChanges();
           
           this.mapComponent.stopDriverAnimation();

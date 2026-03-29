@@ -9,7 +9,7 @@ import { roleGuard } from '../../core/guards/role-guard';
 export const DRIVER_ROUTES: Routes = [
   {
     path: 'driver',
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard('Driver')],
     children: [
       { path: 'landing', component: DriverLanding},
       { path: 'dashboard', component: DriverDashboard },

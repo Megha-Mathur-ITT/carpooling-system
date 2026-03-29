@@ -20,7 +20,7 @@
 
     <div class="detail-row">
       <span class="label">Distance</span>
-      <span class="value">{{ distance > 0 ? (distance + ' km') : 'Calculating...' }}</span>
+      <span class="value">{{ distance > 0 ? ((distance | number:'1.2-2') + ' km') : 'Calculating...' }}</span>
     </div>
 
     <div class="detail-row">
