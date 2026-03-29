@@ -38,6 +38,7 @@
                         [destination]="destinationLocation" 
                         [drivers]="drivers"
                         [showRadiusCircle]="true"
+                        (routeInfo)="onRouteInfo($event)"
                     ></app-map>
                 </div>
             </div>

@@ -124,8 +124,6 @@ export class DriverRideActive implements OnInit, OnDestroy {
     this.distanceKm = this.passengerRideService.distanceKm;
     this.durationMin = this.passengerRideService.durationMin;
     this.fare = this.passengerRideService.fare;
-    this.changeDetectorRef.detectChanges();
-  }
  
     this.driverRideService.setFare(this.fare);
     this.driverRideService.setDistanceKm(roundedDistance);
@@ -157,27 +155,22 @@ export class DriverRideActive implements OnInit, OnDestroy {
     this.bookingService.verifyPin(this.passengerRideService.bookingId, this.passengerRideService.rideRequestId, pin)
       .subscribe({
         next: () => {
-          this.signalrService.notifyPassengerPinVerified(
-            this.passengerRideService.passengerId,
-            true
-          );
- 
-          this.showPinVerification = false;
-          sessionStorage.removeItem('driver_showPinVerification');
-          this.changeDetectorRef.detectChanges();
-          
-          this.mapComponent.stopDriverAnimation();
-          this.router.navigate(['/driver/trip-details']);
+          this.ngZone.run(() => {
+            this.showPinVerification = false;
+            sessionStorage.removeItem('driver_showPinVerification');
+            this.changeDetectorRef.detectChanges();
+            
+            this.mapComponent.stopDriverAnimation();
+            this.router.navigate(['/driver/trip-details']);
+          });
         },
         error: (error: any) => {
-          console.error('PIN verify failed:', error);
- 
-          this.signalrService.notifyPassengerPinVerified(
-            this.passengerRideService.passengerId,
-            false
-          );
+          this.ngZone.run(() => {
+            console.error('PIN verify failed:', error);
+          });
         }
       });
+      
   }
  
   ngOnDestroy() {

@@ -233,4 +233,12 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     sessionStorage.setItem('passenger_waiting_for_driver', 'true');
     this.changeDetectorRef.detectChanges();
   }
+
+  onRouteInfo(data: { distanceKm: number; durationMin: number }) {
+    this.passengerRideService.distanceKm = Number(data.distanceKm.toFixed(2));
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.setItem('distanceKm', data.distanceKm.toFixed(2));
+    }
+    this.changeDetectorRef.detectChanges();
+  }
 }

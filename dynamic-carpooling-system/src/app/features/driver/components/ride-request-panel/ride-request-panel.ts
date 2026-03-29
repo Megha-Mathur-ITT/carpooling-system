@@ -139,15 +139,20 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
 
             this.passengerRideService.setPickup(item.request.pickup);
             this.passengerRideService.setDestination(item.request.destination);
-            this.passengerRideService.passengerName = acceptedBooking.passengerName;
-            this.passengerRideService.setBookingResult(acceptedBooking.fare, acceptedBooking.pin);
-            this.passengerRideService.bookingId = acceptedBooking.bookingId;
+            this.passengerRideService.setPassengerName(acceptedBooking.passengerName);
+            this.passengerRideService.setBookingResult(
+              acceptedBooking.fares?.[0] ?? acceptedBooking.fare?.[0] ?? acceptedBooking.fare ?? 0,
+              acceptedBooking.piNs?.[0] ?? acceptedBooking.pin ?? ''
+            );
+            this.passengerRideService.setBookingId(
+              acceptedBooking.bookingIds?.[0] ?? acceptedBooking.bookingId ?? ''
+            );
             this.passengerRideService.setPassengerId(item.request.passengerId);
-            this.passengerRideService.selectedDriver = {
+            this.passengerRideService.setSelectedDriver({
               latitude: this.currentDriverLat,
               longitude: this.currentDriverLng,
               driverName: 'You'
-            };
+            });
             this.clearAll();
             this.accepted.emit();
             this.isLoading = false;

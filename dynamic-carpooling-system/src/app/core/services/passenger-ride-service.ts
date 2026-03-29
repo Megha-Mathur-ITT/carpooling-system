@@ -63,6 +63,18 @@ export class PassengerRideService {
     }
   }
 
+  setPassengerName(name: string) {
+    this.passengerName = name;
+
+    if (this.isBrowser()) {
+      if (name) {
+        sessionStorage.setItem('passengerName', name);
+      } else {
+        sessionStorage.removeItem('passengerName');
+      }
+    }
+  }
+
   setState(state: string) {
     this.state = state;
 
@@ -158,6 +170,7 @@ export class PassengerRideService {
       this.rideRequestId = sessionStorage.getItem("rideRequestId") || '';
       this.selectedDriver = JSON.parse(sessionStorage.getItem("selectedDriver") || "null");
       this.passengerId = sessionStorage.getItem('passengerId') || '';
+      this.passengerName = sessionStorage.getItem('passengerName') || '';
       this.distanceKm = parseFloat(sessionStorage.getItem('distanceKm') || '0');
       this.durationMin = parseFloat(sessionStorage.getItem('durationMin') || '0');
       this.fare = parseFloat(sessionStorage.getItem('fare') || '0');
@@ -180,6 +193,7 @@ export class PassengerRideService {
     sessionStorage.removeItem("rideRequestId");
     sessionStorage.removeItem("selectedDriver");
     sessionStorage.removeItem("passengerId");
+    sessionStorage.removeItem("passengerName");
     sessionStorage.removeItem("distanceKm");
     sessionStorage.removeItem("durationMin");
     sessionStorage.removeItem("fare");
@@ -193,6 +207,7 @@ export class PassengerRideService {
     this.rideRequestId = '';
     this.selectedDriver = null;
     this.passengerId = '';
+    this.passengerName = '';
     this.distanceKm = 0;
     this.durationMin = 0;
     this.fare = 0;

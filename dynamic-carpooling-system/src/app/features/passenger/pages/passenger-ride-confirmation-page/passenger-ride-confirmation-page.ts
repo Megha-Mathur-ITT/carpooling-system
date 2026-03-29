@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, NgZone, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
@@ -44,12 +44,17 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private authService: AuthService,
     private ngZone: NgZone,
-    private signalrService: SignalrService
+    private signalrService: SignalrService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
 
   async ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     this.passengerPickup = this.passengerRideService.pickup;
     this.passengerDestination = this.passengerRideService.destination;
     this.selectedDriver = this.passengerRideService.selectedDriver;
@@ -204,14 +209,4 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
     this.pinSub?.unsubscribe();
   }
 
-  onRouteInfo(data: { distanceKm: number; durationMin: number }) {
-    this.passengerRideService.distanceKm = Number(data.distanceKm.toFixed(2));
-    this.distanceKm = this.passengerRideService.distanceKm;
-    
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      sessionStorage.setItem('distanceKm', data.distanceKm.toFixed(2));
-    }
-
-    this.changeDetectorRef.detectChanges();
-  }
 }
