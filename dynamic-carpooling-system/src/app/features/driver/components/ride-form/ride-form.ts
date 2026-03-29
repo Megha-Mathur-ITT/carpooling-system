@@ -42,7 +42,7 @@ export class RideForm implements OnChanges {
   destinationInternal: SelectedLocation | null = null;
   seatCount: number = 4;
 
-  isOnline = false;
+  @Input() isOnline: boolean = false;
   isLoading = false;
   vehicleId: string = '';
 

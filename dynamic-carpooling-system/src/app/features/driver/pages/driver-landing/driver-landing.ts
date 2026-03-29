@@ -152,15 +152,9 @@ export class DriverLanding implements OnInit, OnDestroy {
  
   onRequestRejected() {
     this.incomingRequest = null;
-    this.changeDetectorRef.detectChanges();
-  }
- 
-  onCurrentLocationDetected(location: SelectedLocation) {
-    this.pickup = location;
     if (this.pendingRequests.length > 0) {
       this.pendingRequests = this.pendingRequests.slice(1);
     }
-    
     this.changeDetectorRef.detectChanges();
   }
 

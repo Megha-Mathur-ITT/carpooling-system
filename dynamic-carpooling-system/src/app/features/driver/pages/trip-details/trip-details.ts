@@ -43,6 +43,10 @@ export class TripDetails implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     const pickup = this.rideService.pickup;
     const destination = this.rideService.destination;
     const driver = this.rideService.selectedDriver;

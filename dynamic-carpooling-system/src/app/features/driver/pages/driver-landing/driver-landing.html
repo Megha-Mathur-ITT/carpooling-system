@@ -11,7 +11,7 @@
     </ng-container>
 
     <ng-template #rideFormTemplate>
-      <app-ride-form [currentLocation]="pickup" [destination]="destination"
+      <app-ride-form [currentLocation]="pickup" [destination]="destination" [isOnline]="isOnline"
         (currentLocationDetected)="onCurrentLocationDetected($event)"
         (destinationSelected)="onDestinationSelected($event)" (sessionStarted)="onSessionStarted()"
         (sessionStopped)="onSessionStopped()">

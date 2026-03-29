@@ -16,10 +16,10 @@ export class BookingService {
   }
 
   verifyPin(bookingId: string, rideRequestId: string, pin: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/verifypin/${bookingId}/${rideRequestId}`, { pin });
+    return this.http.post(`${this.baseUrl}/verifypin/${bookingId}`, { pin }, { responseType: 'text' as 'json' });
   }
 
   completeBooking(bookingId: string, rideRequestId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/complete/${bookingId}/${rideRequestId}`, {});
+    return this.http.post(`${this.baseUrl}/complete/${bookingId}`, {});
   }
 }
