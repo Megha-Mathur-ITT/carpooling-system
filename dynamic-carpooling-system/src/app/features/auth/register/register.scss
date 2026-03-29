@@ -1,0 +1,65 @@
+@use 'abstracts/_variables' as *;
+
+.register-container {
+  padding-top: 40px;
+  min-height: 100vh;
+
+  background: linear-gradient(120deg, $primary-dark 0%, $primary-dark 35%, $text-light 35%);
+}
+
+.register-card {
+  width: 500px;
+  border-radius: 14px;
+  border: none;
+  background: #ffffff;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+
+  animation: cardFade 0.4s ease;
+
+  h3 {
+    font-weight: 700;
+    color: $primary-dark;
+  }
+}
+
+.success-snackbar {
+  background-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #c62828 !important;
+  color: white !important;
+}
+
+@keyframes cardFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.clear-file-btn {
+  position: absolute;
+  right: 10px;
+  top: 38px;
+  border: none;
+  background: #ff4d4f;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.clear-file-btn:hover {
+  background: #d9363e;
+}

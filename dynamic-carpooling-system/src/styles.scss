@@ -1,0 +1,17 @@
+@use "bootstrap";
+@use '@angular/material' as mat;
+@use 'base/_global';
+@use 'abstracts/_variables' as *;
+@use 'components/forms';
+
+html {
+  height: 100%;
+  @include mat.theme((color: (primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: (brand-family: $font-family,
+        plain-family: $font-family,
+      ),
+      density: 0,
+    ));
+}

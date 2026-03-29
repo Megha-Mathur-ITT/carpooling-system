@@ -1,0 +1,18 @@
+<div class="toggle-wrapper">
+  <h1 class="driver-heading">
+    Wanna Go <span class="accent-text">Active?</span>
+  </h1>
+
+  <div class="toggler-card">
+    <div class="switch-display" [class.active]="isOnline">
+      <div class="switch-knob"></div>
+    </div>
+    <div class="status-text" [class.text-online]="isOnline">
+      {{ isOnline ? "Online " : 'Offline ' }}
+    </div>
+  </div>
+
+  <p class="toggle-hint">
+    {{ isOnline ? 'You are visible to nearby passengers' : 'Fill the form below and publish your ride' }}
+  </p>
+</div>

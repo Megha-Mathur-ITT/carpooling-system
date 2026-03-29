@@ -1,0 +1,83 @@
+@use 'abstracts/_variables' as *;
+
+.ride-selection-wrapper {
+    margin-top: 60px;
+    padding-bottom: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    @media (max-width: 768px) {
+        margin-top: 16px;
+        padding-bottom: 20px;
+    }
+}
+
+.landing-row {
+    min-height: 500px;
+
+    @media (max-width: 991px) {
+        min-height: unset;
+        gap: 0;
+    }
+}
+
+.left-section {
+    padding-right: 20px;
+    position: relative;
+
+    @media (max-width: 991px) {
+        padding: 12px !important;
+        order: 2;
+        z-index: 0;
+    }
+}
+
+.right-section {
+    display: flex;
+    justify-content: center;
+    position: relative;
+
+    @media (max-width: 991px) {
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
+        order: 1;
+        z-index: 0;
+    }
+}
+
+.passenger-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: $primary-dark;
+    margin: 10px 0 12px 0;
+
+    @media (max-width: 991px) {
+        font-size: 22px;
+        margin: 8px 0 10px 0;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 20px;
+    }
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 420px;
+    background: #f3f4f6;
+    border-radius: 14px;    
+    overflow: hidden;
+    position: relative; 
+    z-index: 0;  
+
+    @media (max-width: 991px) {
+        height: 240px;border-radius: 12px;  
+        margin: 12px 12px 0 12px;  
+        width: calc(100% - 24px); 
+    }
+
+    @media (max-width: 480px) {
+        height: 200px;
+    }
+}

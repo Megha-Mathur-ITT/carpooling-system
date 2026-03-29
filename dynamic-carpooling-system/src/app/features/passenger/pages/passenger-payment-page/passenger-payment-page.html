@@ -1,0 +1,41 @@
+<app-navbar></app-navbar>
+
+<div class="payment-wrapper">
+    <div class="payment-card">
+        <div class="payment-header">
+            <span class="payment-icon"><i class="fa-solid fa-car fa-beat" style="color: rgb(165, 245, 5)"></i></span>
+            <h2>Pay your Driver</h2>
+            <p>Your ride has been completed. Please pay the fare in cash.</p>
+        </div>
+
+        <div class="fare-display"> 
+            <span class="fare-label">Total Fare</span>
+            <span class="fare-amount">₹{{ rideService.fare }}</span>
+        </div>
+
+        <div class="cash-notice">
+            <span><i class="fa-solid fa-coins fa-flip" style="color: rgb(165, 245, 5);"></i></span>
+            <p>This is a <strong>cash payment</strong>. Please hand the fare directly to your driver.</p>
+        </div>
+
+        @if(isPaymentDenied) {
+        <div class="payment-denied-notice"> 
+            <span><i class="fa-solid fa-triangle-exclamation" style="color: #ff4d4d;"></i></span>
+            <p>Driver hasn't received the payment yet. Please hand the cash directly and try again.</p>
+        </div>
+        }
+
+        <button class="button-confirm-payment" (click)="confirmPayment()" [disabled]="isWaitingForDriver"
+            [class.isWaiting]="isWaitingForDriver">
+            @if(isWaitingForDriver) {
+            Waiting for driver's confirmation...
+            } @else if(isPaymentDenied) {
+            Try Again
+            } @else {
+            I've Paid - Confirm 
+            }
+        </button>
+    </div>
+</div>
+
+<app-footer></app-footer> 

@@ -1,0 +1,37 @@
+<app-navbar></app-navbar>
+
+<div class="driver-layout">
+  <div class="driver-panel">
+    <app-toggler [isOnline]="isOnline"></app-toggler>
+
+    <ng-container *ngIf="activeRide; else rideFormTemplate">
+      <app-driver-active-ride-panel [activeRide]="activeRide" (rideCompleted)="onRideCompleted()"
+        (rideCancelled)="onRideCancelled()">
+      </app-driver-active-ride-panel>
+    </ng-container>
+
+    <ng-template #rideFormTemplate>
+      <app-ride-form [currentLocation]="pickup" [destination]="destination"
+        (currentLocationDetected)="onCurrentLocationDetected($event)"
+        (destinationSelected)="onDestinationSelected($event)" (sessionStarted)="onSessionStarted()"
+        (sessionStopped)="onSessionStopped()">
+      </app-ride-form>
+    </ng-template>
+  </div>
+
+  <div class="driver-map">
+    <app-map [pickup]="pickup" [destination]="destination"></app-map>
+  </div>
+</div>
+
+<app-ride-request-popup *ngIf="pendingRequests.length === 1" [request]="pendingRequests[0]"
+  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()"
+  (rejected)="onRequestRejected()">
+</app-ride-request-popup>
+
+<app-ride-request-panel *ngIf="pendingRequests.length > 1" [requests]="pendingRequests"
+  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()"
+  (allRejected)="onAllRejected()">
+</app-ride-request-panel>
+
+<app-footer></app-footer>

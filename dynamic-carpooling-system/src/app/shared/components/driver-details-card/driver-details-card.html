@@ -1,0 +1,21 @@
+<div class="driver-card">
+    <div class="driver-information">
+        <div class="driver-photo">
+            <i class="fa-solid fa-user"></i>
+        </div>
+
+        <div class="driver-details">
+            <p class="driver-name">{{ driverName }}</p>
+            <p class="driver-vehicle">{{ vehicleName }}</p>
+        </div>
+    </div>
+
+    <div class="ride-information">
+        <p class="ride-fare">{{ fare }}</p>
+        <p class="ride-eta">{{ eta }}</p>
+    </div>
+
+    <button class="request-btn"  (click)="requestRideHandler($event)">
+        Request Ride
+    </button>
+</div>  

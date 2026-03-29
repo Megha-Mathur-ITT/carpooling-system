@@ -1,0 +1,75 @@
+<app-navbar></app-navbar>
+
+<div class="container-fluid confirmation-wrapper">
+  <div class="row align-items-stretch landing-row">
+
+    <div class="col-md-5 border p-4 left-section" *ngIf="selectedDriver; else loading">
+      <div class="pin-box ">
+        <p class="pin-label">Your Ride PIN</p>
+        <div class="pin-digits-row">
+          <span class="pin-digit" *ngFor="let digit of passengerPinDigits">
+            {{digit}}
+          </span>
+        </div>
+        <small class="text-muted">Share this PIN with your driver to start the ride</small>
+      </div>
+
+      <app-ride-status 
+        [driver]="selectedDriver" 
+        [destination]="passengerDestination"
+        [isDriverArrived]="isDriverArrived" 
+        [isRideStarted]="isRideStarted"
+        [isReachedDestination]="isReachedDestination" 
+        [isPinVerified]="isPinVerified"
+        [isPinFailed]="isPinFailed"
+        [pinAttempts]="pinAttempts"
+        (onPayDriver)="goToPayment()"
+      ></app-ride-status>
+
+      <div class="ride-details"> 
+        <app-ride-summary 
+          [pickup]="passengerPickup" 
+          [destination]="passengerDestination"
+        ></app-ride-summary>
+
+        <div class="detail-row">
+          <span class="detail-label">Driver</span>
+          <span class="detail-value">{{ selectedDriver.driverName }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Vehicle</span>
+          <span class="detail-value">{{ selectedDriver.vehicleName }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Fare</span>
+          <span class="detail-value text-success fw-bold">₹{{ fare }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">License plate</span>
+          <span class="detail-value">{{ selectedDriver.licensePlate }}</span>
+        </div>
+
+      </div>
+      <hr>
+    </div>
+
+    <ng-template #loading>
+      <div class="col-md-5 p-4 text-muted">Loading ride details...</div>
+    </ng-template>
+
+    <div class="col-md-7 p-0">
+      <app-map 
+        [pickup]="driverLocation" 
+        [destination]="passengerPickup" 
+        [showRoute]="true"
+        (routeInfo)="onRouteInfo($event)"
+      ></app-map>
+    </div>
+
+  </div>
+</div>
+
+<app-footer></app-footer>

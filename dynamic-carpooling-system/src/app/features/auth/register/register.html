@@ -1,0 +1,91 @@
+<div class="register-container d-flex align-items-center justify-content-center">
+    <div class="card shadow p-4 register-card">
+        <h3 class="text-center mb-4">Register</h3>
+
+        <div class="text-center">
+            <h2 class="fw-bold text-center">
+                Let's get started
+            </h2>
+
+            <p class="text-center text-muted mb-4">
+                Already have an account?
+                <a (click)="goToLogin()" class="fw-semibold text-decoration-none">
+                    Login
+                </a>
+            </p>
+        </div>
+
+        <form action="" [formGroup]="registrationForm" (ngSubmit)="onSubmit()" noValidate>
+            <!-- Role section -->
+            <div class="mb-3">
+                <label class="form-label">Register As</label>
+                <select name="role" class="form-select" formControlName="role">
+                    <option value="passenger">Passenger</option>
+                    <option value="driver">Driver</option>
+                </select>
+            </div>
+
+            <!-- Email section -->
+            <app-form-input label="Email" type="email" [formGroup]="registrationForm" controlName="email"
+                placeholder="Enter your email" [errorMessages]="ValidationMessages.email"></app-form-input>
+
+            <!-- Username section -->
+            <app-form-input label="Full Name" type="text" [formGroup]="registrationForm" controlName="username"
+                placeholder="Enter your name" [errorMessages]="ValidationMessages.username"></app-form-input>
+
+            <!-- Password section -->
+            <app-form-input label="Password" type="password" [formGroup]="registrationForm" controlName="password"
+                placeholder="Enter your password" [errorMessages]="ValidationMessages.password"></app-form-input>
+
+            <!-- Confirm password section -->
+            <app-form-input label="Confirm Password" type="password" [formGroup]="registrationForm"
+                controlName="confirmPassword" placeholder="Enter your password"
+                [errorMessages]="ValidationMessages.confirmPassword">
+            </app-form-input>
+
+            <div class="text-danger mt-1"
+                *ngIf="registrationForm.errors?.['passwordMismatch'] && registrationForm.get('confirmPassword')?.touched">
+                Passwords do not match
+            </div>
+
+            <!-- Driver specific fields -->
+            @if(registrationForm.get('role')?.value === 'driver') {
+            <app-form-input label="Vehicle Name" type="text" [formGroup]="registrationForm" controlName="vehicleName"
+                placeholder="Enter vehicle name" [errorMessages]="ValidationMessages.vehicleName"></app-form-input>
+
+            <app-form-input label="Available seats (excluding driver's seat)" type="number" [min]="1" [max]="6" [formGroup]="registrationForm" controlName="maxSeats"
+                placeholder="Enter max seats" [errorMessages]="ValidationMessages.maxSeats"></app-form-input>
+
+            <app-form-input label="Vehicle License" type="text" [formGroup]="registrationForm"
+                controlName="vehicleLicense" placeholder="Enter vehicle license"
+                [errorMessages]="ValidationMessages.vehicleLicense"></app-form-input>
+
+            <div class="mb-3 position-relative">
+
+  <label class="form-label">Upload Driver's License</label>
+
+  <input
+    type="file"
+    class="form-control"
+    accept=".pdf"
+    #fileInput
+    (change)="onFileSelected($event)"
+  />
+
+  <button
+    *ngIf="selectedFile"
+    type="button"
+    class="clear-file-btn"
+    (click)="clearFile(fileInput)">
+    ✖
+  </button>
+
+</div>
+            }
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">
+                Register
+            </button>
+        </form>
+    </div>
+</div>

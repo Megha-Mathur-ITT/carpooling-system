@@ -1,0 +1,155 @@
+<app-navbar></app-navbar>
+ 
+<div class="navbar2">
+  <h1>Ride History</h1>
+  <p>All your past rides at a glance</p>
+</div>
+ 
+<div class="main-container">
+ 
+  <div class="stats-container">
+ 
+    <div class="stat-card">
+      <div class="stat-value">{{ totalRides }}</div>
+      <div class="stat-label">Total rides</div>
+    </div>
+ 
+    <div class="stat-card stat-accent">
+      <div class="stat-value">{{ ridesThisWeek }}</div>
+      <div class="stat-label">Rides this week</div>
+    </div>
+ 
+    <div class="stat-card">
+      <div class="stat-value">{{ avgRating || '—' }}</div>
+      <div class="stat-label">Avg rating given</div>
+    </div>
+ 
+  </div>
+ 
+  <div class="table-container">
+ 
+    <ng-container *ngIf="isLoading">
+      <table class="table">
+        <thead><tr>
+          <th>Driver</th><th>Route</th><th>Status</th><th>Fare</th>
+        </tr></thead>
+        <tbody>
+          <tr *ngFor="let i of [1,2,3,4,5]" class="rh-skeleton-row">
+            <td><div class="rh-skel rh-skel-peer"></div></td>
+            <td><div class="rh-skel rh-skel-route"></div></td>
+            <td><div class="rh-skel rh-skel-badge"></div></td>
+            <td><div class="rh-skel rh-skel-fare"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+ 
+    <div *ngIf="!isLoading && errorMsg" class="rh-empty"><p>{{ errorMsg }}</p></div>
+
+    <div *ngIf="!isLoading && !errorMsg && history.length === 0" class="rh-empty">
+      <p>No rides found yet.</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading && !errorMsg && history.length > 0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>Route</th>
+            <th>Status</th>
+            <th>Fare</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let entry of history; let i = index; trackBy: trackByEntry">
+ 
+            <tr
+              *ngIf="i === 0 || monthLabel(history[i-1].pickupTime) !== monthLabel(entry.pickupTime)"
+              class="month-row">
+              <td colspan="4">{{ monthLabel(entry.pickupTime) }}</td>
+            </tr>
+ 
+            <tr class="rh-data-row">
+ 
+              <td>
+                <div class="user-cell">
+                  <div class="avatar" [ngClass]="avatarClass(i)">
+                    {{ initials(entry.driverName || 'D') }}
+                  </div>
+                  <div>
+                    <div class="user-name">{{ entry.driverName || 'Unknown Driver' }}</div>
+                    <div class="user-sub" *ngIf="entry.ratings !== null">
+                      {{ entry.ratings }} ★
+                    </div>
+                    <div *ngIf="entry.ratings === null && rideStatus(entry) === 'completed'">
+                      <button
+                        class="rate-btn"
+                        (click)="toggleRatingPanel(entry.passengerHistoryId)">
+                        Rate driver
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+ 
+              <td>
+                <div class="route-cell">
+                  <div class="route-row">
+                    <div class="dot dot-pickup"></div>
+                    <span>{{ shortLocation(entry.pickup) }}</span>
+                  </div>
+                  <div class="route-line-vertical"></div>
+                  <div class="route-row">
+                    <div class="dot dot-destination"></div>
+                    <span>{{ shortLocation(entry.destination) }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-done':   rideStatus(entry) === 'completed',
+                  'badge-cancel': rideStatus(entry) === 'cancelled'
+                }">
+                  {{ rideStatus(entry) | titlecase }}
+                </span>
+              </td>
+
+              <td><span class="fare">{{ formatFare(entry.fare) }}</span></td>
+ 
+            </tr>
+ 
+            <tr *ngIf="ratingOpenId === entry.passengerHistoryId" class="rating-row">
+              <td colspan="4">
+                <div class="rating-panel">
+                  <span class="rating-label">Rate your driver</span>
+                  <div class="stars stars-interactive">
+                    <svg
+                      *ngFor="let s of stars"
+                      class="star star-lg"
+                      viewBox="0 0 12 12"
+                      (mouseenter)="hoverRating = s"
+                      (mouseleave)="hoverRating = 0"
+                      (click)="submitRating(entry, s)">
+                      <polygon
+                        points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5"
+                        [class.rh-sf]="s <= hoverRating"
+                        [class.rh-se]="s > hoverRating"/>
+                    </svg>
+                  </div>
+                  <span *ngIf="isRating" class="rating-label">Saving…</span>
+                  <button class="cancel-btn"
+                    (click)="toggleRatingPanel(entry.passengerHistoryId)">
+                    Cancel
+                  </button>
+                </div>
+              </td>
+            </tr>
+ 
+          </ng-container>
+        </tbody>
+      </table>
+    </ng-container>
+ 
+  </div>
+ 
+</div>

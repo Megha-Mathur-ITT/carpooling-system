@@ -1,0 +1,78 @@
+@use 'abstracts/_variables' as *;
+
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    background: $primary-dark;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.logo-wrapper {
+    font-family: $font-family;
+    font-weight: 700;
+    font-size: 48px;
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: $text-light;
+    opacity: 0;
+    display: inline-block;
+}
+
+.hindi-logo::first-letter,
+.english-logo::first-letter {
+    color: $accent-green;
+    text-shadow: 0 0 25px rgba(165, 245, 15, 0.8);
+}
+
+.neon {
+    color: $accent-green;
+    text-shadow: 0 0 25px rgba(165, 245, 15, 0.8);
+}
+
+.hindi-logo {
+    animation: showHindi 1s ease forwards;
+}
+
+.english-logo {
+    animation: showEnglish 1s ease forwards;
+    animation-delay: 1.2s;
+}
+
+@keyframes showHindi {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.85);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+}
+
+@keyframes showEnglish {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}

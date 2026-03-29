@@ -1,0 +1,39 @@
+@use 'abstracts/_variables' as *;
+
+.features {
+  background: linear-gradient(135deg,
+      #f5f7f9 0%,
+      #e8edf2 100%);
+
+  .section-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: $primary-dark;
+
+    .accent {
+      color: $accent-green;
+    }
+  }
+
+  .feature-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    img {
+      max-width: 80%;
+      height: auto;
+      object-fit: contain;
+    }
+  }
+}

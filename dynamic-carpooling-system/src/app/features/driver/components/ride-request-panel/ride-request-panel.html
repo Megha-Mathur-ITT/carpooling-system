@@ -1,0 +1,71 @@
+<div class="panel-overlay" *ngIf="rideRequestQueue.length > 0">
+    <div class="panel">
+
+        <div class="panel-header">
+            <span class="panel-title">Ride Requests</span>
+            <span class="count-badge">{{ rideRequestQueue.length }} waiting</span>
+        </div>
+
+        <div class="passengers-list">
+            <div class="passenger-card"
+                *ngFor="let rideRequest of rideRequestQueue; let index = index; trackBy: trackById"
+                [class.first]="index === 0">
+
+                <div class="card-top">
+                    <div class="passenger-info">
+                        <div class="avatar">
+                            {{ getInitials(rideRequest.request.passengerName) }}
+                        </div>
+                        <div class="name-wrap">
+                            <span class="passenger-name">
+                                {{ rideRequest.request.passengerName }}
+                            </span>
+                            <span class="earliest-tag" *ngIf="index === 0">
+                                earliest
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="timer-chip" [class.warn]="rideRequest.timeLeft <= 15 && rideRequest.timeLeft > 7"
+                        [class.danger]="rideRequest.timeLeft <= 7">
+                        {{ rideRequest.timeLeft }}s
+                    </div>
+                </div>
+
+                <div class="timer-bar-wrap">
+                    <div class="timer-bar" [style.width.%]="(rideRequest.timeLeft / 30) * 100"
+                        [class.warn]="rideRequest.timeLeft <= 15 && rideRequest.timeLeft > 7"
+                        [class.danger]="rideRequest.timeLeft <= 7">
+                    </div>
+                </div>
+
+                <div class="route-info">
+                    <div class="route-row">
+                        <span class="route-label">Pickup</span>
+                        <span class="route-value">
+                            {{ trimLocation(rideRequest.request.pickup.name) }}
+                        </span>
+                    </div>
+                    <div class="route-row">
+                        <span class="route-label">Drop</span>
+                        <span class="route-value">
+                            {{ trimLocation(rideRequest.request.destination.name) }}
+                        </span>
+                    </div>
+                </div>
+
+                <button class="btn-accept" (click)="accept(rideRequest)" [disabled]="isLoading">
+                    Accept Request
+                </button>
+
+            </div>
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn-reject-all" (click)="rejectAll()" [disabled]="isLoading">
+                Reject All
+            </button>
+        </div>
+
+    </div>
+</div>

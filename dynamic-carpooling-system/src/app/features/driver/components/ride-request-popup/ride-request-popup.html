@@ -1,0 +1,35 @@
+<div class="popup-overlay" *ngIf="request">
+  <div class="popup-card">
+
+    <div class="popup-header">
+      <h3>New Ride Request</h3>
+      <div class="timer-badge" [class.urgent]="timeLeft <= 10">
+        {{ timeLeft }}s
+      </div>
+    </div>
+
+    <div class="timer-bar-wrapper">
+      <div class="timer-bar"
+        [style.width.%]="timerPercent"
+        [class.warning]="timeLeft <= 10 && timeLeft > 5"
+        [class.danger]="timeLeft <= 5">
+      </div>
+    </div>
+
+    <div class="popup-body">
+      <p><strong>Passenger:</strong> {{ request.passengerName }}</p>
+      <p><strong>Pickup:</strong> {{ trimLocation(request.pickup.name) }}</p>
+      <p><strong>Destination:</strong> {{ trimLocation(request.destination.name) }}</p>
+    </div>
+
+    <div class="popup-actions">
+      <button class="btn-reject" (click)="reject()" [disabled]="isLoading">
+        Reject
+      </button>
+      <button class="btn-accept" (click)="accept()" [disabled]="isLoading">
+        Accept
+      </button>
+    </div>
+
+  </div>
+</div>

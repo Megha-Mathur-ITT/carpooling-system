@@ -1,0 +1,60 @@
+.passenger-card {
+    background-color: #F9FAFB;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    font-family: 'Satoshi', sans-serif;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+
+    border-left: 4px solid #A5F50F;
+
+    .card-title {
+        color: #1A2129;
+        font-weight: 700;
+        font-size: 18px;
+        margin-bottom: 16px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eaeaea;
+
+        &:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .label {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .value {
+            color: #1A2129;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: right;
+            line-height: 1.4;
+
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 65%;
+        }
+
+        .price {
+            color: #A5F50F;
+            font-weight: 700;
+            font-size: 15px;
+        }
+    }
+    
+  
+}
+

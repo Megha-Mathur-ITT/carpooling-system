@@ -1,0 +1,26 @@
+@use 'abstracts/_variables' as *;
+
+.waiting-state {
+    text-align: center;
+    padding: 24px 16px;
+
+    h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: $primary-dark;
+        margin-bottom: 8px;
+
+        @media (max-width: 768px) {
+            font-size: 18px;
+        }
+    }
+
+    p {
+        font-size: 14px;
+        color: #6b7280;
+
+        @media (max-width: 768px) {
+            font-size: 13px;
+        }
+    }
+}

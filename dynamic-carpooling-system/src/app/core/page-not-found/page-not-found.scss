@@ -1,0 +1,19 @@
+@use 'abstracts/_variables' as *;
+
+.notfound-page {
+  background: $text-light;
+
+  .notfound-gif {
+    max-width: 450px;
+    width: 100%;
+    border-radius: 50%;
+  }
+
+  .heading-404 {
+    color: $accent-green;
+  }
+
+  h4 {
+    color: $primary-dark;
+  }
+}

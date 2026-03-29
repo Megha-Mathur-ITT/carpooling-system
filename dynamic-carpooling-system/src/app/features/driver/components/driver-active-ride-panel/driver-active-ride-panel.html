@@ -1,0 +1,30 @@
+<div class="active-ride-panel">
+
+    <div class="panel-header">
+        <div class="status-chip">
+            <span class="live-dot"></span>
+            Active Ride
+        </div>
+    </div>
+
+    @if(!isPaymentPending) {
+    <div class="info-card">
+        <div class="card-label">
+            <i class="bi bi-person-fill"></i>
+            Passenger:
+            <span class="passenger-name">{{ activeRide?.passengerName || 'Passenger' }}</span>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <app-ride-summary [pickup]="activeRide?.pickupName"
+            [destination]="activeRide?.destinationName"></app-ride-summary>
+    </div>
+    }
+
+    @if(isPaymentPending) {
+    <app-payment-confirm [activeRide]="activeRide" (confirmed)="onPaymentConfirmed()"
+        (denied)="onPaymentDenied()"></app-payment-confirm>
+    }
+
+</div>
