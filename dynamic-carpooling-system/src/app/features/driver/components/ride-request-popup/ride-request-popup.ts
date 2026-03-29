@@ -103,6 +103,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
           this.request!.sessionId
         ).subscribe({
           next: (acceptedBooking: any) => {
+            console.log("ACcepted Booking: ", acceptedBooking);
             this.passengerRideService.setPickup(this.request!.pickup);
             this.passengerRideService.setDestination(this.request!.destination);
             this.passengerRideService.passengerName = acceptedBooking.passengerName;
@@ -136,7 +137,6 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
       }
     })
   }
-
 
   reject() {
     this.stopTimer();

@@ -58,18 +58,18 @@ export class DriverLanding implements OnInit, OnDestroy {
       this.pickup = this.rideService.getPickup();
       this.destination = this.rideService.getDestination();
       this.isOnline = this.rideService.getIsOnline();
- 
+
       const savedDriverActiveSession = sessionStorage.getItem('driver_active_ride');
       if (savedDriverActiveSession) {
         const parsed = JSON.parse(savedDriverActiveSession);
- 
+
         if (parsed?.rideRequestId && parsed?.passengerName) {
           this.activeRide = parsed;
           this.isOnline = true;
         } else {
           sessionStorage.removeItem('driver_active_ride');
         }
- 
+
         this.changeDetectorRef.detectChanges();
       }
       this.activeRide = this.rideService.getActiveRide();
@@ -83,9 +83,9 @@ export class DriverLanding implements OnInit, OnDestroy {
 
       this.changeDetectorRef.detectChanges();
     }
- 
+
     this.signalrService.connect();
- 
+
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
       if (!request) {
         if (this.incomingRequest !== null) {
@@ -98,8 +98,13 @@ export class DriverLanding implements OnInit, OnDestroy {
         console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
         return;
       }
-    
+
+      console.log("REQ: ", request);
       this.incomingRequest = {
+        requestId: request.rideRequestId,
+        sessionId: request.sessionId,
+        passengerName: request.passengerName,
+        passengerId: request.passengerId,
         pickup: {
           latitude: request.pickupLat,
           longitude: request.pickupLng,
@@ -121,11 +126,11 @@ export class DriverLanding implements OnInit, OnDestroy {
       this.changeDetectorRef.detectChanges();
     });
   }
- 
+
   ngOnDestroy() {
     this.sub?.unsubscribe();
   }
- 
+
   onRequestAccepted() {
     this.activeRide = {
       rideRequestId: this.incomingRequest?.requestId || this.pendingRequests[0]?.requestId,
@@ -136,27 +141,18 @@ export class DriverLanding implements OnInit, OnDestroy {
       fare: this.passengerRideService.fare || 0,
       distanceKm: this.passengerRideService.distanceKm || 0
     };
- 
+
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('driver_active_ride', JSON.stringify(this.activeRide));
     }
- 
+
     this.incomingRequest = null;
     this.pendingRequests = [];
     this.changeDetectorRef.detectChanges();
   }
- 
+
   onRequestRejected() {
     this.incomingRequest = null;
-    this.changeDetectorRef.detectChanges();
-  }
- 
-  onCurrentLocationDetected(location: SelectedLocation) {
-    this.pickup = location;
-    if (this.pendingRequests.length > 0) {
-      this.pendingRequests = this.pendingRequests.slice(1);
-    }
-    
     this.changeDetectorRef.detectChanges();
   }
 
@@ -164,7 +160,7 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.pendingRequests = [];
     this.changeDetectorRef.detectChanges();
   }
- 
+
   onCurrentLocationDetected(location: SelectedLocation) {
     this.pickup = location;
     this.currentDriverLat = location.latitude;
@@ -172,13 +168,13 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.rideService.setPickup(location);
     this.changeDetectorRef.detectChanges();
   }
- 
+
   onDestinationSelected(location: SelectedLocation) {
     this.destination = location;
     this.rideService.setDestination(location);
     this.changeDetectorRef.detectChanges();
   }
- 
+
   onSessionStarted() {
     this.isOnline = true;
     this.activeRide = null;
@@ -188,7 +184,7 @@ export class DriverLanding implements OnInit, OnDestroy {
     }
     this.changeDetectorRef.detectChanges();
   }
- 
+
   onSessionStopped() {
     this.isOnline = false;
     this.pendingRequests = [];
@@ -198,13 +194,13 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.destination = null;
     this.changeDetectorRef.detectChanges();
   }
- 
+
   onRideCompleted() {
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.removeItem('driver_active_ride');
       sessionStorage.removeItem('driver_payment_pending');
     }
- 
+
     this.activeRide = null;
     this.isOnline = false;
     this.rideService.clearAll();
@@ -214,16 +210,15 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.destination = null;
     this.changeDetectorRef.detectChanges();
   }
- 
+
   onRideCancelled() {
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.removeItem('driver_active_ride');
       sessionStorage.removeItem('driver_payment_pending');
     }
- 
+
     this.activeRide = null;
     this.rideService.setActiveRide(null);
     this.changeDetectorRef.detectChanges();
   }
 }
- 
