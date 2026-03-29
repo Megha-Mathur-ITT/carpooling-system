@@ -103,18 +103,21 @@ export class PassengerRideService {
   setRouteInfo(distanceKm: number, durationMin: number): void {
     this.distanceKm = distanceKm;
     this.durationMin = durationMin;
-    this.fare = Math.round(distanceKm * 9);
 
     if (this.isBrowser()) {
       sessionStorage.setItem('distanceKm', distanceKm.toString());
       sessionStorage.setItem('durationMin', durationMin.toString());
-      sessionStorage.setItem('fare', this.fare.toString());
     }
   }
 
   setBookingResult(fare: number, pin: string): void {
     this.fare = fare;
     this.pin = pin;
+    
+    if (this.isBrowser()) {
+      sessionStorage.setItem('fare', fare.toString());
+      sessionStorage.setItem('pin', pin);
+    }
   }
 
   setPassengerId(id: string): void {

@@ -65,6 +65,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.pickupLocation = this.passengerRideService.pickup;
     this.destinationLocation = this.passengerRideService.destination;
     this.rideRequestId = this.passengerRideService.rideRequestId;
+    this.selectedDriver = this.passengerRideService.selectedDriver;
 
     if (!this.pickupLocation) {
       this.router.navigate(['/passenger/landing']);
@@ -86,6 +87,10 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.loadNearbyDrivers();
     this.refreshInterval = setInterval(() => this.loadNearbyDrivers(), 10000);
 
+    if (sessionStorage.getItem('passenger_waiting_for_driver') === 'true') {
+      this.isWaiting = true;
+    }
+
     this.listenToRideAcceptedEvent();
     this.listenToRideRejectedEvent();
   }
@@ -96,6 +101,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         if (data) {
           this.ngZone.run(() => {
             this.isWaiting = false;
+            sessionStorage.removeItem('passenger_waiting_for_driver');
             this.selectedDriver = null;
             this.changeDetectorRef.markForCheck();
 
@@ -116,6 +122,17 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         if (data) {
           this.ngZone.run(() => {
             this.isWaiting = false;
+            sessionStorage.removeItem('passenger_waiting_for_driver');
+
+            if (data.fare !== undefined) {
+               this.passengerRideService.fare = data.fare;
+               this.passengerRideService.bookingId = data.bookingId;
+               if (typeof window !== 'undefined' && window.sessionStorage) {
+                 sessionStorage.setItem('fare', data.fare.toString());
+                 sessionStorage.setItem('bookingId', data.bookingId);
+               }
+            }
+
             this.changeDetectorRef.markForCheck();
 
             this.snackBar.open(
@@ -177,6 +194,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
   cancelRequest() {
     this.isWaiting = false;
+    sessionStorage.removeItem('passenger_waiting_for_driver');
     this.changeDetectorRef.detectChanges();
 
     this.signalrService.notifyCancelRequest(this.rideRequestId, this.selectedDriver.driverId);
@@ -210,21 +228,9 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
     this.passengerRideService.setSelectedDriver(this.selectedDriver);
 
-    this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
-      .subscribe({
-        next: () => {
-          this.isRequesting = false;
-          this.isWaiting = true;
-          this.changeDetectorRef.detectChanges();
-        },
-        error: () => {
-          this.isRequesting = false;
-          this.snackBar.open(
-            'Failed to send request.',
-            'Close',
-            { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-          );
-        }
-      });
+    this.isRequesting = false;
+    this.isWaiting = true;
+    sessionStorage.setItem('passenger_waiting_for_driver', 'true');
+    this.changeDetectorRef.detectChanges();
   }
 }
