@@ -103,10 +103,12 @@ export class PassengerRideService {
   setRouteInfo(distanceKm: number, durationMin: number): void {
     this.distanceKm = distanceKm;
     this.durationMin = durationMin;
+    this.fare = Math.round(distanceKm * 9);
 
     if (this.isBrowser()) {
       sessionStorage.setItem('distanceKm', distanceKm.toString());
       sessionStorage.setItem('durationMin', durationMin.toString());
+      sessionStorage.setItem('fare', this.fare.toString());
     }
   }
 
@@ -142,6 +144,17 @@ export class PassengerRideService {
     }
   }
 
+  setPassengerName(name: string): void {
+    this.passengerName = name;
+    if (this.isBrowser()) {
+      if (name) {
+        sessionStorage.setItem('passengerName', name);
+      } else {
+        sessionStorage.removeItem('passengerName');
+      }
+    }
+  }
+
   loadFromStorage() {
     if (!this.isBrowser()) {
       return;
@@ -163,6 +176,7 @@ export class PassengerRideService {
       this.fare = parseFloat(sessionStorage.getItem('fare') || '0');
       this.pin = sessionStorage.getItem('pin') || '';
       this.bookingId = sessionStorage.getItem('bookingId') || '';
+      this.passengerName = sessionStorage.getItem('passengerName') || '';
     } catch {
       this.clearAll();
     }
@@ -185,6 +199,7 @@ export class PassengerRideService {
     sessionStorage.removeItem("fare");
     sessionStorage.removeItem("pin");
     sessionStorage.removeItem("bookingId");
+    sessionStorage.removeItem('passengerName');
 
     this.pickup = null;
     this.destination = null;
@@ -198,5 +213,6 @@ export class PassengerRideService {
     this.fare = 0;
     this.pin = '';
     this.bookingId = '';
+    this.passengerName = '';
   }
 }

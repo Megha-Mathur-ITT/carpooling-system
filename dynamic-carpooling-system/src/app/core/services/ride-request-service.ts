@@ -33,6 +33,7 @@ export class RideRequestService {
     requestId: string,
     status: 'Accepted' | 'Rejected'
   ): Observable<any> {
+    console.log("update req status: ", status);
     const statusMap: Record<string, number> = {
       'Accepted': 2,
       'Rejected': 3

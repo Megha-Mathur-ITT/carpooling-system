@@ -87,19 +87,6 @@ export class DriverRideService {
     }
   }
 
-  getActiveRides(): any[] {
-    if (!isPlatformBrowser(this.platformId)) return [];
-    const data = sessionStorage.getItem('driver_active_rides');
-    return data ? JSON.parse(data) : [];
-  }
-
-  addActiveRide(ride: any): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const rides = this.getActiveRides();
-    rides.push(ride);
-    sessionStorage.setItem('driver_active_rides', JSON.stringify(rides));
-  }
-
   clearAll(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;

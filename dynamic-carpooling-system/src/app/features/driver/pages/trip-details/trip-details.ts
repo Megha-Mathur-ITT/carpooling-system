@@ -54,17 +54,10 @@ export class TripDetails implements OnInit, OnDestroy {
 
     this.rideData = { pickup, destination, driver };
 
-    if (isPlatformBrowser(this.platformId)) {
-      const storedDistance = sessionStorage.getItem('distanceKm');
-      if (storedDistance) {
-        this.rideService.distanceKm = parseFloat(storedDistance);
-      }
-    }
+    const dist = this.calculateDistanceKm(pickup.latitude, pickup.longitude, destination.latitude, destination.longitude);
+    this.rideService.distanceKm = Number(dist.toFixed(1));
 
     if (isPlatformBrowser(this.platformId)) {
-      if (sessionStorage.getItem('trip_hasReachedDestination') === 'true') {
-        this.hasReachedDestination = true;
-      }
       const activeRideRaw = sessionStorage.getItem('driver_active_ride');
       if (activeRideRaw) {
           const ar = JSON.parse(activeRideRaw);
@@ -81,7 +74,7 @@ export class TripDetails implements OnInit, OnDestroy {
           () => {
             this.ngZone.run(() => {
               this.hasReachedDestination = true;
-              sessionStorage.setItem('trip_hasReachedDestination', 'true');
+              this.router.navigate(['/driver/trip-details']);
             });
           }
         );
@@ -111,7 +104,6 @@ export class TripDetails implements OnInit, OnDestroy {
           verticalPosition: 'top',
           panelClass: ['success-snackbar']
         });
-        sessionStorage.removeItem('trip_hasReachedDestination');
         this.router.navigate(['/driver/landing']);
       },
       error: (err: any) => {
@@ -127,5 +119,15 @@ export class TripDetails implements OnInit, OnDestroy {
     });
   }
 
-
+  private calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const toRadians = (degrees: number) => degrees * Math.PI / 180;
+    const R = 6371;
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
 }

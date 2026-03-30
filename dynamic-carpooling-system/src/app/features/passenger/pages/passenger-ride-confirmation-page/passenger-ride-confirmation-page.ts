@@ -59,15 +59,21 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
       return;
     }
 
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      if (sessionStorage.getItem('isDriverArrived') === 'true') this.isDriverArrived = true;
-      if (sessionStorage.getItem('isRideStarted') === 'true') this.isRideStarted = true;
-      if (sessionStorage.getItem('isReachedDestination') === 'true') this.isReachedDestination = true;
-      if (sessionStorage.getItem('isPinVerified') === 'true') this.isPinVerified = true;
+    if (!this.passengerRideService.fare || this.passengerRideService.fare === 0) {
+      const dist = this.calculateDistanceKm(
+        this.passengerPickup.latitude, this.passengerPickup.longitude,
+        this.passengerDestination.latitude, this.passengerDestination.longitude
+      );
+      this.passengerRideService.distanceKm = dist;
+      this.passengerRideService.fare = Math.round(dist * 9);
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        sessionStorage.setItem('distanceKm', dist.toString());
+        sessionStorage.setItem('fare', this.passengerRideService.fare.toString());
+      }
     }
 
-    this.fare = this.passengerRideService.fare || 0;
-    this.distanceKm = Number((this.passengerRideService.distanceKm || 0).toFixed(2));
+    this.fare = this.passengerRideService.fare;
+    this.distanceKm = this.passengerRideService.distanceKm;
 
     const address = await reverseGeocode({
       latitude: this.selectedDriver.latitude,
@@ -95,8 +101,7 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
           () => {
             this.ngZone.run(() => {
               this.isDriverArrived = true;
-              this.isRideStarted = false;
-              sessionStorage.setItem('isDriverArrived', 'true');
+              this.isRideStarted = false
               this.changeDetectorRef.markForCheck();
             })
           },
@@ -114,7 +119,6 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
           this.isPinVerified = true;
           this.isPinFailed = false;
           this.isDriverArrived = true;
-          sessionStorage.setItem('isPinVerified', 'true');
 
           this.changeDetectorRef.detectChanges();
 
@@ -143,8 +147,6 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
   startDestinationRide(): void {
     this.isRideStarted = true;
     this.isDriverArrived = false;
-    sessionStorage.setItem('isRideStarted', 'true');
-    sessionStorage.setItem('isDriverArrived', 'false');
 
     this.changeDetectorRef.detectChanges();
 
@@ -156,8 +158,6 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
         () => {
           this.isRideStarted = false;
           this.isReachedDestination = true;
-          sessionStorage.setItem('isRideStarted', 'false');
-          sessionStorage.setItem('isReachedDestination', 'true');
           this.changeDetectorRef.markForCheck();
         }
       );
@@ -171,7 +171,7 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             this.passengerPin = response.pin;
             this.changeDetectorRef.detectChanges();
-
+            
             resolve();
           });
         },
@@ -203,15 +203,15 @@ export class PassengerRideConfirmationPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.pinSub?.unsubscribe();
   }
-
-  onRouteInfo(data: { distanceKm: number; durationMin: number }) {
-    this.passengerRideService.distanceKm = Number(data.distanceKm.toFixed(2));
-    this.distanceKm = this.passengerRideService.distanceKm;
-    
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      sessionStorage.setItem('distanceKm', data.distanceKm.toFixed(2));
-    }
-
-    this.changeDetectorRef.detectChanges();
+  private calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const toRadians = (degrees: number) => degrees * Math.PI / 180;
+    const R = 6371;
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   }
 }

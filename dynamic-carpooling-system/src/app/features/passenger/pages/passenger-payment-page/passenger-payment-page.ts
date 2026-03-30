@@ -98,7 +98,6 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
         sessionStorage.removeItem('payment_waiting');
 
         if (data) {
-          sessionStorage.removeItem('payment_state');
           this.router.navigate(['/passenger/receipt'], {
             state: {
               fare: this.fare,
@@ -146,6 +145,7 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
       return;
     }
 
+    sessionStorage.removeItem("payment_state");
     this.subs.forEach(sub => sub.unsubscribe());
   }
 }

@@ -10,7 +10,6 @@ import { BookingService } from '../../../../core/services/booking-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { trimLocation } from '../../../../shared/utils/locationUtil';
 import { SignalrService } from '../../../../core/services/signalr';
-import { DriverRideService } from '../../services/driver-ride-service';
 
 interface RequestItem {
   request: RideRequest;
@@ -46,8 +45,7 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private passengerRideService: PassengerRideService,
-    private signalrService: SignalrService,
-    private driverRideService: DriverRideService
+    private signalrService: SignalrService
   ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -133,9 +131,20 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
       next: () => {
         this.bookingService.acceptBooking(item.request.requestId, item.request.sessionId).subscribe({
           next: (acceptedBooking: any) => {
-            // Removed auto-reject logic for multi-passenger support
+            const rejectedItems = this.rideRequestQueue.filter(
+              i => i.request.requestId !== item.request.requestId
+            );
 
-            this.driverRideService.addActiveRide(acceptedBooking);
+            rejectedItems.forEach(rejected => {
+              this.rideRequestService
+                .respondToRequest(rejected.request.requestId, 'Rejected')
+                .subscribe({ error: () => { } });
+
+              this.signalrService.notifyPassengerRejected(
+                rejected.request.passengerId,
+                rejected.request.requestId
+              );
+            });
 
             this.passengerRideService.setPickup(item.request.pickup);
             this.passengerRideService.setDestination(item.request.destination);

@@ -64,7 +64,7 @@ export class RideForm implements OnChanges {
     }
     if (changes['destination'] && this.destination) {
       this.destinationInternal = this.destination;
-      this.destinationName = this.destination.name; 
+      this.destinationName = this.destination.name;
     }
   }
 
@@ -132,8 +132,10 @@ export class RideForm implements OnChanges {
     };
 
     this.rideSessionService.startSession(dto).subscribe({
-      next: () => {
+      next: (res) => {
+        console.log('[startSession response]', res);
         this.isOnline = true;
+        this.rideSessionService.isOnline$.next(true);
         this.locationService.updateLocation(this.pickup!.latitude, this.pickup!.longitude);
         this.sessionStarted.emit();
         this.isLoading = false;
@@ -151,6 +153,7 @@ export class RideForm implements OnChanges {
     this.rideSessionService.stopSession().subscribe({
       next: () => {
         this.isOnline = false;
+        this.rideSessionService.isOnline$.next(false);
         this.sessionStopped.emit();
         this.isLoading = false;
       },
@@ -172,4 +175,4 @@ export class RideForm implements OnChanges {
       return 'Current Location';
     }
   }
-} 
+}

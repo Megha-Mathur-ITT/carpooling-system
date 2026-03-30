@@ -4,14 +4,14 @@
   min-height: 100vh;
 }
 
-.driver-active-wrapper {
+.driver-layout {
   display: flex;
   flex: 1;
   height: calc(100vh - 64px);
   overflow: hidden;
 }
 
-.left-section {
+.driver-panel {
   width: 380px;
   flex-shrink: 0;
   display: flex;
@@ -22,7 +22,7 @@
   background: #fff;
 }
 
-.right-section {
+.driver-map {
   flex: 1;
   position: relative;
 
@@ -33,33 +33,19 @@
   }
 }
 
-.pin-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(4px);
-}
-
 @media (max-width: 768px) {
-  .driver-active-wrapper {
+  .driver-layout {
     flex-direction: column;
     height: auto;
   }
 
-  .left-section {
+  .driver-panel {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #e5e7eb;
   }
 
-  .right-section {
+  .driver-map {
     height: 400px;
   }
 }
