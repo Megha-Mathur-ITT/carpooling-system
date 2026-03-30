@@ -187,7 +187,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       return;
     }
 
-    this.isRequesting = true;
+    // this.isRequesting = true;
     const rideRequestId = this.passengerRideService.rideRequestId;
 
     if (!rideRequestId) {
@@ -196,9 +196,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         'Close',
         { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
       );
-      this.isRequesting = false;
+      // this.isRequesting = false;
+      //  this.changeDetectorRef.detectChanges();
       return;
     }
+
+    this.isRequesting = true;
+    this.changeDetectorRef.detectChanges();
 
     this.signalrService.notifyDriver(
       this.selectedDriver.driverId,
@@ -210,21 +214,25 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
 
     this.passengerRideService.setSelectedDriver(this.selectedDriver);
 
-    this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
-      .subscribe({
-        next: () => {
-          this.isRequesting = false;
-          this.isWaiting = true;
-          this.changeDetectorRef.detectChanges();
-        },
-        error: () => {
-          this.isRequesting = false;
-          this.snackBar.open(
-            'Failed to send request.',
-            'Close',
-            { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-          );
-        }
-      });
+    // this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
+    //   .subscribe({
+    //     next: () => {
+    //       this.isRequesting = false;
+    //       this.isWaiting = true;
+    //       this.changeDetectorRef.detectChanges();
+    //     },
+    //     error: () => {
+    //       this.isRequesting = false;
+    //       this.snackBar.open(
+    //         'Failed to send request.',
+    //         'Close',
+    //         { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+    //       );
+    //     }
+    //   });
+
+    this.isRequesting = false;
+    this.isWaiting = true;
+    this.changeDetectorRef.detectChanges();
   }
 }

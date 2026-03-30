@@ -7,8 +7,8 @@ import { RideRequestService } from '../../../../core/services/ride-request-servi
 import { BookingService } from '../../../../core/services/booking-service';
 import { Router } from '@angular/router';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
-import { RideRequest } from '../../services/ride-session'; 
-import { trimLocation } from '../../../../shared/utils/locationUtil'; 
+import { RideRequest } from '../../services/ride-session';
+import { trimLocation } from '../../../../shared/utils/locationUtil';
 
 @Component({
   selector: 'app-ride-request-popup',
@@ -25,14 +25,14 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
 
   @Output() accepted = new EventEmitter<void>();
   @Output() rejected = new EventEmitter<void>();
-  
+
   readonly trimLocation = trimLocation;
 
   isLoading = false;
   timeLeft = 30;
   timerPercent = 100;
   private timer: any = null;
-  
+
   constructor(
     private rideRequestService: RideRequestService,
     private bookingService: BookingService,
@@ -104,16 +104,22 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
         ).subscribe({
           next: (acceptedBooking: any) => {
             console.log("ACcepted Booking: ", acceptedBooking);
+
+            const idx = (acceptedBooking.rideRequestIds ?? acceptedBooking.requestIds ?? [])
+              .findIndex((id: string) => id === this.request!.requestId);
+
+            const fareIndex = idx !== -1 ? idx : 0;
+
             this.passengerRideService.setPickup(this.request!.pickup);
             this.passengerRideService.setDestination(this.request!.destination);
             this.passengerRideService.passengerName = acceptedBooking.passengerName;
             this.passengerRideService.setBookingResult(
-              acceptedBooking.fares?.[0] ?? acceptedBooking.fare?.[0] ?? 0,
-              acceptedBooking.piNs?.[0] ?? acceptedBooking.pin ?? ''
+              acceptedBooking.fares?.[fareIndex] ?? acceptedBooking.fare?.[fareIndex] ?? 0,
+              acceptedBooking.piNs?.[fareIndex] ?? acceptedBooking.pin?.[fareIndex] ?? ''
             );
             this.passengerRideService.setBookingId(acceptedBooking.bookingId ?? '');
             this.passengerRideService.setRideRequestId(this.request!.requestId);
-            this.passengerRideService.setPassengerId(this.request!.passengerId);  
+            this.passengerRideService.setPassengerId(this.request!.passengerId);
             this.passengerRideService.selectedDriver = {
               latitude: this.currentDriverLat,
               longitude: this.currentDriverLng,
@@ -122,7 +128,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
 
             this.request = null;
             this.accepted.emit();
-            this.isLoading = false;
+            // this.isLoading = false;
             this.router.navigate(['/driver/ride-active']);
           },
           error: (err: any) => {
@@ -141,12 +147,21 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   reject() {
     this.stopTimer();
     this.isLoading = true;
+    this.request = null;
 
     this.rideRequestService.respondToRequest(
       this.request!.requestId, 'Rejected'
     ).subscribe({
-      next: () => { this.rejected.emit(); this.isLoading = false; },
-      error: () => { this.isLoading = false; }
+      next: () => {
+        this.request = null;
+        this.rejected.emit();
+        this.isLoading = false;
+      },
+      error: () => {
+        this.request = null;
+        this.rejected.emit();
+        this.isLoading = false;
+      }
     });
   }
 

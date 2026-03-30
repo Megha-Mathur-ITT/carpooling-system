@@ -342,6 +342,9 @@ export class DriverAnimation {
     passengerDestinationAddress: string,
     onDriverArrived?: () => void,
   ): Promise<void> {
+    if(this.interval){
+      clearInterval(this.interval);
+    }
     if (!this.isReady(driver, passengerPickup)) {
       return;
     }

@@ -31,19 +31,23 @@
         </div>
         <div class="trip-stat">
           <i class="bi bi-speedometer2 me-1"></i>
-          <span>{{ rideService.distanceKm }} km</span> 
+          <span>{{ rideService.distanceKm }} km</span>
         </div>
         <div class="trip-stat">
           <i class="bi bi-clock me-1"></i>
           <span>{{ rideService.durationMin }} min</span>
         </div>
         <div class="trip-stat">
-          <i class="bi bi-person me-1"></i>  
+          <i class="bi bi-person me-1"></i>
           <span>{{ rideService.passengerName }}</span>
         </div>
       </div>
     </div>
-  </div>
+  </div> 
+
+  <app-ride-request-popup *ngIf="incomingRequest" [request]="incomingRequest" [currentDriverLat]="currentDriverLat"
+    [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()" (rejected)="onRequestRejected()">
+  </app-ride-request-popup>
 
   <div class="trip-map">
     <app-map *ngIf="rideData" [pickup]="rideData.pickup" [destination]="rideData.destination" [showRoute]="false">
@@ -51,8 +55,8 @@
   </div>
 
   <div class="trip-footer" *ngIf="hasReachedDestination">
-    <div class="trip-reached-badge"> 
-      <i class="bi bi-geo-alt-fill me-2"></i> 
+    <div class="trip-reached-badge">
+      <i class="bi bi-geo-alt-fill me-2"></i>
       Destination reached
     </div>
     <button class="btn trip-complete-btn w-100" [disabled]="isCompleting" (click)="completeRide()">
@@ -60,7 +64,7 @@
       </span>
       <i *ngIf="!isCompleting" class="bi bi-flag-fill me-2"></i>
       {{ isCompleting ? 'Completing…' : 'Complete Ride' }}
-    </button> 
+    </button>
   </div>
 
   <div class="trip-footer" *ngIf="!hasReachedDestination">

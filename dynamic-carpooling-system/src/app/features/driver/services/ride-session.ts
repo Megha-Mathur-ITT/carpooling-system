@@ -22,8 +22,8 @@ export interface RideRequest {
   passengerName: string;
   pickup: LocationDto;
   destination: LocationDto;
-  requestedAt: string;
-  rideRequestStatus: string;
+  requestedAt?: string;
+  rideRequestStatus?: string;
   sessionId: string;
 }
 

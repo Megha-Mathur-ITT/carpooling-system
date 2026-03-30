@@ -23,7 +23,7 @@
     <app-map [pickup]="pickup" [destination]="destination"></app-map>
   </div>
 </div>
-
+       
 <app-ride-request-popup *ngIf="pendingRequests.length === 1" [request]="pendingRequests[0]"
   [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()"
   (rejected)="onRequestRejected()">

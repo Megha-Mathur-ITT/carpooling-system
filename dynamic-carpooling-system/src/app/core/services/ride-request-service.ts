@@ -44,9 +44,9 @@ export class RideRequestService {
     });
   }
 
-  notifyDriver(requestId: string, driverId: string): Observable<any> {
-    return this.http.post(
-      `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
-    );
-  }
+  // notifyDriver(requestId: string, driverId: string): Observable<any> {
+  //   return this.http.post(
+  //     `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
+  //   );
+  // }
 }
