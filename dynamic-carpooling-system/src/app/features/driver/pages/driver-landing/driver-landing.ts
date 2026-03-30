@@ -15,6 +15,7 @@ import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel
 import { DriverRideService } from '../../services/driver-ride-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequest } from '../../services/ride-session';
+import { RideSessionService } from '../../services/ride-session';
 
 @Component({
   selector: 'app-driver-landing',
@@ -51,7 +52,8 @@ export class DriverLanding implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
     private router: Router,
     private rideService: DriverRideService,
-    public passengerRideService: PassengerRideService
+    public passengerRideService: PassengerRideService,
+    private rideSessionService: RideSessionService
   ) { }
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -97,6 +99,13 @@ export class DriverLanding implements OnInit, OnDestroy {
       if (!request.pickupLat || !request.pickupLng || !request.destinationLat || !request.destinationLng) {
         console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
         return;
+      }
+
+      if (request.sessionId && request.passengerName) {
+        this.rideSessionService.cachePassengerName(
+          request.sessionId,
+          request.passengerName
+        );
       }
 
       console.log("REQ: ", request);

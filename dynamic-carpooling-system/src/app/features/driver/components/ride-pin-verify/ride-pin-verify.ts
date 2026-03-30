@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RideSessionService } from '../../services/ride-session';
 
 @Component({
   selector: 'app-ride-pin-verify',
@@ -45,8 +46,12 @@ export class RidePinVerify implements OnDestroy {
   private maxAttempts = 3;
   private redirectTimer: any = null;
 
-  constructor(private router: Router, private snackBar: MatSnackBar, private changeDetectorRef: ChangeDetectorRef) { }
-
+  constructor(
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private changeDetectorRef: ChangeDetectorRef,
+    private rideSessionService: RideSessionService  // ← injected
+  ) { }
 
   get pin(): string {
     return this.pinControls.controls.map(c => c.value ?? '').join('');
@@ -151,6 +156,8 @@ export class RidePinVerify implements OnDestroy {
         this.state = 'success';
         this.statusMessage = 'PIN verified. Boarding confirmed!';
         this.changeDetectorRef.detectChanges();
+        this.rideSessionService.refreshPassengers$.next();
+
         this.pinVerified.emit(this.pin);
 
       } else {
@@ -198,7 +205,6 @@ export class RidePinVerify implements OnDestroy {
     this.state = 'idle';
     this.statusMessage = '';
     this.changeDetectorRef.detectChanges();
-
     this.focusBox(0);
   }
 
