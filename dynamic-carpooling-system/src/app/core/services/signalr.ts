@@ -12,7 +12,7 @@ export class SignalrService {
   private readonly hubUrl = 'http://localhost:5091/hubs/ride';
 
   connectionStatus$ = new BehaviorSubject<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
-  rideRequested$ = new BehaviorSubject<any>(null);
+  rideRequested$ = new Subject<any>();
   rideAccepted$ = new BehaviorSubject<any>(null);
   rideRejected$ = new Subject<any>();
   requestCancelled$ = new BehaviorSubject<any>(null);
@@ -23,6 +23,8 @@ export class SignalrService {
 
   pinVerified$ = new Subject<{ success: boolean }>();
   driverRated$ = new Subject<void>();
+
+  public locationUpdate$ = new Subject<{ latitude: number, longitude: number }>();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
@@ -138,6 +140,10 @@ export class SignalrService {
       console.log('[SignalR] DriverRated received');
       this.driverRated$.next();
     });
+
+    this.connection.on('ReceiveLocationUpdate', (data) => {
+      this.locationUpdate$.next(data);
+    });
   }
 
   notifyDriver(
@@ -246,7 +252,6 @@ export class SignalrService {
       success
     }).catch(error => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
   }
-
   notifyPassengerRejected(passengerId: string, rideRequestId: string): void {
     if (!this.connection) return;
 
@@ -254,6 +259,10 @@ export class SignalrService {
       passengerId,
       rideRequestId
     }).catch(err => console.error('[SignalR] NotifyPassengerRejected failed:', err));
+  }
+
+  syncLocation(passengerId: string, lat: number, lng: number): void {
+    this.connection?.invoke('SyncDriverLocation', passengerId, lat, lng);
   }
 
   clearLastRideRequest(): void {

@@ -13,6 +13,8 @@ import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
 import { SignalrService } from '../../../../core/services/signalr';
 import { DriverRideService } from '../../services/driver-ride-service';
+import { Location } from '../../../../core/models/auth-model';
+
 
 @Component({
   selector: 'app-driver-ride-active',
@@ -30,6 +32,7 @@ import { DriverRideService } from '../../services/driver-ride-service';
 })
 export class DriverRideActive implements OnInit, OnDestroy {
 
+
   rideData: any = null;
   rideLoaded: boolean = false;
   passengerName: string = '';
@@ -38,8 +41,10 @@ export class DriverRideActive implements OnInit, OnDestroy {
   durationMin: number = 0;
   fare: number = 0;
 
+
   private sub: Subscription | null = null;
   @ViewChild(MapComponent) mapComponent!: MapComponent;
+
 
   constructor(
     private router: Router,
@@ -52,16 +57,19 @@ export class DriverRideActive implements OnInit, OnDestroy {
     private driverRideService: DriverRideService
   ) { }
 
+
   ngOnInit() {
     const pickup = this.passengerRideService.pickup;
     const destination = this.passengerRideService.destination;
     const driver = this.passengerRideService.selectedDriver;
     this.passengerName = this.passengerRideService.passengerName;
 
+
     if (!pickup || !destination || !driver) {
       this.router.navigate(['/driver/landing']);
       return;
     }
+
 
     this.rideData = {
       passengerName: this.passengerName,
@@ -70,7 +78,9 @@ export class DriverRideActive implements OnInit, OnDestroy {
       driver
     };
 
+
     this.rideLoaded = true;
+
 
     setTimeout(() => {
       if (
@@ -82,7 +92,6 @@ export class DriverRideActive implements OnInit, OnDestroy {
         this.rideData?.destination?.latitude &&
         this.rideData?.destination?.longitude
       ) {
-
         this.mapComponent.onDriverReachedPickup(() => {
           this.ngZone.run(() => {
             this.showPinVerification = true;
@@ -95,13 +104,27 @@ export class DriverRideActive implements OnInit, OnDestroy {
           this.rideData.pickup,
           this.rideData.destination,
           this.rideData.pickup?.name,
-          this.rideData.destination?.name
+          this.rideData.destination?.name,
+          () => {
+            console.log('Driver has arrived at destination');
+          },
+          (currentPos: any) => {
+            const passengerId = this.passengerRideService.passengerId;
+            if (passengerId && currentPos.latitude) {
+              this.signalrService.syncLocation(
+                passengerId,
+                currentPos.latitude,
+                currentPos.longitude
+              );
+            }
+          }
         );
       } else {
         console.error('Missing coordinates- animation not started', this.rideData);
       }
     }, 1500);
   }
+
 
   onRouteInfo(data: { distanceKm: number; durationMin: number }) {
     this.passengerRideService.setRouteInfo(data.distanceKm, data.durationMin);
@@ -110,8 +133,10 @@ export class DriverRideActive implements OnInit, OnDestroy {
     this.fare = this.passengerRideService.fare;
     this.changeDetectorRef.detectChanges();
 
+
     this.driverRideService.setFare(this.fare);
     this.driverRideService.setDistanceKm(data.distanceKm);
+
 
     const raw = sessionStorage.getItem('receipt_state');
     if (raw) {
@@ -128,9 +153,11 @@ export class DriverRideActive implements OnInit, OnDestroy {
     });
   }
 
+
   get ridePin(): string {
     return this.passengerRideService.pin;
   }
+
 
   onPinVerified(pin: string): void {
     this.bookingService.verifyPin(this.passengerRideService.bookingId, this.passengerRideService.rideRequestId, pin)
@@ -141,14 +168,17 @@ export class DriverRideActive implements OnInit, OnDestroy {
             true
           );
 
+
           this.showPinVerification = false;
           this.changeDetectorRef.detectChanges();
+
 
           this.mapComponent.stopDriverAnimation();
           this.router.navigate(['/driver/trip-details']);
         },
         error: (error: any) => {
           console.error('PIN verify failed:', error);
+
 
           this.signalrService.notifyPassengerPinVerified(
             this.passengerRideService.passengerId,
@@ -157,6 +187,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
         }
       })
   }
+
 
   ngOnDestroy() {
     this.sub?.unsubscribe();

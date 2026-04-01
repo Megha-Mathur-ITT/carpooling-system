@@ -1,0 +1,55 @@
+<div class="passenger-toggle" *ngIf="isDriver && isOnline">
+
+    <button class="hamburger-btn" [class.active]="isOpen" (click)="toggleDropdown()" title="Onboarded passengers"
+        aria-label="Toggle passenger list">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="badge" *ngIf="boardedCount > 0">{{ boardedCount }}</span>
+    </button>
+
+    <div class="dropdown" [class.open]="isOpen">
+
+        <div class="dropdown-header">
+            <span class="header-label">Onboarded Passengers</span>
+            <span class="header-count">{{ boardedCount }} aboard</span>
+        </div>
+
+        <div class="state-row" *ngIf="loading">
+            <span class="spinner"></span>
+            <span class="state-text">Loading...</span>
+        </div>
+
+        <div class="state-row" *ngIf="!loading && boardedPassengers.length === 0">
+            <span class="state-text muted">No passengers boarded yet</span>
+        </div>
+
+        <div class="passenger-item" *ngFor="let p of boardedPassengers; let i = index"
+            [style.animation-delay]="i * 40 + 'ms'">
+            <div class="avatar">
+                <ng-container *ngIf="getInitials(p.passengerName) as initials; else iconFallback">
+                    {{ initials }}
+                </ng-container>
+                <ng-template #iconFallback>
+                    <i class="bi bi-person-fill" style="font-size: 13px;"></i>
+                </ng-template>
+            </div>
+
+            <div class="passenger-info">
+                <div class="passenger-name">
+                    {{ p.passengerName && p.passengerName.trim() ? p.passengerName : 'Passenger' }}
+                </div>
+                <div class="passenger-meta">
+                    <span class="fare">₹{{ p.fare | number:'1.0-0' }}</span>
+                    <span class="sep">·</span>
+                    <span class="boarded-time">{{ p.boardedAt | date:'h:mm a' }}</span>
+                </div>
+            </div>
+
+            <span class="status-pill" [class.completed]="isDone(p.status)">
+                {{ isDone(p.status) ? 'Done' : 'Aboard' }}
+            </span>
+        </div>
+
+    </div>
+</div>

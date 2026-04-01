@@ -7,7 +7,7 @@ import { environment } from '../environments/environment';
 export class BookingService {
   private readonly baseUrl = `${environment.apiBaseUrl}/Booking`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   acceptBooking(rideRequestId: string, sessionId: string): Observable<any> {
     return this.http.post(
@@ -21,5 +21,9 @@ export class BookingService {
 
   completeBooking(bookingId: string, rideRequestId: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/complete/${bookingId}/${rideRequestId}`, {});
+  }
+
+  getDriverBookings(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/driver/mybookings`);
   }
 }

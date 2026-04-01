@@ -204,6 +204,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.isRequesting = true;
     this.changeDetectorRef.detectChanges();
 
+    debugger
     this.signalrService.notifyDriver(
       this.selectedDriver.driverId,
       rideRequestId,

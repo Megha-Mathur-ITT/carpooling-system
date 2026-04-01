@@ -31,7 +31,6 @@ import { RegisterRequest } from '../../../core/models/auth-model';
   styleUrl: './register.scss',
 })
 export class Register {
-
   registrationForm!: FormGroup;
   registrationFormSubmitted = false;
   ValidationMessages = ValidationMessages;
@@ -108,7 +107,6 @@ export class Register {
     const roleValue = formValue.role === 'driver' ? 2 : 1;
 
     if (roleValue === 2) {
-
       return {
         role: 2,
         email: formValue.email,

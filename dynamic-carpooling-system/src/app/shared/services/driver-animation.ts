@@ -115,9 +115,10 @@ export class DriverAnimation {
   }
 
   private animateAlongRoute(
-    coords: { latitude: number; longitude: number }[],
+    coords: Location[],
     polyline: any,
-    onComplete: () => void
+    onComplete: () => void,
+    onStep?: (currentCoord: any) => void
   ): any {
     const intervalReference = setInterval(() => {
       if (coords.length <= 1) {
@@ -134,11 +135,10 @@ export class DriverAnimation {
       coords.shift()
       const next = coords[0];
 
-      if (!next) {
-        return;
+      if (next) {
+        this.carMarker?.setLatLng([next.latitude, next.longitude]);
+        if (onStep) onStep(next);
       }
-
-      this.carMarker?.setLatLng([next.latitude, next.longitude]);
 
       if (polyline && coords.length > 0) {
         polyline.setLatLngs(coords.map(coord => [coord.latitude, coord.longitude]));
@@ -148,7 +148,10 @@ export class DriverAnimation {
     return intervalReference;
   }
 
-  private startMoving(passengerPickup: Location, onDriverArrived?: () => void): void {
+  private startMoving(
+    passengerPickup: Location,
+    onDriverArrived?: () => void,
+    onStep?: (currentCoord: any) => void): void {
     if (this.interval) {
       clearInterval(this.interval);
     }
@@ -160,7 +163,8 @@ export class DriverAnimation {
         this.onDriverReached(passengerPickup);
         this.hasDriverReached = true;
         onDriverArrived?.();
-      }
+      },
+      onStep
     );
   }
 
@@ -186,16 +190,16 @@ export class DriverAnimation {
   private makeDivIcon(borderColor: string, emoji: string) {
     return this.L.divIcon({
       html: `<div style="
-        background:white; 
-        color:white; 
+        background:white;
+        color:white;
         border-radius:50%;
-        width:32px; 
-        height:32px; 
-        display:flex; 
+        width:32px;
+        height:32px;
+        display:flex;
         align-items:center;
-        justify-content:center; 
+        justify-content:center;
         font-size:16px;
-        border:2px solid ${borderColor}; 
+        border:2px solid ${borderColor};
         box-shadow:0 2px 6px rgba(0,0,0,0.3);">
         ${emoji};
       </div>`,
@@ -341,10 +345,8 @@ export class DriverAnimation {
     passengerPickupAddress: string,
     passengerDestinationAddress: string,
     onDriverArrived?: () => void,
+    onStep?: (currentCoord: any) => void
   ): Promise<void> {
-    if(this.interval){
-      clearInterval(this.interval);
-    }
     if (!this.isReady(driver, passengerPickup)) {
       return;
     }
@@ -366,6 +368,7 @@ export class DriverAnimation {
     this.setupDestinationRoute([...passengerToDestination]);
     this.fitMapToRoute(driverToPassenger, passengerToDestination);
     this.placeInitialMarkers(passengerPickup);
-    this.startMoving(passengerPickup, onDriverArrived);
+
+    this.startMoving(passengerPickup, onDriverArrived, onStep);
   }
-}
+} 

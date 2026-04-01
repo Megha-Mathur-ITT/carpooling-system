@@ -7,7 +7,7 @@
         </div>
     </div>
 
-    @if(!isPaymentPending) {
+    @if (pendingPayments.length === 0) {
     <div class="info-card">
         <div class="card-label">
             <i class="bi bi-person-fill"></i>
@@ -15,16 +15,53 @@
             <span class="passenger-name">{{ activeRide?.passengerName || 'Passenger' }}</span>
         </div>
     </div>
-
     <div class="info-card">
-        <app-ride-summary [pickup]="activeRide?.pickupName"
-            [destination]="activeRide?.destinationName"></app-ride-summary>
+        <app-ride-summary [pickup]="activeRide?.pickupName" [destination]="activeRide?.destinationName">
+        </app-ride-summary>
     </div>
     }
 
-    @if(isPaymentPending) {
-    <app-payment-confirm [activeRide]="activeRide" (confirmed)="onPaymentConfirmed()"
-        (denied)="onPaymentDenied()"></app-payment-confirm>
-    }
+    <div class="payment-panel" [class.open]="isPaymentPanelOpen">
+        <div class="payment-panel-header">
+            <i class="fa-solid fa-sack-dollar" style="color:#a5f505; font-size:14px;"></i>
+            <span>Payments pending</span>
+            <span class="payment-panel-badge">{{ pendingPayments.length }}</span>
+        </div>
 
+        <div class="payment-panel-list">
+            @for (payment of pendingPayments; track payment.rideRequestId) {
+            <div class="payment-panel-item" [class.selected]="selectedPayment?.rideRequestId === payment.rideRequestId"
+                (click)="selectPayment(payment)">
+                <div class="payment-panel-avatar">{{ getInitials(payment.passengerName) }}</div>
+                <div class="payment-panel-info">
+                    <span class="payment-panel-name">{{ payment.passengerName }}</span> <!-- was missing -->
+                    <span class="payment-panel-fare">₹{{ payment.fare }} · waiting</span>
+                </div>
+                <div class="payment-panel-dot pending"></div>
+            </div>
+            }
+        </div>
+
+        @if (selectedPayment) {
+        <div class="payment-panel-detail">
+
+            <div class="payment-panel-detail-passenger">
+                <div class="payment-panel-avatar">{{ getInitials(selectedPayment.passengerName) }}</div>
+                <div>
+                    <div class="payment-panel-name">{{ selectedPayment.passengerName }}</div>
+                    <div class="payment-panel-fare">Cash payment · confirm receipt</div>
+                </div>
+            </div>
+
+            <div class="fare-badge">
+                <span class="fare-symbol">₹</span>{{ selectedPayment.fare }}
+            </div>
+
+            <div class="payment-actions">
+                <button class="button-deny-payment" (click)="onPaymentDenied()">Not yet</button>
+                <button class="button-confirm-payment" (click)="onPaymentConfirmed()">Yes, received</button>
+            </div>
+        </div>
+        }
+    </div>
 </div>

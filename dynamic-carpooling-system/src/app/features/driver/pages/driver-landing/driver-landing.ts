@@ -15,6 +15,7 @@ import { DriverActiveRidePanel } from '../../components/driver-active-ride-panel
 import { DriverRideService } from '../../services/driver-ride-service';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 import { RideRequest } from '../../services/ride-session';
+import { RideSessionService } from '../../services/ride-session';
 
 @Component({
   selector: 'app-driver-landing',
@@ -33,7 +34,6 @@ import { RideRequest } from '../../services/ride-session';
   styleUrl: './driver-landing.scss',
 })
 export class DriverLanding implements OnInit, OnDestroy {
-
   pickup: SelectedLocation | null = null;
   destination: SelectedLocation | null = null;
   isOnline = false;
@@ -51,71 +51,18 @@ export class DriverLanding implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
     private router: Router,
     private rideService: DriverRideService,
-    public passengerRideService: PassengerRideService
+    public passengerRideService: PassengerRideService,
+    private rideSessionService: RideSessionService
   ) { }
+
   ngOnInit() {
-    this.sub = this.signalrService.rideRequested$.subscribe(request => {
-      debugger
-      console.log("rideRequested$ subscribe...");
-      if (!request) {
-        this.pendingRequests = [];
-        this.changeDetectorRef.detectChanges();
-        return;
-      }
-
-      if (!request.pickupLat || !request.pickupLng || !request.destinationLat || !request.destinationLng) {
-        return;
-      }
-
-      debugger
-      const incoming: RideRequest = {
-        requestId: request.rideRequestId,
-        sessionId: request.sessionId,
-        passengerName: request.passengerName,
-        passengerId: request.passengerId,
-        pickup: {
-          latitude: request.pickupLat,
-          longitude: request.pickupLng,
-          name: request.pickupName
-        },
-        destination: {
-          latitude: request.destinationLat,
-          longitude: request.destinationLng,
-          name: request.destinationName
-        }
-      };
-
-      const alreadyExists = this.pendingRequests.some(r => r.requestId === incoming.requestId);
-      debugger
-      if (!alreadyExists) {
-        this.pendingRequests = [...this.pendingRequests, incoming];
-      }
-
-      setTimeout(() => {
-        this.changeDetectorRef.detectChanges();
-      }, 1000);
-    });
     if (isPlatformBrowser(this.platformId)) {
       this.pickup = this.rideService.getPickup();
       this.destination = this.rideService.getDestination();
       this.isOnline = this.rideService.getIsOnline();
 
-      const savedDriverActiveSession = sessionStorage.getItem('driver_active_ride');
-      if (savedDriverActiveSession) {
-        const parsed = JSON.parse(savedDriverActiveSession);
-
-        if (parsed?.rideRequestId && parsed?.passengerName) {
-          this.activeRide = parsed;
-          this.isOnline = true;
-        } else {
-          sessionStorage.removeItem('driver_active_ride');
-        }
-
-        this.changeDetectorRef.detectChanges();
-      }
       this.activeRide = this.rideService.getActiveRide();
 
-      debugger
       if (!this.activeRide?.rideRequestId || !this.activeRide?.passengerName) {
         this.rideService.setActiveRide(null);
         this.activeRide = null;
@@ -129,18 +76,24 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.signalrService.connect();
 
     this.sub = this.signalrService.rideRequested$.subscribe(request => {
-      if (!request) {
-        this.pendingRequests = [];
-        this.changeDetectorRef.detectChanges();
+      if (this.activeRide || !request) {
+        this.incomingRequest = null;
         return;
       }
-
+      
       if (!request.pickupLat || !request.pickupLng || !request.destinationLat || !request.destinationLng) {
+        console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
         return;
       }
 
-      debugger
-      const incoming: RideRequest = {
+      if (request.sessionId && request.passengerName) {
+        this.rideSessionService.cachePassengerName(
+          request.sessionId,
+          request.passengerName
+        );
+      }
+
+      this.incomingRequest = {
         requestId: request.rideRequestId,
         sessionId: request.sessionId,
         passengerName: request.passengerName,
@@ -156,9 +109,9 @@ export class DriverLanding implements OnInit, OnDestroy {
           name: request.destinationName
         }
       };
+      const incoming: RideRequest = this.incomingRequest;
 
       const alreadyExists = this.pendingRequests.some(r => r.requestId === incoming.requestId);
-      debugger
       if (!alreadyExists) {
         this.pendingRequests = [...this.pendingRequests, incoming];
       }
@@ -188,17 +141,21 @@ export class DriverLanding implements OnInit, OnDestroy {
 
     this.incomingRequest = null;
     this.pendingRequests = [];
+    this.rideService.clearAll();
+    this.signalrService.clearLastRideRequest();
     this.changeDetectorRef.detectChanges();
   }
 
   onRequestRejected() {
     this.incomingRequest = null;
-    this.pendingRequests = [];
+    this.rideService.clearAll();
+    this.signalrService.clearLastRideRequest();
     this.changeDetectorRef.detectChanges();
   }
 
   onAllRejected() {
     this.pendingRequests = [];
+    this.rideService.clearAll();
     this.changeDetectorRef.detectChanges();
   }
 
@@ -244,11 +201,10 @@ export class DriverLanding implements OnInit, OnDestroy {
 
     this.activeRide = null;
     this.isOnline = false;
-    this.rideService.clearAll();
     this.pendingRequests = [];
-    this.rideService.clearAll();
     this.pickup = null;
     this.destination = null;
+    this.rideService.clearAll();
     this.changeDetectorRef.detectChanges();
   }
 

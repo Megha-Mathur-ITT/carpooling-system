@@ -5,8 +5,6 @@ import { Router } from '@angular/router';
 import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { Subscription } from 'rxjs';
 import { PaymentConfirm } from '../payment-confirm/payment-confirm';
-import { DriverRideService } from '../../services/driver-ride-service';
-
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 
 @Component({
@@ -23,6 +21,9 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
   @Output() rideCancelled = new EventEmitter<void>();
 
   isPaymentPending = false;
+  pendingPayments: any[] = [];
+  isPaymentPanelOpen = false;
+  selectedPayment: any = null;
   private subs: Subscription[] = [];
 
   constructor(
@@ -31,21 +32,25 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
     private changeDetectorRef: ChangeDetectorRef,
     public passengerRideService: PassengerRideService,
-    private driverRideService: DriverRideService
   ) { }
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const savedPayments = sessionStorage.getItem("driver_pending_payments");
+
+      if (savedPayments) {
+        this.pendingPayments = JSON.parse(savedPayments);
+
+        if (this.pendingPayments.length > 0) {
+          this.isPaymentPanelOpen = true;
+          this.selectedPayment = this.pendingPayments[0];
+        }
+      }
+    }
+
     if (this.activeRide) {
       this.activeRide.fare = this.passengerRideService.fare || this.activeRide.fare;
       this.activeRide.distanceKm = this.passengerRideService.distanceKm || this.activeRide.distanceKm;
-    }
-
-    if (isPlatformBrowser(this.platformId)) {
-      this.isPaymentPending = sessionStorage.getItem("driver_payment_pending") === "true";
-
-      if (this.isPaymentPending) {
-        this.changeDetectorRef.markForCheck();
-      }
     }
 
     this.subs.push(
@@ -54,63 +59,123 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
           this.isPaymentPending = true;
           this.changeDetectorRef.markForCheck();
 
-          if (isPlatformBrowser(this.platformId)) {
-            sessionStorage.setItem('driver_payment_pending', 'true');
+          const exists = this.pendingPayments.some(p => p.rideRequestId === data.rideRequestId);
+
+          if (!exists) {
+            this.pendingPayments.push(data);
+            this.updateStorage();
+            this.changeDetectorRef.markForCheck();
           }
+
+          if (!this.selectedPayment) {
+            this.selectedPayment = this.pendingPayments[0];
+          }
+
+          this.isPaymentPanelOpen = true;
+          this.changeDetectorRef.markForCheck();
         }
       })
     );
   }
 
+  selectPayment(payment: any): void {
+    this.selectedPayment = payment;
+    this.changeDetectorRef.markForCheck();
+  }
+
+  getInitials(name: string): string {
+    if (!name) {
+      return '?';
+    }
+    return name.trim().split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  }
+
   onPaymentConfirmed(): void {
+    if (!this.selectedPayment) {
+      return;
+    }
+
+    const payment = this.selectedPayment;
+
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.removeItem('driver_payment_pending');
     }
 
-    const fare = this.driverRideService.getFare();
-    const distanceKm = this.driverRideService.getDistanceKm();
     this.signalrService.notifyPaymentConfirmed(
-      this.activeRide.passengerId,
-      this.activeRide.rideRequestId
-    );
+      payment.passengerId,
+      payment.rideRequestId
+    )
+
+    this.removePayment(payment.rideRequestId);
 
     this.router.navigate(['/driver/receipt'], {
       state: {
-        fare: this.passengerRideService.fare || fare || this.activeRide.fare,
-        distanceKm: this.passengerRideService.distanceKm || distanceKm || this.activeRide.distanceKm || 0,
+        fare: payment.fare || this.passengerRideService.fare || this.activeRide?.fare,
+        distanceKm: payment.distanceKm || this.passengerRideService.distanceKm || this.activeRide?.distanceKm || 0,
         isDriver: true,
         passenger: {
-          passengerName: this.activeRide.passengerName
+          passengerName: payment.passengerName
         },
         driver: {
-          vehicleName: this.activeRide.vehicleName
+          vehicleName: this.activeRide?.vehicleName
         },
         pickup: {
-          name: this.activeRide.pickupName
+          name: payment.pickupName || this.activeRide?.pickupName
         },
         destination: {
-          name: this.activeRide.destinationName
+          name: payment.destinationName || this.activeRide?.destinationName
         }
       }
     });
 
-    this.rideCompleted.emit();
+    if (this.pendingPayments.length === 0) {
+      this.rideCompleted.emit();
+    }
   }
 
   onPaymentDenied(): void {
+    if (!this.selectedPayment) {
+      return;
+    }
+
+    const payment = this.selectedPayment;
+
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.removeItem('driver_payment_pending');
     }
 
     this.signalrService.notifyPaymentDenied(
-      this.activeRide.passengerId,
-      this.activeRide.rideRequestId
+      payment.passengerId,
+      payment.rideRequestId
     );
 
-    this.isPaymentPending = false;
+    this.removePayment(payment.rideRequestId);
+
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem('driver_payment_pending');
+    }
+  }
+
+  private removePayment(requestId: string) {
+    this.pendingPayments = this.pendingPayments.filter(payment => payment.rideRequestId !== requestId);
+
+    if (this.pendingPayments.length === 0) {
+      this.isPaymentPanelOpen = false;
+    }
+
+    this.updateStorage();
+    this.changeDetectorRef.markForCheck();
+  }
+
+  private updateStorage() {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('driver_pending_payments', JSON.stringify(this.pendingPayments));
+    }
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(sub => sub.unsubscribe());
+    this.subs.forEach(
+      sub => sub.unsubscribe()
+    );
   }
 }

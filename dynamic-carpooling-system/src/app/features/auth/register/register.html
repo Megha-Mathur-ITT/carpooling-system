@@ -53,8 +53,9 @@
             <app-form-input label="Vehicle Name" type="text" [formGroup]="registrationForm" controlName="vehicleName"
                 placeholder="Enter vehicle name" [errorMessages]="ValidationMessages.vehicleName"></app-form-input>
 
-            <app-form-input label="Available seats (excluding driver's seat)" type="number" [min]="1" [max]="6" [formGroup]="registrationForm" controlName="maxSeats"
-                placeholder="Enter max seats" [errorMessages]="ValidationMessages.maxSeats"></app-form-input>
+            <app-form-input label="Available seats (excluding driver's seat)" type="number" [min]="1" [max]="6"
+                [formGroup]="registrationForm" controlName="maxSeats" placeholder="Enter max seats"
+                [errorMessages]="ValidationMessages.maxSeats"></app-form-input>
 
             <app-form-input label="Vehicle License" type="text" [formGroup]="registrationForm"
                 controlName="vehicleLicense" placeholder="Enter vehicle license"
@@ -62,25 +63,15 @@
 
             <div class="mb-3 position-relative">
 
-  <label class="form-label">Upload Driver's License</label>
+                <label class="form-label">Upload Driver's License</label>
 
-  <input
-    type="file"
-    class="form-control"
-    accept=".pdf"
-    #fileInput
-    (change)="onFileSelected($event)"
-  />
+                <input type="file" class="form-control" accept=".pdf" #fileInput (change)="onFileSelected($event)" />
 
-  <button
-    *ngIf="selectedFile"
-    type="button"
-    class="clear-file-btn"
-    (click)="clearFile(fileInput)">
-    ✖
-  </button>
+                <button *ngIf="selectedFile" type="button" class="clear-file-btn" (click)="clearFile(fileInput)">
+                    ✖
+                </button>
 
-</div>
+            </div>
             }
 
             <button type="submit" class="btn btn-primary w-100 mt-3">

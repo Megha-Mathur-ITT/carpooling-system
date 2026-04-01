@@ -1,11 +1,8 @@
 @use 'abstracts/_variables' as *;
 
-$accent: #2563eb;
-$accent-light: #eff6ff;
 $success: #16a34a;
 $success-bg: #f0fdf4;
 $danger: #dc2626;
-$danger-light: #fef2f2;
 $border: #e5e7eb;
 $text-main: #111827;
 $text-muted: #6b7280;
@@ -76,123 +73,229 @@ $text-muted: #6b7280;
     }
 }
 
-.ride-id {
-    font-size: 11px;
-    color: $text-muted;
-    font-family: monospace;
-    background: #f3f4f6;
-    padding: 3px 8px;
-    border-radius: 6px;
-}
-
-.passenger-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
+.info-card {
+    padding: 12px 14px;
     border: 1px solid $border;
     border-radius: 12px;
     background: #fafafa;
+    font-size: 13px;
+    color: $text-main;
 }
 
-.passenger-avatar {
-    width: 44px;
-    height: 44px;
+.card-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: $text-muted;
+    font-size: 13px;
+
+    .passenger-name {
+        color: $text-main;
+        font-weight: 600;
+    }
+}
+
+.payment-panel {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.25s ease;
+
+    &.open {
+        max-height: 700px;
+        opacity: 1;
+    }
+}
+
+.payment-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-main;
+    border-bottom: 1px solid $border;
+    margin-bottom: 10px;
+}
+
+.payment-panel-badge {
+    margin-left: auto;
+    background: $accent-green;
+    color: $primary-dark;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 8px;
+}
+
+.payment-panel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.payment-panel-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid $border;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover {
+        background: #f3f4f6;
+    }
+
+    &.selected {
+        border-color: $accent-green;
+        background: rgba($accent-green, 0.07);
+    }
+}
+
+.payment-panel-avatar {
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: $accent-light;
-    color: $accent;
+    background: rgba($accent-green, 0.14);
+    color: darken($accent-green, 25%);
+    font-size: 12px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.passenger-info {
+.payment-panel-info {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 2px;
-
-    .passenger-label {
-        font-size: 11px;
-        color: $text-muted;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        font-weight: 500;
-        margin: 0;
-    }
-
-    .passenger-name {
-        font-size: 15px;
-        font-weight: 700;
-        color: $text-main;
-        margin: 0;
-    }
 }
 
-.route-card {
-    border: 1px solid $border;
-    border-radius: 12px;
-    padding: 14px 16px;
-    background: #fff;
+.payment-panel-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-main;
 }
 
-.route-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
+.payment-panel-fare {
+    font-size: 11px;
+    color: $text-muted;
 }
 
-.route-dot {
-    width: 12px;
-    height: 12px;
+.payment-panel-dot {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
-    margin-top: 3px;
 
-    &.pickup {
-        background: $accent;
+    &.pending {
+        background: #f59e0b;
     }
 
-    &.dest {
-        background: $danger;
+    &.done {
+        background: $accent-green;
     }
 }
 
-.route-text {
+.payment-panel-detail {
+    padding: 16px;
+    border: 1px solid $border;
+    border-radius: 12px;
+    background: #fafafa;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 14px;
+    animation: slideUp 0.2s ease;
+}
 
-    .route-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: $text-muted;
-        font-weight: 500;
-    }
+.payment-panel-detail-passenger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
 
-    .route-value {
+    .payment-panel-avatar {
+        width: 40px;
+        height: 40px;
         font-size: 13px;
+    }
+
+    .payment-panel-name {
+        font-size: 14px;
+        font-weight: 700;
         color: $text-main;
-        font-weight: 500;
-        line-height: 1.4;
+    }
+
+    .payment-panel-fare {
+        font-size: 12px;
+        color: $text-muted;
+        margin-top: 1px;
     }
 }
 
-.route-connector {
-    padding: 4px 0 4px 5px;
+.fare-badge {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    background: $primary-dark;
+    border: 1px solid rgba($accent-green, 0.25);
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-size: 30px;
+    font-weight: 800;
+    color: $accent-green;
+    letter-spacing: 2px;
 }
 
-.route-line {
-    width: 2px;
-    height: 14px;
-    background: $border;
-    border-radius: 1px;
+.fare-symbol {
+    font-size: 16px;
+    color: $accent-green;
 }
 
-.action-row {
+.payment-actions {
     display: flex;
     gap: 10px;
-    margin-top: 4px;
+    width: 100%;
+
+    .button-deny-payment {
+        flex: 1;
+        padding: 11px;
+        border: 1px solid rgba($danger, 0.5);
+        background: transparent;
+        color: $danger;
+        font-weight: 700;
+        font-size: 13px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.15s;
+
+        &:hover {
+            background: rgba($danger, 0.06);
+        }
+    }
+
+    .button-confirm-payment {
+        flex: 2;
+        padding: 11px;
+        background: $accent-green;
+        color: $primary-dark;
+        font-weight: 700;
+        font-size: 13px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.15s;
+
+        &:hover {
+            background: $accent-hover;
+        }
+    }
 }
