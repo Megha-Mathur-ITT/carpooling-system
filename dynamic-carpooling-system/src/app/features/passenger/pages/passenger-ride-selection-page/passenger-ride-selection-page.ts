@@ -142,6 +142,8 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.locationService.getNearbyDrivers(
       this.pickupLocation.latitude,
       this.pickupLocation.longitude,
+      this.destinationLocation.latitude,
+      this.destinationLocation.longitude,
       2000
     ).subscribe({
       next: (response: any) => {
