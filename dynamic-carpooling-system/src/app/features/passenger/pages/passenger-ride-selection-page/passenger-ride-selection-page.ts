@@ -40,7 +40,9 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
   isWaiting = false;
   rideRequestId: any = null;
 
+  rejectedDriverIds = new Set<string>()
   private refreshInterval: any;
+  private redirectTimeout: any;
   private subs: Subscription[] = [];
 
   @ViewChild(MapComponent) mapComponent!: MapComponent;
@@ -90,20 +92,36 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     this.listenToRideRejectedEvent();
   }
 
+  get hasRejections(): boolean {
+    return this.rejectedDriverIds.size > 0;
+  }
+
   private listenToRideRejectedEvent() {
     this.subs.push(
       this.signalrService.rideRejected$.subscribe(data => {
         if (data) {
           this.ngZone.run(() => {
             this.isWaiting = false;
+
+            if (this.selectedDriver?.driverId) {
+              this.rejectedDriverIds.add(this.selectedDriver.driverId);
+            }
+
             this.selectedDriver = null;
-            this.changeDetectorRef.markForCheck();
+            this.filterRejectedDrivers();
+            this.changeDetectorRef.detectChanges();
 
             this.snackBar.open(
               'Driver declined. Please choose another.',
               'Close',
               { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
             );
+
+            if (this.drivers.length === 0) {
+              this.scheduleRedirectToLanding(
+                'No more drivers available. Redirecting...'
+              );
+            }
           })
         }
       })
@@ -116,7 +134,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         if (data) {
           this.ngZone.run(() => {
             this.isWaiting = false;
-            this.changeDetectorRef.markForCheck();
+            this.changeDetectorRef.detectChanges();
 
             this.snackBar.open(
               'Driver accepted your ride!',
@@ -131,11 +149,6 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     );
   }
 
-  ngOnDestroy() {
-    if (this.refreshInterval) clearInterval(this.refreshInterval);
-    this.subs.forEach(s => s.unsubscribe());
-  }
-
   loadNearbyDrivers() {
     this.isLoading = true;
 
@@ -148,11 +161,16 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     ).subscribe({
       next: (response: any) => {
         this.drivers = [...response.drivers];
+        this.drivers = this.drivers.filter((driver: any) => {
+          return !this.rejectedDriverIds.has(driver.driverId)
+        });
+
         this.isLoading = false;
+
         if (this.mapComponent) {
           this.mapComponent.updateDrivers(this.drivers);
         }
-        this.changeDetectorRef.markForCheck();
+        this.changeDetectorRef.detectChanges();   
       },
       error: (error) => {
         this.drivers = [];
@@ -170,6 +188,16 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     });
   }
 
+  private filterRejectedDrivers(): void {
+    this.drivers = this.drivers.filter(
+      driver => !this.rejectedDriverIds.has(driver.driverId)
+    );
+
+    if (this.mapComponent) {
+      this.mapComponent.updateDrivers(this.drivers);
+    }
+  }
+
   selectDriver(driver: any) {
     this.selectedDriver = driver;
     if (this.mapComponent) {
@@ -178,10 +206,33 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
   }
 
   cancelRequest() {
+    const driverId = this.selectedDriver?.driverId;
+    if (driverId) {
+      this.rejectedDriverIds.add(driverId);
+      this.filterRejectedDrivers();
+      this.signalrService.notifyCancelRequest(this.rideRequestId, driverId);
+    }
+
     this.isWaiting = false;
+    this.selectedDriver = null;
     this.changeDetectorRef.detectChanges();
 
-    this.signalrService.notifyCancelRequest(this.rideRequestId, this.selectedDriver.driverId);
+    if (this.drivers.length === 0) {
+      this.scheduleRedirectToLanding('No more drivers available. Redirecting...');
+    }
+  }
+
+  private scheduleRedirectToLanding(message: string): void {
+    this.snackBar.open(message, '', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['error-snackbar']
+    });
+
+    this.redirectTimeout = setTimeout(() => {
+      this.router.navigate(['/passenger/landing']);
+    }, 3000);
   }
 
   requestRide() {
@@ -189,7 +240,15 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       return;
     }
 
-    // this.isRequesting = true;
+    if (this.rejectedDriverIds.has(this.selectedDriver.driverId)) {
+      this.snackBar.open(
+        'This driver already declined your request.',
+        'Close',
+        { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
+      );
+      return;
+    }
+
     const rideRequestId = this.passengerRideService.rideRequestId;
 
     if (!rideRequestId) {
@@ -198,15 +257,13 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         'Close',
         { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
       );
-      // this.isRequesting = false;
-      //  this.changeDetectorRef.detectChanges();
+
       return;
     }
 
     this.isRequesting = true;
     this.changeDetectorRef.detectChanges();
 
-    debugger
     this.signalrService.notifyDriver(
       this.selectedDriver.driverId,
       rideRequestId,
@@ -216,26 +273,20 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
     );
 
     this.passengerRideService.setSelectedDriver(this.selectedDriver);
-
-    // this.rideRequestService.notifyDriver(rideRequestId, this.selectedDriver.driverId)
-    //   .subscribe({
-    //     next: () => {
-    //       this.isRequesting = false;
-    //       this.isWaiting = true;
-    //       this.changeDetectorRef.detectChanges();
-    //     },
-    //     error: () => {
-    //       this.isRequesting = false;
-    //       this.snackBar.open(
-    //         'Failed to send request.',
-    //         'Close',
-    //         { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['error-snackbar'] }
-    //       );
-    //     }
-    //   });
-
     this.isRequesting = false;
     this.isWaiting = true;
     this.changeDetectorRef.detectChanges();
+  }
+
+  ngOnDestroy() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+
+    if (this.redirectTimeout) {
+      clearTimeout(this.redirectTimeout);
+    }
+
+    this.subs.forEach(s => s.unsubscribe());
   }
 }

@@ -106,7 +106,6 @@ export class DriverRideActive implements OnInit, OnDestroy {
           this.rideData.pickup?.name,
           this.rideData.destination?.name,
           () => {
-            console.log('Driver has arrived at destination');
           },
           (currentPos: any) => {
             const passengerId = this.passengerRideService.passengerId;

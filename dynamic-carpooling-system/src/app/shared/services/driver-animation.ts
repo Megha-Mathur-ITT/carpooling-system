@@ -151,7 +151,8 @@ export class DriverAnimation {
   private startMoving(
     passengerPickup: Location,
     onDriverArrived?: () => void,
-    onStep?: (currentCoord: any) => void): void {
+    onStep?: (currentCoord: any) => void
+  ): void {
     if (this.interval) {
       clearInterval(this.interval);
     }

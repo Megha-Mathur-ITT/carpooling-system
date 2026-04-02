@@ -12,6 +12,7 @@ export class NearbyDriversList {
   @Input() drivers: any[] = [];
   @Input() isLoading = false;
   @Input() selectedDriver: any = null;
+  @Input() hasRejections = false;
 
   @Output() driverSelected = new EventEmitter<any>();
   @Output() rideRequested = new EventEmitter<any>();

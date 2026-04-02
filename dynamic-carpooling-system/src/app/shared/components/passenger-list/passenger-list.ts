@@ -138,7 +138,6 @@ export class PassengerListComponent implements OnInit, OnDestroy, OnChanges {
         next: (data: any[]) => {
           this.rawBookings = Array.isArray(data) ? data : [];
           this.loading = false;
-          console.log(this.rawBookings)
         },
         error: () => {
           this.loading = false;

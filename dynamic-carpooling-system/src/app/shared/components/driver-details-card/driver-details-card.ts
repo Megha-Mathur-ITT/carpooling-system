@@ -13,6 +13,7 @@ export class DriverDetailsCard {
   @Input() rating!: number;
   @Input() fare!: string;
   @Input() eta!: string;
+  @Input() isSelected = false;
 
   @Output() onRequestRide  = new EventEmitter<void>()
 

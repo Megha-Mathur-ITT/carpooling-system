@@ -33,7 +33,6 @@ export class RideRequestService {
     requestId: string,
     status: 'Accepted' | 'Rejected'
   ): Observable<any> {
-    console.log("update req status: ", status);
     const statusMap: Record<string, number> = {
       'Accepted': 2,
       'Rejected': 3
@@ -43,10 +42,4 @@ export class RideRequestService {
       rideRequestStatus: statusMap[status]
     });
   }
-
-  // notifyDriver(requestId: string, driverId: string): Observable<any> {
-  //   return this.http.post(
-  //     `${this.baseUrl}/${requestId}/notify-driver/${driverId}`, {}
-  //   );
-  // }
 }

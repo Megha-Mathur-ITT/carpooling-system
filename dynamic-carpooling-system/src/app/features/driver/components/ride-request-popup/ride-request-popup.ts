@@ -79,14 +79,24 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   }
 
   autoReject() {
-    if (!this.request) return;
+    if (!this.request) {
+      return;
+    }
+
+    const requestId = this.request.requestId;
     this.isLoading = true;
 
     this.rideRequestService.respondToRequest(
-      this.request.requestId, 'Rejected'
+      requestId, 'Rejected'
     ).subscribe({
-      next: () => { this.rejected.emit(); this.isLoading = false; },
-      error: () => { this.rejected.emit(); this.isLoading = false; }
+      next: () => { 
+        this.rejected.emit(); 
+        this.isLoading = false; 
+      },
+      error: () => { 
+        this.rejected.emit(); 
+        this.isLoading = false; 
+      }
     });
   }
 
@@ -103,8 +113,6 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
           this.request!.sessionId
         ).subscribe({
           next: (acceptedBooking: any) => {
-            console.log("ACcepted Booking: ", acceptedBooking);
-
             const idx = (acceptedBooking.rideRequestIds ?? acceptedBooking.requestIds ?? [])
               .findIndex((id: string) => id === this.request!.requestId);
 
@@ -145,12 +153,17 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
   }
 
   reject() {
+    if (!this.request) {
+      return;
+    }
+
+    const requestId = this.request.requestId;
     this.stopTimer();
     this.isLoading = true;
     this.request = null;
 
     this.rideRequestService.respondToRequest(
-      this.request!.requestId, 'Rejected'
+      requestId, 'Rejected'
     ).subscribe({
       next: () => {
         this.request = null;

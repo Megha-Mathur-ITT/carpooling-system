@@ -5,11 +5,12 @@ import {
   DriverHistoryDto,
   DriverHistoryPassengerDto,
 } from '../models/ride-history.model';
+import { environment } from '../environments/environment';
  
 @Injectable({ providedIn: 'root' })
 export class RideHistoryService {
  
-  private readonly base = `http://localhost:5091/api/DriverHistory`;
+  private readonly base = `${environment.apiBaseUrl}/DriverHistory`;
  
   constructor(private http: HttpClient) {}
  

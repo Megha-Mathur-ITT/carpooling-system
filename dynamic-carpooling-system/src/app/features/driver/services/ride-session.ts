@@ -49,7 +49,6 @@ export class RideSessionService {
     return this.http.post(`${this.baseUrl}/start`, dto).pipe(
       tap((res: any) => {
         this.currentSessionId = res.rideId ?? res.sessionId ?? null;
-        console.log('[RideSession] currentSessionId set to:', this.currentSessionId);
       })
     );
   }
