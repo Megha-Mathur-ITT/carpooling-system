@@ -30,7 +30,7 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
   @Input() currentDriverLat!: number;
   @Input() currentDriverLng!: number;
 
-  @Output() accepted = new EventEmitter<void>();
+  @Output() accepted = new EventEmitter<{ fare: number; distanceKm: number }>();
   @Output() allRejected = new EventEmitter<void>();
 
   readonly trimLocation = trimLocation;
@@ -131,6 +131,11 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
       next: () => {
         this.bookingService.acceptBooking(item.request.requestId, item.request.sessionId).subscribe({
           next: (acceptedBooking: any) => {
+
+            const idx = (acceptedBooking.rideRequestIds ?? acceptedBooking.requestIds ?? [])
+              .findIndex((id: string) => id === item.request!.requestId);
+
+            const fareIndex = idx !== -1 ? idx : 0;
             const rejectedItems = this.rideRequestQueue.filter(
               i => i.request.requestId !== item.request.requestId
             );
@@ -158,7 +163,10 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
               driverName: 'You'
             };
             this.clearAll();
-            this.accepted.emit();
+            this.accepted.emit({
+              fare: acceptedBooking.fares?.[fareIndex] ?? 0,
+              distanceKm: this.passengerRideService.distanceKm
+            });
             this.isLoading = false;
             this.router.navigate(['/driver/ride-active']);
           },

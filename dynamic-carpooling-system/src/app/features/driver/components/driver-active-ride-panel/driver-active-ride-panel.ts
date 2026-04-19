@@ -48,21 +48,28 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
       }
     }
 
-    if (this.activeRide) {
-      this.activeRide.fare = this.passengerRideService.fare || this.activeRide.fare;
-      this.activeRide.distanceKm = this.passengerRideService.distanceKm || this.activeRide.distanceKm;
-    }
-
     this.subs.push(
       this.signalrService.passengerPaid$.subscribe(data => {
+        debugger
         if (data) {
           this.isPaymentPending = true;
           this.changeDetectorRef.markForCheck();
 
-          const exists = this.pendingPayments.some(p => p.rideRequestId === data.rideRequestId);
+          const exists = this.pendingPayments.some(payment => payment.rideRequestId === data.rideRequestId);
 
           if (!exists) {
-            this.pendingPayments.push(data);
+            const enrichedPayment = {
+              rideRequestId: data.rideRequestId,
+              passengerId: data.passengerId ?? this.activeRide?.passengerId,
+              passengerName: this.activeRide?.passengerName ?? 'Passenger',
+              fare: this.activeRide?.fare || this.passengerRideService.fare || 0,
+              distanceKm: this.activeRide?.distanceKm || this.passengerRideService.distanceKm || 0,
+              pickupName: this.activeRide?.pickupName,
+              destinationName: this.activeRide?.destinationName,
+            };
+
+            debugger
+            this.pendingPayments.push(enrichedPayment);
             this.updateStorage();
             this.changeDetectorRef.markForCheck();
           }
@@ -91,6 +98,7 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
   }
 
   onPaymentConfirmed(): void {
+    debugger
     if (!this.selectedPayment) {
       return;
     }
@@ -108,10 +116,11 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
 
     this.removePayment(payment.rideRequestId);
 
+    debugger
     this.router.navigate(['/driver/receipt'], {
       state: {
-        fare: payment.fare || this.passengerRideService.fare || this.activeRide?.fare,
-        distanceKm: payment.distanceKm || this.passengerRideService.distanceKm || this.activeRide?.distanceKm || 0,
+        fare: this.activeRide?.fare || this.passengerRideService.fare || 0,
+        distanceKm: this.activeRide?.distanceKm || this.passengerRideService.distanceKm || 0,
         isDriver: true,
         passenger: {
           passengerName: payment.passengerName

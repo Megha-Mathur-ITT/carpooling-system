@@ -108,6 +108,7 @@ export class AuthService {
       switch (payload.role) {
         case 'Passenger':
           roleEnum = UserRole.Passenger;
+          this.passengerService.setPassengerId(payload.sub);
           break;
         case 'Driver':
           roleEnum = UserRole.Driver;

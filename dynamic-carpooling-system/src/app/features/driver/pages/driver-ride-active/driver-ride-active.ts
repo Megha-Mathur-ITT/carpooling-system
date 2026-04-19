@@ -13,8 +13,6 @@ import { ChangeDetectorRef } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking-service';
 import { SignalrService } from '../../../../core/services/signalr';
 import { DriverRideService } from '../../services/driver-ride-service';
-import { Location } from '../../../../core/models/auth-model';
-
 
 @Component({
   selector: 'app-driver-ride-active',
@@ -31,8 +29,6 @@ import { Location } from '../../../../core/models/auth-model';
   styleUrls: ['./driver-ride-active.scss']
 })
 export class DriverRideActive implements OnInit, OnDestroy {
-
-
   rideData: any = null;
   rideLoaded: boolean = false;
   passengerName: string = '';
@@ -41,10 +37,8 @@ export class DriverRideActive implements OnInit, OnDestroy {
   durationMin: number = 0;
   fare: number = 0;
 
-
   private sub: Subscription | null = null;
   @ViewChild(MapComponent) mapComponent!: MapComponent;
-
 
   constructor(
     private router: Router,
@@ -110,11 +104,11 @@ export class DriverRideActive implements OnInit, OnDestroy {
           (currentPos: any) => {
             const passengerId = this.passengerRideService.passengerId;
             if (passengerId && currentPos.latitude) {
-              this.signalrService.syncLocation(
-                passengerId,
-                currentPos.latitude,
-                currentPos.longitude
-              );
+              // this.signalrService.syncLocation(
+              //   passengerId,
+              //   currentPos.latitude,
+              //   currentPos.longitude
+              // );
             }
           }
         );
@@ -124,39 +118,36 @@ export class DriverRideActive implements OnInit, OnDestroy {
     }, 1500);
   }
 
-
   onRouteInfo(data: { distanceKm: number; durationMin: number }) {
-    this.passengerRideService.setRouteInfo(data.distanceKm, data.durationMin);
-    this.distanceKm = this.passengerRideService.distanceKm;
-    this.durationMin = this.passengerRideService.durationMin;
+    this.passengerRideService.distanceKm = data.distanceKm;
+    this.passengerRideService.durationMin = data.durationMin;
+
+    this.distanceKm = data.distanceKm;
+    this.durationMin = data.durationMin;
     this.fare = this.passengerRideService.fare;
-    this.changeDetectorRef.detectChanges();
 
-
-    this.driverRideService.setFare(this.fare);
     this.driverRideService.setDistanceKm(data.distanceKm);
+    sessionStorage.setItem('distanceKm', data.distanceKm.toString());
 
-
-    const raw = sessionStorage.getItem('receipt_state');
+    const raw = sessionStorage.getItem('driver_active_ride');
     if (raw) {
       const parsed = JSON.parse(raw);
       parsed.distanceKm = data.distanceKm;
-      sessionStorage.setItem('receipt_state', JSON.stringify(parsed));
+      sessionStorage.setItem('driver_active_ride', JSON.stringify(parsed));
     }
+
     this.changeDetectorRef.detectChanges();
-    this.cdr.detectChanges();
   }
+
   onDriverReached() {
     this.ngZone.run(() => {
       this.showPinVerification = true;
     });
   }
 
-
   get ridePin(): string {
     return this.passengerRideService.pin;
   }
-
 
   onPinVerified(pin: string): void {
     this.bookingService.verifyPin(this.passengerRideService.bookingId, this.passengerRideService.rideRequestId, pin)
@@ -186,7 +177,6 @@ export class DriverRideActive implements OnInit, OnDestroy {
         }
       })
   }
-
 
   ngOnDestroy() {
     this.sub?.unsubscribe();

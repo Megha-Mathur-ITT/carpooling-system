@@ -60,7 +60,6 @@ export class DriverLanding implements OnInit, OnDestroy {
       this.pickup = this.rideService.getPickup();
       this.destination = this.rideService.getDestination();
       this.isOnline = this.rideService.getIsOnline();
-
       this.activeRide = this.rideService.getActiveRide();
 
       if (!this.activeRide?.rideRequestId || !this.activeRide?.passengerName) {
@@ -80,7 +79,7 @@ export class DriverLanding implements OnInit, OnDestroy {
         this.incomingRequest = null;
         return;
       }
-      
+
       if (!request.pickupLat || !request.pickupLng || !request.destinationLat || !request.destinationLng) {
         console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
         return;
@@ -118,31 +117,29 @@ export class DriverLanding implements OnInit, OnDestroy {
 
       this.changeDetectorRef.detectChanges();
     });
+
   }
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
   }
 
-  onRequestAccepted() {
+  onRequestAccepted(event?: { fare: number; distanceKm: number }) {
     this.activeRide = {
       rideRequestId: this.incomingRequest?.requestId || this.pendingRequests[0]?.requestId,
       passengerName: this.incomingRequest?.passengerName || this.pendingRequests[0]?.passengerName,
       passengerId: this.incomingRequest?.passengerId || this.pendingRequests[0]?.passengerId,
       pickupName: this.incomingRequest?.pickup?.name || this.pendingRequests[0]?.pickup?.name,
       destinationName: this.incomingRequest?.destination?.name || this.pendingRequests[0]?.destination?.name,
-      fare: this.passengerRideService.fare || 0,
-      distanceKm: this.passengerRideService.distanceKm || 0
+      fare: event?.fare || this.passengerRideService.fare || 0,
+      distanceKm: event?.distanceKm || this.passengerRideService.distanceKm || 0
     };
 
+    debugger
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('driver_active_ride', JSON.stringify(this.activeRide));
     }
 
-    this.incomingRequest = null;
-    this.pendingRequests = [];
-    this.rideService.clearAll();
-    this.signalrService.clearLastRideRequest();
     this.changeDetectorRef.detectChanges();
   }
 
@@ -177,9 +174,10 @@ export class DriverLanding implements OnInit, OnDestroy {
     this.isOnline = true;
     this.activeRide = null;
     this.rideService.setIsOnline(true);
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.removeItem('driver_active_ride');
-    }
+    // if (isPlatformBrowser(this.platformId)) {
+    //   sessionStorage.removeItem('driver_active_ride');
+    // }
+
     this.changeDetectorRef.detectChanges();
   }
 

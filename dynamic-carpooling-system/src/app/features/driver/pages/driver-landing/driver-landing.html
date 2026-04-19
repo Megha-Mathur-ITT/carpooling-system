@@ -25,12 +25,12 @@
 </div>
        
 <app-ride-request-popup *ngIf="pendingRequests.length === 1" [request]="pendingRequests[0]"
-  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()"
+  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted($event)"
   (rejected)="onRequestRejected()">
 </app-ride-request-popup>
 
 <app-ride-request-panel *ngIf="pendingRequests.length > 1" [requests]="pendingRequests"
-  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()"
+  [currentDriverLat]="currentDriverLat" [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted($event)"
   (allRejected)="onAllRejected()">
 </app-ride-request-panel>
 

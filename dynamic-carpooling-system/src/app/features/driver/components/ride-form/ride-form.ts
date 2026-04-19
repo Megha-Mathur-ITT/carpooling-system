@@ -6,7 +6,8 @@ import {
   PLATFORM_ID,
   OnChanges,
   SimpleChanges,
-  Input
+  Input,
+  ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -49,7 +50,8 @@ export class RideForm implements OnChanges {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private rideSessionService: RideSessionService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.detectCurrentLocation();
@@ -92,6 +94,8 @@ export class RideForm implements OnChanges {
       next: (vehicle: any) => {
         this.vehicleId = vehicle.vehicleId;
         this.seatCount = vehicle.maxSeats;
+
+        this.changeDetectorRef.detectChanges();
       }
     });
   }

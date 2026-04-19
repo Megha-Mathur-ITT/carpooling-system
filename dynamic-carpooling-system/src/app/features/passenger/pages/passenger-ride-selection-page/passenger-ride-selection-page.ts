@@ -133,6 +133,16 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       this.signalrService.rideAccepted$.subscribe(data => {
         if (data) {
           this.ngZone.run(() => {
+            if (data.fare) {
+              this.passengerRideService.fare = data.fare;
+              sessionStorage.setItem('fare', data.fare.toString());
+            }
+
+            if (data.distanceKm) {
+              this.passengerRideService.distanceKm = data.distanceKm;
+              sessionStorage.setItem('distanceKm', data.distanceKm.toString());
+            }
+            
             this.isWaiting = false;
             this.changeDetectorRef.detectChanges();
 
@@ -170,7 +180,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
         if (this.mapComponent) {
           this.mapComponent.updateDrivers(this.drivers);
         }
-        this.changeDetectorRef.detectChanges();   
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         this.drivers = [];
@@ -283,7 +293,7 @@ export class PassengerRideSelection implements OnInit, OnDestroy {
       clearInterval(this.refreshInterval);
     }
 
-    if (this.redirectTimeout) {
+    if (this.redirectTimeout) { 
       clearTimeout(this.redirectTimeout);
     }
 

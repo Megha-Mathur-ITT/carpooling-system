@@ -19,7 +19,7 @@ export class SignalrService {
 
   paymentConfirmed$ = new Subject<any>();
   paymentDenied$ = new Subject<any>();
-  passengerPaid$ = new Subject<any>();
+  passengerPaid$ = new BehaviorSubject<any>(null);
 
   pinVerified$ = new Subject<{ success: boolean }>();
   driverRated$ = new Subject<void>();
@@ -109,6 +109,7 @@ export class SignalrService {
     this.connection.onreconnected(() => {
       this.connectionStatus$.next('connected');
       console.log('[SignalR] Reconnected.');
+      this.passengerPaid$.next(null);
     });
 
     this.connection.onclose(() => {
@@ -228,7 +229,11 @@ export class SignalrService {
     );
   }
 
-  notifyDriverPassengerPaid(driverId: string, rideRequestId: string): void {
+  notifyDriverPassengerPaid(
+    driverId: string,
+    rideRequestId: string,
+    passengerId: string
+  ): void {
     if (!this.connection) {
       console.warn('[SignalR] Not connected. Cannot deny payment.');
       return;
@@ -236,7 +241,8 @@ export class SignalrService {
 
     this.connection.invoke("NotifyDriverPassengerPaid", {
       driverId,
-      rideRequestId
+      rideRequestId,
+      passengerId
     }).catch(error =>
       console.error('[SignalR] NotifyDriverPassengerPaid failed:', error)
     );
@@ -252,6 +258,7 @@ export class SignalrService {
       success
     }).catch(error => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
   }
+
   notifyPassengerRejected(passengerId: string, rideRequestId: string): void {
     if (!this.connection) return;
 
@@ -261,9 +268,9 @@ export class SignalrService {
     }).catch(err => console.error('[SignalR] NotifyPassengerRejected failed:', err));
   }
 
-  syncLocation(passengerId: string, lat: number, lng: number): void {
-    this.connection?.invoke('SyncDriverLocation', passengerId, lat, lng);
-  }
+  // syncLocation(passengerId: string, lat: number, lng: number): void {
+  //   this.connection?.invoke('SyncDriverLocation', passengerId, lat, lng);
+  // }
 
   clearLastRideRequest(): void {
     this.rideRequested$.next(null);

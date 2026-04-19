@@ -1,5 +1,4 @@
 <div class="active-ride-panel">
-
     <div class="panel-header">
         <div class="status-chip">
             <span class="live-dot"></span>
@@ -23,7 +22,7 @@
 
     <div class="payment-panel" [class.open]="isPaymentPanelOpen">
         <div class="payment-panel-header">
-            <i class="fa-solid fa-sack-dollar" style="color:#a5f505; font-size:14px;"></i>
+            <i class="fa-solid fa-sack-dollar"></i>
             <span>Payments pending</span>
             <span class="payment-panel-badge">{{ pendingPayments.length }}</span>
         </div>
@@ -34,7 +33,7 @@
                 (click)="selectPayment(payment)">
                 <div class="payment-panel-avatar">{{ getInitials(payment.passengerName) }}</div>
                 <div class="payment-panel-info">
-                    <span class="payment-panel-name">{{ payment.passengerName }}</span> <!-- was missing -->
+                    <span class="payment-panel-name">{{ payment.passengerName }}</span> 
                     <span class="payment-panel-fare">₹{{ payment.fare }} · waiting</span>
                 </div>
                 <div class="payment-panel-dot pending"></div>

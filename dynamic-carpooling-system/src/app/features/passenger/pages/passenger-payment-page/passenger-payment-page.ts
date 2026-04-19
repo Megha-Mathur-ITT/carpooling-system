@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
 import { Footer } from '../../../../core/layout/footer/footer';
 import { Subscription } from 'rxjs';
-import { filter, first } from 'rxjs/operators';
+import { filter, first, delay } from 'rxjs/operators';
 import { SignalrService } from '../../../../core/services/signalr';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 
@@ -40,8 +40,8 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-    
-    this.signalrService.connect(); 
+
+    this.signalrService.connect();
 
     if (!this.loadState()) {
       return;
@@ -79,12 +79,14 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
       this.subs.push(
         this.signalrService.connectionStatus$.pipe(
           filter(status => status === "connected"),
-          first()
+          first(),
+          delay(1500)
         ).subscribe(status => {
           if (status === "connected") {
             this.signalrService.notifyDriverPassengerPaid(
               this.driverId,
-              this.rideRequestId
+              this.rideRequestId,
+              this.rideService.passengerId
             );
           }
         })
@@ -136,7 +138,8 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
 
     this.signalrService.notifyDriverPassengerPaid(
       this.driverId,
-      this.rideRequestId
+      this.rideRequestId,
+      this.rideService.passengerId
     );
   }
 

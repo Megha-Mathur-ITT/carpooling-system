@@ -187,6 +187,8 @@ export class PassengerRideService {
     sessionStorage.removeItem("fare");
     sessionStorage.removeItem("pin");
     sessionStorage.removeItem("bookingId");
+    sessionStorage.removeItem("payment_state");
+    sessionStorage.removeItem("payment_waiting");
 
     this.pickup = null;
     this.destination = null;

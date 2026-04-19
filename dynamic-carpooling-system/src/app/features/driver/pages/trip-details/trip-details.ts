@@ -78,6 +78,7 @@ export class TripDetails implements OnInit, OnDestroy {
 
     if (isPlatformBrowser(this.platformId)) {
       const activeRideRaw = sessionStorage.getItem('driver_active_ride');
+
       if (activeRideRaw) {
         const ar = JSON.parse(activeRideRaw);
         ar.distanceKm = this.rideService.distanceKm;
