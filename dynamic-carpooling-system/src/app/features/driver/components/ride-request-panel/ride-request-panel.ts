@@ -168,7 +168,7 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
               distanceKm: this.passengerRideService.distanceKm
             });
             this.isLoading = false;
-            this.router.navigate(['/driver/ride-active']);
+            this.router.navigate(['/driver/trip-details']);
           },
           error: (err: any) => { console.error('Accept booking error:', err); this.isLoading = false; }
         });

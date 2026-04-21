@@ -14,6 +14,7 @@ import { SignalrService } from '../../../../core/services/signalr';
 import { DriverRideService } from '../../services/driver-ride-service';
 import { RideRequest } from '../../services/ride-session';
 import { RideRequestPopup } from '../../components/ride-request-popup/ride-request-popup';
+import { RidePinVerify } from '../../components/ride-pin-verify/ride-pin-verify';
 
 @Component({
   selector: 'app-trip-details',
@@ -24,7 +25,8 @@ import { RideRequestPopup } from '../../components/ride-request-popup/ride-reque
     Footer,
     MapComponent,
     MatSnackBarModule,
-    RideRequestPopup
+    RideRequestPopup,
+    RidePinVerify
   ],
   templateUrl: './trip-details.html',
   styleUrls: ['./trip-details.scss']
@@ -34,10 +36,14 @@ export class TripDetails implements OnInit, OnDestroy {
   rideData: any = null;
   hasReachedDestination = false;
   isCompleting = false;
+  showPinVerification = false;
+  isPickingUpPassenger = false;
+  boardedPassengers: { name: string; fare: number }[] = [];
 
   incomingRequest: RideRequest | null = null;
   currentDriverLat = 0;
   currentDriverLng = 0;
+  private lastDriverPos: { latitude: number; longitude: number } | null = null;
 
   private bookingId: string = '';
   private rideRequestId: string = '';
@@ -51,7 +57,6 @@ export class TripDetails implements OnInit, OnDestroy {
     private router: Router,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
-    private cdr: ChangeDetectorRef,
     private snackBar: MatSnackBar,
     @Inject(PLATFORM_ID) private platformId: Object,
     private signalrService: SignalrService,
@@ -73,31 +78,31 @@ export class TripDetails implements OnInit, OnDestroy {
 
     this.rideData = { pickup, destination, driver };
 
-    const dist = this.calculateDistanceKm(pickup.latitude, pickup.longitude, destination.latitude, destination.longitude);
-    this.rideService.distanceKm = Number(dist.toFixed(1));
+    this.lastDriverPos = { latitude: driver.latitude, longitude: driver.longitude };
+    this.currentDriverLat = driver.latitude;
+    this.currentDriverLng = driver.longitude;
 
     if (isPlatformBrowser(this.platformId)) {
       const activeRideRaw = sessionStorage.getItem('driver_active_ride');
 
       if (activeRideRaw) {
-        const ar = JSON.parse(activeRideRaw);
-        ar.distanceKm = this.rideService.distanceKm;
-        sessionStorage.setItem('driver_active_ride', JSON.stringify(ar));
+        const activeRide = JSON.parse(activeRideRaw);
+        activeRide.distanceKm = this.rideService.distanceKm;
+        sessionStorage.setItem('driver_active_ride', JSON.stringify(activeRide));
       }
     }
+
     setTimeout(() => {
-      if (this.mapComponent) {
-        this.mapComponent.startDestinationAnimation(
-          this.rideData.pickup,
-          this.rideData.destination,
-          this.rideData.driver,
-          () => {
-            this.ngZone.run(() => {
-              this.hasReachedDestination = true;
-            });
-          }
-        );
+      if (!this.mapComponent) {
+        return;
       }
+
+      if (this.rideService.pickupCompleted) {
+        this.startDestinationPhase();
+      } else {
+        this.startPickupPhase();
+      }
+
     }, 1000);
 
     this.signalrService.connect();
@@ -131,6 +136,28 @@ export class TripDetails implements OnInit, OnDestroy {
 
       this.changeDetectorRef.detectChanges();
     });
+  }
+
+  private startPickupPhase(): void {
+    this.mapComponent.onDriverReachedPickup(() => {
+      this.ngZone.run(() => {
+        this.showPinVerification = true;
+        this.signalrService.notifyPassengerDriverArrived(this.rideService.passengerIds);
+        this.changeDetectorRef.detectChanges();
+      });
+    });
+
+    this.mapComponent.startDriverAnimation(
+      this.rideData.driver,
+      this.rideData.pickup,
+      this.rideData.destination,
+      this.rideData.pickup?.name,
+      this.rideData.destination?.name,
+      () => { },
+      (currentPos: any) => {
+        this.trackAndSync(currentPos);
+      }
+    );
   }
 
   ngOnDestroy() {
@@ -186,5 +213,9 @@ export class TripDetails implements OnInit, OnDestroy {
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
+  }
+
+  get totalFare(): number {
+    return this.boardedPassengers.reduce((sum, passenger) => sum + passenger.fare, 0);
   }
 }

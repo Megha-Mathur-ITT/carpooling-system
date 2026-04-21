@@ -142,7 +142,7 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
               fare: acceptedBooking.fares?.[fareIndex] ?? 0,
               distanceKm: this.passengerRideService.distanceKm
             });
-            this.router.navigate(['/driver/ride-active']);
+            this.router.navigate(['/driver/trip-details']);
           },
           error: (err: any) => {
             console.error('Accept booking error:', err);

@@ -20,6 +20,7 @@ export class PassengerRideService {
   pin: string = '';
   bookingId: string = '';
   passengerId: string = '';
+  pickupCompleted: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object
@@ -144,6 +145,18 @@ export class PassengerRideService {
     }
   }
 
+  setPickupCompleted(value: boolean): void {
+    this.pickupCompleted = value;
+
+    if (this.isBrowser()) {
+      if (value) {
+        sessionStorage.setItem('pickupCompleted', 'true');
+      } else {
+        sessionStorage.removeItem('pickupCompleted');
+      }
+    }
+  }
+
   loadFromStorage() {
     if (!this.isBrowser()) {
       return;
@@ -165,6 +178,7 @@ export class PassengerRideService {
       this.fare = parseFloat(sessionStorage.getItem('fare') || '0');
       this.pin = sessionStorage.getItem('pin') || '';
       this.bookingId = sessionStorage.getItem('bookingId') || '';
+      this.pickupCompleted = sessionStorage.getItem('pickupCompleted') === 'true';
     } catch {
       this.clearAll();
     }
@@ -189,6 +203,7 @@ export class PassengerRideService {
     sessionStorage.removeItem("bookingId");
     sessionStorage.removeItem("payment_state");
     sessionStorage.removeItem("payment_waiting");
+    sessionStorage.removeItem('pickupCompleted');
 
     this.pickup = null;
     this.destination = null;
@@ -202,5 +217,6 @@ export class PassengerRideService {
     this.fare = 0;
     this.pin = '';
     this.bookingId = '';
+    this.pickupCompleted = false;
   }
 }
