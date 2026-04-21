@@ -256,7 +256,8 @@ export class DriverAnimation {
     passengerPickup: Location,
     passengerDestination: Location,
     driverLocation: Location,
-    onReachedDestination?: () => void
+    onReachedDestination?: () => void,
+    onStep?: (currentCoords: any) => void
   ) {
     const savedDestinationCoords = [...this.destinationCoords];
     this.stop();
@@ -310,7 +311,9 @@ export class DriverAnimation {
       this.bluePolyline, () => {
         this.map.removeLayer(destinationMarker);
         onReachedDestination?.();
-      });
+      },
+      onStep
+    );
 
     this.hasDriverReached = false;
   }

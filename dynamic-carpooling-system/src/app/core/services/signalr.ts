@@ -276,27 +276,34 @@ export class SignalrService {
     }).catch(err => console.error('[SignalR] NotifyPassengerRejected failed:', err));
   }
 
-  syncLocation(passengerId: string, latitude: number, longitude: number): void {
+  syncLocation(passengerIds: string[], latitude: number, longitude: number): void {
     if (!this.connection) {
       return;
     }
 
-    this.connection.invoke('SyncDriverLocation', {
-      passengerId,
-      latitude,
-      longitude
-    }).catch(error => console.error("[SignalR] SyncDriverLocation failed:", error));
+    for (const passengerId of passengerIds) {
+      this.connection.invoke('SyncDriverLocation', {
+        passengerId,
+        latitude,
+        longitude
+      }).catch(error => console.error("[SignalR] SyncDriverLocation failed:", error));
+    }
   }
 
   clearLastRideRequest(): void {
     this.rideRequested$.next(null);
   }
 
-  notifyPassengerDriverArrived(passengerId: string): void {
-    if (!this.connection) return;
-    this.connection.invoke('NotifyPassengerDriverArrived', {
-      passengerId,
-      success: true  
-    }).catch(err => console.error('[SignalR] NotifyPassengerDriverArrived failed:', err));
+  notifyPassengerDriverArrived(passengerIds: string[]): void {
+    if (!this.connection) {
+      return;
+    }
+
+    for (const passengerId of passengerIds) {
+      this.connection.invoke('NotifyPassengerDriverArrived', {
+        passengerId,
+        success: true
+      }).catch(err => console.error('[SignalR] NotifyPassengerDriverArrived failed:', err));
+    }
   }
 }

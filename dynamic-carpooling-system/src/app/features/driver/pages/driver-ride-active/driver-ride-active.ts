@@ -64,7 +64,6 @@ export class DriverRideActive implements OnInit, OnDestroy {
       return;
     }
 
-
     this.rideData = {
       passengerName: this.passengerName,
       pickup,
@@ -72,9 +71,7 @@ export class DriverRideActive implements OnInit, OnDestroy {
       driver
     };
 
-
     this.rideLoaded = true;
-
 
     setTimeout(() => {
       if (
@@ -91,9 +88,9 @@ export class DriverRideActive implements OnInit, OnDestroy {
             this.showPinVerification = true;
             this.changeDetectorRef.markForCheck();
 
-            const passengerId = this.passengerRideService.passengerId;
-            if (passengerId) {
-              this.signalrService.notifyPassengerDriverArrived(passengerId);
+            const passengerIds = this.passengerRideService.passengerIds;
+            if (passengerIds.length > 0) {
+              this.signalrService.notifyPassengerDriverArrived(passengerIds);
             }
           });
         });
@@ -106,12 +103,12 @@ export class DriverRideActive implements OnInit, OnDestroy {
           () => {
           },
           (currentPos: any) => {
-            const passengerId = this.passengerRideService.passengerId;
-            console.log('[Driver onStep] passengerId:', passengerId, 'lat:', currentPos.latitude, 'lng:', currentPos.longitude);
+            const passengerIds = this.passengerRideService.passengerIds;
+            console.log('[Driver onStep] passengerId:', passengerIds, 'lat:', currentPos.latitude, 'lng:', currentPos.longitude);
 
-            if (passengerId && currentPos.latitude) {
+            if (passengerIds.length > 0 && currentPos.latitude) {
               this.signalrService.syncLocation(
-                passengerId,
+                passengerIds,
                 currentPos.latitude,
                 currentPos.longitude
               );
@@ -156,20 +153,21 @@ export class DriverRideActive implements OnInit, OnDestroy {
   }
 
   onPinVerified(pin: string): void {
-    this.bookingService.verifyPin(this.passengerRideService.bookingId, this.passengerRideService.rideRequestId, pin)
-      .subscribe({
+    this.bookingService.verifyPin(
+      this.passengerRideService.bookingId, 
+      this.passengerRideService.rideRequestId, 
+      pin
+    ).subscribe({
         next: () => {
           this.signalrService.notifyPassengerPinVerified(
             this.passengerRideService.passengerId,
             true
           );
 
-
           this.showPinVerification = false;
           this.changeDetectorRef.detectChanges();
-
-
           this.mapComponent.stopDriverAnimation();
+
           this.router.navigate(['/driver/trip-details']);
         },
         error: (error: any) => {

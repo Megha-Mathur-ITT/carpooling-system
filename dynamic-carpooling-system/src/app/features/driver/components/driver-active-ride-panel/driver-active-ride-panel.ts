@@ -4,13 +4,12 @@ import { SignalrService } from '../../../../core/services/signalr';
 import { Router } from '@angular/router';
 import { RideSummary } from '../../../../shared/components/ride-summary/ride-summary';
 import { Subscription } from 'rxjs';
-import { PaymentConfirm } from '../payment-confirm/payment-confirm';
 import { PassengerRideService } from '../../../../core/services/passenger-ride-service';
 
 @Component({
   selector: 'app-driver-active-ride-panel',
   standalone: true,
-  imports: [CommonModule, RideSummary, PaymentConfirm],
+  imports: [CommonModule, RideSummary],
   templateUrl: './driver-active-ride-panel.html',
   styleUrl: './driver-active-ride-panel.scss'
 })

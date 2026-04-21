@@ -21,6 +21,7 @@ export class PassengerRideService {
   bookingId: string = '';
   passengerId: string = '';
   pickupCompleted: boolean = false;
+  passengerIds: string[] = [];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object
@@ -157,6 +158,23 @@ export class PassengerRideService {
     }
   }
 
+  addPassengerId(id: string): void {
+    if (id && !this.passengerIds.includes(id)) {
+      this.passengerIds.push(id);
+    }
+
+    if (this.isBrowser()) {
+      sessionStorage.setItem('passengerIds', JSON.stringify(this.passengerIds));
+    }
+  }
+
+  clearPassengerIds(): void {
+    this.passengerIds = [];
+    if (this.isBrowser()) {
+      sessionStorage.removeItem('passengerIds');
+    }
+  }
+
   loadFromStorage() {
     if (!this.isBrowser()) {
       return;
@@ -179,6 +197,7 @@ export class PassengerRideService {
       this.pin = sessionStorage.getItem('pin') || '';
       this.bookingId = sessionStorage.getItem('bookingId') || '';
       this.pickupCompleted = sessionStorage.getItem('pickupCompleted') === 'true';
+      this.passengerIds = JSON.parse(sessionStorage.getItem('passengerIds') || '[]');
     } catch {
       this.clearAll();
     }
@@ -204,6 +223,7 @@ export class PassengerRideService {
     sessionStorage.removeItem("payment_state");
     sessionStorage.removeItem("payment_waiting");
     sessionStorage.removeItem('pickupCompleted');
+    sessionStorage.removeItem("passengerIds");
 
     this.pickup = null;
     this.destination = null;
@@ -218,5 +238,6 @@ export class PassengerRideService {
     this.pin = '';
     this.bookingId = '';
     this.pickupCompleted = false;
+    this.passengerIds = [];
   }
 }

@@ -536,9 +536,10 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     passengerPickup: Location,
     passengerDestination: Location,
     driverLocation: Location,
-    onReachedDestination?: () => void
+    onReachedDestination?: () => void,
+    onStep?: (currentCoord: any) => void
   ): void {
-    this.driverAnimation.startDestinationAnimation(passengerPickup, passengerDestination, driverLocation, onReachedDestination);
+    this.driverAnimation.startDestinationAnimation(passengerPickup, passengerDestination, driverLocation, onReachedDestination, onStep);
   }
 
   public updateDriverMarker(latitude: number, longitude: number): void {

@@ -157,6 +157,8 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
             this.passengerRideService.setBookingResult(acceptedBooking.fare, acceptedBooking.pin);
             this.passengerRideService.bookingId = acceptedBooking.bookingId;
             this.passengerRideService.setPassengerId(item.request.passengerId);
+            this.passengerRideService.setRideRequestId(item.request.requestId);
+            this.passengerRideService.addPassengerId(item.request.passengerId);
             this.passengerRideService.selectedDriver = {
               latitude: this.currentDriverLat,
               longitude: this.currentDriverLng,

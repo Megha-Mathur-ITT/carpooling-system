@@ -98,7 +98,7 @@ export class TripDetails implements OnInit, OnDestroy {
       }
 
       if (this.rideService.pickupCompleted) {
-        this.startDestinationPhase();
+        // this.startDestinationPhase();
       } else {
         this.startPickupPhase();
       }
@@ -155,7 +155,7 @@ export class TripDetails implements OnInit, OnDestroy {
       this.rideData.destination?.name,
       () => { },
       (currentPos: any) => {
-        this.trackAndSync(currentPos);
+        // this.trackAndSync(currentPos);
       }
     );
   }
