@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import * as signalR from '@microsoft/signalr';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, ReplaySubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +24,8 @@ export class SignalrService {
   pinVerified$ = new Subject<{ success: boolean }>();
   driverRated$ = new Subject<void>();
 
-  public locationUpdate$ = new Subject<{ latitude: number, longitude: number }>();
+  public locationUpdate$ = new ReplaySubject<{ latitude: number, longitude: number }>(1);
+  driverArrived$ = new Subject<void>();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
@@ -145,6 +146,11 @@ export class SignalrService {
     this.connection.on('ReceiveLocationUpdate', (data) => {
       this.locationUpdate$.next(data);
     });
+
+    this.connection.on('DriverArrived', () => {
+      console.log('[SignalR] DriverArrived received');
+      this.driverArrived$.next();
+    });
   }
 
   notifyDriver(
@@ -260,7 +266,9 @@ export class SignalrService {
   }
 
   notifyPassengerRejected(passengerId: string, rideRequestId: string): void {
-    if (!this.connection) return;
+    if (!this.connection) {
+      return;
+    }
 
     this.connection.invoke('NotifyPassengerRejected', {
       passengerId,
@@ -268,11 +276,27 @@ export class SignalrService {
     }).catch(err => console.error('[SignalR] NotifyPassengerRejected failed:', err));
   }
 
-  // syncLocation(passengerId: string, lat: number, lng: number): void {
-  //   this.connection?.invoke('SyncDriverLocation', passengerId, lat, lng);
-  // }
+  syncLocation(passengerId: string, latitude: number, longitude: number): void {
+    if (!this.connection) {
+      return;
+    }
+
+    this.connection.invoke('SyncDriverLocation', {
+      passengerId,
+      latitude,
+      longitude
+    }).catch(error => console.error("[SignalR] SyncDriverLocation failed:", error));
+  }
 
   clearLastRideRequest(): void {
     this.rideRequested$.next(null);
+  }
+
+  notifyPassengerDriverArrived(passengerId: string): void {
+    if (!this.connection) return;
+    this.connection.invoke('NotifyPassengerDriverArrived', {
+      passengerId,
+      success: true  
+    }).catch(err => console.error('[SignalR] NotifyPassengerDriverArrived failed:', err));
   }
 }

@@ -135,7 +135,6 @@ export class DriverLanding implements OnInit, OnDestroy {
       distanceKm: event?.distanceKm || this.passengerRideService.distanceKm || 0
     };
 
-    debugger
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('driver_active_ride', JSON.stringify(this.activeRide));
     }

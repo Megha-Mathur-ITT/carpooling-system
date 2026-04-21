@@ -113,7 +113,6 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
           this.request!.sessionId
         ).subscribe({
           next: (acceptedBooking: any) => {
-            debugger
             const idx = (acceptedBooking.rideRequestIds ?? acceptedBooking.requestIds ?? [])
               .findIndex((id: string) => id === this.request!.requestId);
 
@@ -131,7 +130,6 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
             this.passengerRideService.setBookingId(acceptedBooking.bookingId ?? '');
             this.passengerRideService.setBookingResult(bookingFare, bookingPin);
             this.passengerRideService.setRideRequestId(this.request!.requestId);
-            debugger
             this.passengerRideService.setPassengerId(this.request!.passengerId);
             this.passengerRideService.selectedDriver = {
               latitude: this.currentDriverLat,
@@ -140,7 +138,6 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
             };
 
             this.request = null;
-            debugger
             this.accepted.emit({
               fare: acceptedBooking.fares?.[fareIndex] ?? 0,
               distanceKm: this.passengerRideService.distanceKm

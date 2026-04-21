@@ -50,7 +50,6 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
 
     this.subs.push(
       this.signalrService.passengerPaid$.subscribe(data => {
-        debugger
         if (data) {
           this.isPaymentPending = true;
           this.changeDetectorRef.markForCheck();
@@ -68,7 +67,6 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
               destinationName: this.activeRide?.destinationName,
             };
 
-            debugger
             this.pendingPayments.push(enrichedPayment);
             this.updateStorage();
             this.changeDetectorRef.markForCheck();
@@ -98,7 +96,6 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
   }
 
   onPaymentConfirmed(): void {
-    debugger
     if (!this.selectedPayment) {
       return;
     }
@@ -116,7 +113,6 @@ export class DriverActiveRidePanel implements OnInit, OnDestroy {
 
     this.removePayment(payment.rideRequestId);
 
-    debugger
     this.router.navigate(['/driver/receipt'], {
       state: {
         fare: this.activeRide?.fare || this.passengerRideService.fare || 0,

@@ -372,4 +372,21 @@ export class DriverAnimation {
 
     this.startMoving(passengerPickup, onDriverArrived, onStep);
   }
+
+  public updateCarMarker(latitude: number, longitude: number): void {
+    if (!this.map || !this.L) {
+      return;
+    }
+
+    if (this.carMarker) {
+      this.carMarker.setLatLng([latitude, longitude]);
+    } else {
+      this.carMarker = this.placeMarker(
+        { latitude, longitude },
+        this.makeDivIcon('#39d353', '&#128663;'),
+        2000,
+        'Driver'
+      );
+    }
+  }
 } 

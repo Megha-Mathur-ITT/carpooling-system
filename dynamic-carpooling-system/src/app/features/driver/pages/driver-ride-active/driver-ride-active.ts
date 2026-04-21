@@ -90,7 +90,11 @@ export class DriverRideActive implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             this.showPinVerification = true;
             this.changeDetectorRef.markForCheck();
-            this.cdr.markForCheck();
+
+            const passengerId = this.passengerRideService.passengerId;
+            if (passengerId) {
+              this.signalrService.notifyPassengerDriverArrived(passengerId);
+            }
           });
         });
         this.mapComponent.startDriverAnimation(
@@ -103,12 +107,14 @@ export class DriverRideActive implements OnInit, OnDestroy {
           },
           (currentPos: any) => {
             const passengerId = this.passengerRideService.passengerId;
+            console.log('[Driver onStep] passengerId:', passengerId, 'lat:', currentPos.latitude, 'lng:', currentPos.longitude);
+
             if (passengerId && currentPos.latitude) {
-              // this.signalrService.syncLocation(
-              //   passengerId,
-              //   currentPos.latitude,
-              //   currentPos.longitude
-              // );
+              this.signalrService.syncLocation(
+                passengerId,
+                currentPos.latitude,
+                currentPos.longitude
+              );
             }
           }
         );
