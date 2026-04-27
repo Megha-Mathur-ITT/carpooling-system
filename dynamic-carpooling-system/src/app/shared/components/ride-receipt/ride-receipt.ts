@@ -22,6 +22,7 @@ export class RideReceipt implements OnInit {
   pickup: any = null;
   destination: any = null;
   isDriver: boolean = false;
+  receipts: any[] = [];
 
   constructor(
     private router: Router,
@@ -35,15 +36,15 @@ export class RideReceipt implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const navState = history.state;
-
+    
     if (navState && navState.fare !== undefined && navState.fare !== null) {
       sessionStorage.setItem('receipt_state', JSON.stringify(navState));
     }
 
     const raw = sessionStorage.getItem('receipt_state');
     const state = (navState && navState.fare !== undefined && navState.fare !== null) ? navState : (raw ? JSON.parse(raw) : null);
-
-    if (!state || state.fare === undefined || state.fare === null) {
+    
+    if (!state || (state.fare === undefined && (!state.receipts?.length))) {
       this.router.navigate(['/passenger/landing']);
       return;
     }
@@ -57,10 +58,21 @@ export class RideReceipt implements OnInit {
     this.pickup = state.pickup ?? null;
     this.destination = state.destination ?? null;
     this.isDriver = state.isDriver ?? false;
+
+    this.receipts = state.receipts ?? [];
+
+    if (this.receipts.length === 0 && this.fare) {
+      this.receipts = [{
+        passengerName: this.passenger?.passengerName,
+        fare: this.fare,
+        distanceKm: this.distanceKm,
+        pickupName: this.pickup?.name,
+        destinationName: this.destination?.name
+      }];
+    }
   }
 
   goHome(): void {
-    sessionStorage.removeItem('receipt_state');
     this.driverRideService.clearAll();
     this.passengerRideService.clearAll();
 
@@ -88,5 +100,9 @@ export class RideReceipt implements OnInit {
     if (typeof this.destination?.name?.name === 'string') return this.destination.name.name;
     if (typeof this.destination?.name?.address === 'string') return this.destination.name.address;
     return '—';
+  }
+
+  get totalFare(): number {
+    return this.receipts.reduce((sum, receipt) => sum + (receipt.fare ?? 0), 0);
   }
 }

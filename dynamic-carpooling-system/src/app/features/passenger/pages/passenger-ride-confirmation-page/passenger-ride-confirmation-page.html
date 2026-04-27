@@ -14,23 +14,13 @@
         <small class="text-muted">Share this PIN with your driver to start the ride</small>
       </div>
 
-      <app-ride-status 
-        [driver]="selectedDriver" 
-        [destination]="passengerDestination"
-        [isDriverArrived]="isDriverArrived" 
-        [isRideStarted]="isRideStarted"
-        [isReachedDestination]="isReachedDestination" 
-        [isPinVerified]="isPinVerified"
-        [isPinFailed]="isPinFailed"
-        [pinAttempts]="pinAttempts"
-        (onPayDriver)="goToPayment()"
-      ></app-ride-status>
+      <app-ride-status [driver]="selectedDriver" [destination]="passengerDestination"
+        [isDriverArrived]="isDriverArrived" [isRideStarted]="isRideStarted"
+        [isReachedDestination]="isReachedDestination" [isPinVerified]="isPinVerified" [isPinFailed]="isPinFailed"
+        [pinAttempts]="pinAttempts" [isRideOnHold]="isRideOnHold" (onPayDriver)="goToPayment()"></app-ride-status>
 
-      <div class="ride-details"> 
-        <app-ride-summary 
-          [pickup]="passengerPickup" 
-          [destination]="passengerDestination"
-        ></app-ride-summary>
+      <div class="ride-details">
+        <app-ride-summary [pickup]="passengerPickup" [destination]="passengerDestination"></app-ride-summary>
 
         <div class="detail-row">
           <span class="detail-label">Driver</span>
@@ -51,7 +41,6 @@
           <span class="detail-label">License plate</span>
           <span class="detail-value">{{ selectedDriver.licensePlate }}</span>
         </div>
-
       </div>
       <hr>
     </div>
@@ -61,11 +50,7 @@
     </ng-template>
 
     <div class="col-md-7 p-0">
-      <app-map 
-        [pickup]="driverLocation" 
-        [destination]="passengerPickup" 
-        [showRoute]="false"
-      ></app-map>
+      <app-map [pickup]="passengerPickup" [destination]="passengerDestination" [showRoute]="false"></app-map>
     </div>
 
   </div>

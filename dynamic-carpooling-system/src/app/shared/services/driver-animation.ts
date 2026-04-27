@@ -260,7 +260,17 @@ export class DriverAnimation {
     onStep?: (currentCoords: any) => void
   ) {
     const savedDestinationCoords = [...this.destinationCoords];
-    this.stop();
+
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+    
+    this.passengerMarker = this.removeLayer(this.passengerMarker);
+    this.greenPolyline = this.removeLayer(this.greenPolyline);
+    this.bluePolyline = this.removeLayer(this.bluePolyline);
+    this.coords = [];
+    this.destinationCoords = [];
 
     if (!savedDestinationCoords || savedDestinationCoords.length < 2) {
       const fetched = await this.fetchRoute(passengerPickup, passengerDestination);
@@ -279,13 +289,13 @@ export class DriverAnimation {
 
     if (!this.carMarker) {
       this.carMarker = this.placeMarker(
-        passengerPickup,
+        driverLocation,
         this.makeDivIcon('#39d353', '&#128663;'),
         2000,
         'Driver'
       );
     } else {
-      this.carMarker.setLatLng([passengerPickup.latitude, passengerPickup.longitude]);
+      this.carMarker.setLatLng([driverLocation.latitude, driverLocation.longitude]);
     }
 
     this.passengerMarker = this.L.marker(
@@ -390,6 +400,13 @@ export class DriverAnimation {
         2000,
         'Driver'
       );
+    }
+  }
+
+  pause(): void {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
     }
   }
 } 

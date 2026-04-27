@@ -57,11 +57,11 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
   private debounceTimer: any;
 
   popularCities: PopularCity[] = [
-    { name: 'New Delhi', state: 'Delhi', latitude: 28.6139, longitude: 77.2090 },
-    { name: 'Mumbai', state: 'Maharashtra', latitude: 19.0760, longitude: 72.8777 },
+    { name: 'New Delhi', state: 'Delhi', latitude: 28.6139, longitude: 77.209 },
+    { name: 'Mumbai', state: 'Maharashtra', latitude: 19.076, longitude: 72.8777 },
     { name: 'Bangalore', state: 'Karnataka', latitude: 12.9716, longitude: 77.5946 },
     { name: 'Jaipur', state: 'Rajasthan', latitude: 26.9124, longitude: 75.7873 },
-    { name: 'Hyderabad', state: 'Telangana', latitude: 17.3850, longitude: 78.4867 },
+    { name: 'Hyderabad', state: 'Telangana', latitude: 17.385, longitude: 78.4867 },
     { name: 'Chennai', state: 'Tamil Nadu', latitude: 13.0827, longitude: 80.2707 },
     { name: 'Kolkata', state: 'West Bengal', latitude: 22.5726, longitude: 88.3639 },
     { name: 'Pune', state: 'Maharashtra', latitude: 18.5204, longitude: 73.8567 },
@@ -115,7 +115,7 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
 
   onInput(value: string) {
     clearTimeout(this.debounceTimer);
-    
+
     this.query = value;
     this.activeIndex = -1;
     this.showDropdown = true;
@@ -139,17 +139,14 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
       this.activeIndex = Math.min(this.activeIndex + 1, total - 1);
-    }
-    else if (event.key === 'ArrowUp') {
+    } else if (event.key === 'ArrowUp') {
       event.preventDefault();
       this.activeIndex = Math.max(this.activeIndex - 1, 0);
-    }
-    else if (event.key === 'Enter') {
+    } else if (event.key === 'Enter') {
       if (this.activeIndex >= 0 && this.results[this.activeIndex]) {
         this.selectLocation(this.results[this.activeIndex]);
       }
-    }
-    else if (event.key === 'Escape') {
+    } else if (event.key === 'Escape') {
       this.showDropdown = false;
       this.inputRef.nativeElement.blur();
     }
@@ -189,11 +186,9 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
       const data = await res.json();
       this.cache.set(query, data);
       this.results = data;
-
     } catch (err) {
       console.error('Location search error:', err);
       this.results = [];
-
     } finally {
       this.isLoading = false;
     }
@@ -207,7 +202,7 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
       displayName: place.display_name,
     };
 
-    this.query = this.getMainName(place)
+    this.query = this.getMainName(place);
     this.results = [];
     this.showDropdown = false;
 
@@ -306,9 +301,6 @@ export class LocationSearchComponent implements OnInit, OnDestroy, OnChanges {
 
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    return text.replace(
-      new RegExp(`(${escaped})`, 'gi'),
-      '<mark>$1</mark>'
-    );
+    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
   }
 }

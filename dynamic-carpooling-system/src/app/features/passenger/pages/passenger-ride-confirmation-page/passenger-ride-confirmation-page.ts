@@ -1,4 +1,12 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+  ChangeDetectorRef,
+  NgZone,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../../core/layout/navbar/navbar';
@@ -17,7 +25,7 @@ import { SignalrService } from '../../../../core/services/signalr';
   standalone: true,
   imports: [CommonModule, NavbarComponent, Footer, MapComponent, RideSummary, RideStatus],
   templateUrl: './passenger-ride-confirmation-page.html',
-  styleUrl: './passenger-ride-confirmation-page.scss'
+  styleUrl: './passenger-ride-confirmation-page.scss',
 })
 export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnDestroy {
   passengerPickup: any = null;
@@ -30,15 +38,21 @@ export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnD
   passengerPin: string = '';
   fare: number = 0;
   distanceKm: number = 0;
-
   isPinVerified = false;
   isPinFailed = false;
   pinAttempts = 0;
   readonly maxPinAttempts = 3;
+  isRideOnHold = false;
+  private latestDriverPosition: { latitude: number; longitude: number } | null = null;
 
   private pinSub!: Subscription;
   private locationSub!: Subscription;
   private arrivedSub!: Subscription;
+  private holdSub!: Subscription;
+  private completedSub!: Subscription;
+  private resumeSub!: Subscription;
+
+  @ViewChild(MapComponent) mapComponent!: MapComponent;
 
   constructor(
     private router: Router,
@@ -46,10 +60,8 @@ export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnD
     private changeDetectorRef: ChangeDetectorRef,
     private authService: AuthService,
     private ngZone: NgZone,
-    private signalrService: SignalrService
-  ) { }
-
-  @ViewChild(MapComponent) mapComponent!: MapComponent;
+    private signalrService: SignalrService,
+  ) {}
 
   async ngOnInit() {
     this.passengerPickup = this.passengerRideService.pickup;
@@ -64,34 +76,34 @@ export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnD
     this.fare = this.passengerRideService.fare;
     this.distanceKm = this.passengerRideService.distanceKm;
 
-    const address = await reverseGeocode({
-      latitude: this.selectedDriver.latitude,
-      longitude: this.selectedDriver.longitude
-    });
-
-    this.driverLocation = {
-      latitude: this.selectedDriver.latitude,
-      longitude: this.selectedDriver.longitude,
-      name: this.selectedDriver.driverName,
-      popupLabel: `<b>Driver start point:</b> ${address}`
-    };
-
-    this.changeDetectorRef.markForCheck();
     await this.loadPin();
+    this.changeDetectorRef.markForCheck();
 
     this.listenToDriverLocation();
     this.listenToEventPinVerified();
     this.listenToDriverArrived();
+    this.listenToRideOnHold();
+    this.listenToRideCompleted();
+    this.listenToRideResumed();
   }
 
   ngAfterViewInit() {
     this.mapComponent.mapReady$.subscribe(() => {
       if (this.selectedDriver) {
-        this.mapComponent.placeDriverMarkerOnly(
+        this.mapComponent.updateDriverMarker(
           this.selectedDriver.latitude,
-          this.selectedDriver.longitude
+          this.selectedDriver.longitude,
         );
       }
+    });
+  }
+
+  listenToRideOnHold() {
+    this.holdSub = this.signalrService.rideOnHold$.subscribe(() => {
+      this.ngZone.run(() => {
+        this.isRideOnHold = true;
+        this.changeDetectorRef.markForCheck();
+      });
     });
   }
 
@@ -99,37 +111,87 @@ export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnD
     this.arrivedSub = this.signalrService.driverArrived$.subscribe(() => {
       this.ngZone.run(() => {
         this.isDriverArrived = true;
-        this.changeDetectorRef.detectChanges();
+        this.isRideOnHold = false;
+
+        if (this.mapComponent && this.passengerPickup) {
+          this.mapComponent.updateDriverMarker(
+            this.passengerPickup.latitude,
+            this.passengerPickup.longitude,
+          );
+        }
+
+        if (!this.passengerPin || this.passengerPin === '------') {
+          this.loadPin();
+        }
+
+        this.changeDetectorRef.markForCheck();
       });
     });
-  }                     
+  }
 
   listenToDriverLocation() {
-    this.locationSub = this.signalrService.locationUpdate$.subscribe(pos => {
+    this.locationSub = this.signalrService.locationUpdate$.subscribe((pos) => {
       this.ngZone.run(() => {
-        if (this.mapComponent && pos.latitude && pos.longitude) {
-          this.mapComponent.updateDriverMarker(pos.latitude, pos.longitude);
+        if (!this.mapComponent || !pos.latitude || !pos.longitude) {
+          return;
+        }
+
+        this.latestDriverPosition = { latitude: pos.latitude, longitude: pos.longitude };
+        this.mapComponent.updateDriverMarker(pos.latitude, pos.longitude);
+
+        if (!this.isDriverArrived && !this.isPinVerified && this.passengerPickup) {
+          const dist = this.getDistanceMeters(
+            pos.latitude,
+            pos.longitude,
+            this.passengerPickup.latitude,
+            this.passengerPickup.longitude,
+          );
+          if (dist < 40) {
+            setTimeout(() => {
+              this.isDriverArrived = true;
+              if (!this.passengerPin) {
+                this.loadPin();
+              }
+              this.changeDetectorRef.markForCheck();
+            });
+          }
+        }
+
+        if (!this.isPinVerified && this.passengerPickup) {
+          this.mapComponent.fitToShowDriverAndPickup(
+            pos.latitude,
+            pos.longitude,
+            this.passengerPickup.latitude,
+            this.passengerPickup.longitude,
+          );
+        } else if (this.isPinVerified && !this.isReachedDestination && this.passengerDestination) {
+          this.mapComponent.fitToShowDriverAndPickup(
+            pos.latitude,
+            pos.longitude,
+            this.passengerDestination.latitude,
+            this.passengerDestination.longitude,
+          );
         }
       });
     });
   }
 
   listenToEventPinVerified() {
-    this.pinSub = this.signalrService.pinVerified$.subscribe(data => {
+    this.pinSub = this.signalrService.pinVerified$.subscribe((data) => {
       this.ngZone.run(() => {
         if (data.success) {
           this.isPinVerified = true;
           this.isPinFailed = false;
           this.isDriverArrived = true;
+          this.isRideStarted = true;
+          this.isRideOnHold = false;
 
-          this.changeDetectorRef.detectChanges();
-
-          setTimeout(() => this.startDestinationRide(), 1500);
+          this.changeDetectorRef.markForCheck();
         } else {
           this.pinAttempts++;
           this.isPinFailed = true;
           this.isDriverArrived = true;
-          this.changeDetectorRef.detectChanges();
+          this.changeDetectorRef.markForCheck();
 
           if (this.pinAttempts >= this.maxPinAttempts) {
             setTimeout(() => {
@@ -141,29 +203,28 @@ export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnD
     });
   }
 
+  listenToRideCompleted() {
+    this.completedSub = this.signalrService.rideCompleted$.subscribe(() => {
+      this.ngZone.run(() => {
+        this.isRideStarted = false;
+        this.isReachedDestination = true;
+        this.changeDetectorRef.markForCheck();
+      });
+    });
+  }
+
+  listenToRideResumed() {
+    this.resumeSub = this.signalrService.rideResumed$.subscribe(() => {
+      this.ngZone.run(() => {
+        this.isRideOnHold = false;
+        this.changeDetectorRef.markForCheck();
+      });
+    });
+  }
+
   get passengerPinDigits(): string[] {
     const pin = this.passengerPin || '------';
     return pin.split('');
-  }
-
-  startDestinationRide(): void {
-    this.isRideStarted = true;
-    this.isDriverArrived = false;
-
-    this.changeDetectorRef.detectChanges();
-
-    if (this.mapComponent) {
-      this.mapComponent.startDestinationAnimation(
-        this.passengerPickup,
-        this.passengerDestination,
-        this.driverLocation,
-        () => {
-          this.isRideStarted = false;
-          this.isReachedDestination = true;
-          this.changeDetectorRef.markForCheck();
-        }
-      );
-    }
   }
 
   private loadPin(): Promise<void> {
@@ -177,9 +238,10 @@ export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnD
             resolve();
           });
         },
-        error: () => {
+        error: (error) => {
+          console.error('[PIN] Failed to load:', error);
           resolve();
-        }
+        },
       });
     });
   }
@@ -192,19 +254,32 @@ export class PassengerRideConfirmationPage implements OnInit, AfterViewInit, OnD
       pickup: this.passengerPickup,
       destination: this.passengerDestination,
       driverId: this.selectedDriver.driverId,
-      rideRequestId: this.passengerRideService.rideRequestId
+      rideRequestId: this.passengerRideService.rideRequestId,
     };
 
-    sessionStorage.setItem("payment_state", JSON.stringify(paymentState));
+    sessionStorage.setItem('payment_state', JSON.stringify(paymentState));
 
     this.router.navigate(['passenger/payment'], {
-      state: paymentState
+      state: paymentState,
     });
+  }
+
+  private getDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371000;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
   ngOnDestroy() {
     this.pinSub?.unsubscribe();
     this.locationSub?.unsubscribe();
     this.arrivedSub?.unsubscribe();
+    this.holdSub?.unsubscribe();
+    this.completedSub?.unsubscribe();
+    this.resumeSub?.unsubscribe();
   }
 }

@@ -8,299 +8,340 @@ $text-main: #111827;
 $text-muted: #6b7280;
 
 .active-ride-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 20px 18px;
-    background: #fff;
-    border-radius: 14px;
-    border: 1px solid $border;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-    animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 18px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid $border;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  animation: slideUp 0.3s ease;
 }
 
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .status-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 12px;
-    border-radius: 999px;
-    background: $success-bg;
-    color: $success;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: $success-bg;
+  color: $success;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .live-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: $success;
-    animation: livePulse 1.6s ease-in-out infinite;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $success;
+  animation: livePulse 1.6s ease-in-out infinite;
 }
 
 @keyframes livePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.4;
-        transform: scale(0.7);
-    }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
 }
 
 .info-card {
-    padding: 12px 14px;
-    border: 1px solid $border;
-    border-radius: 12px;
-    background: #fafafa;
-    font-size: 13px;
-    color: $text-main;
+  padding: 12px 14px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fafafa;
+  font-size: 13px;
+  color: $text-main;
 }
 
 .card-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: $text-muted;
-    font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: $text-muted;
+  font-size: 13px;
 
-    .passenger-name {
-        color: $text-main;
-        font-weight: 600;
-    }
+  .passenger-name {
+    color: $text-main;
+    font-weight: 600;
+  }
 }
 
 .payment-panel {
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: max-height 0.35s ease, opacity 0.25s ease;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease;
 
-    &.open {
-        max-height: 700px;
-        opacity: 1;
-    }
+  &.open {
+    max-height: 700px;
+    opacity: 1;
+  }
 }
 
 .payment-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 0 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: $text-main;
-    border-bottom: 1px solid $border;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-main;
+  border-bottom: 1px solid $border;
+  margin-bottom: 10px;
 }
 
 .payment-panel-header i {
-    color:#a5f505;
-    font-size:14px;
+  color: #a5f505;
+  font-size: 14px;
 }
 
 .payment-panel-badge {
-    margin-left: auto;
-    background: $accent-green;
-    color: $primary-dark;
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 999px;
-    padding: 2px 8px;
+  margin-left: auto;
+  background: $accent-green;
+  color: $primary-dark;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 8px;
 }
 
 .payment-panel-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .payment-panel-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid $border;
-    background: #fafafa;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: #fafafa;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 
-    &:hover {
-        background: #f3f4f6;
-    }
+  &:hover {
+    background: #f3f4f6;
+  }
 
-    &.selected {
-        border-color: $accent-green;
-        background: rgba($accent-green, 0.07);
-    }
+  &.selected {
+    border-color: $accent-green;
+    background: rgba($accent-green, 0.07);
+  }
 }
 
 .payment-panel-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: rgba($accent-green, 0.14);
-    color: darken($accent-green, 25%);
-    font-size: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba($accent-green, 0.14);
+  color: darken($accent-green, 25%);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .payment-panel-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .payment-panel-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: $text-main;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-main;
 }
 
 .payment-panel-fare {
-    font-size: 11px;
-    color: $text-muted;
+  font-size: 11px;
+  color: $text-muted;
 }
 
 .payment-panel-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 
-    &.pending {
-        background: #f59e0b;
-    }
+  &.pending {
+    background: #f59e0b;
+  }
 
-    &.done {
-        background: $accent-green;
-    }
+  &.done {
+    background: $accent-green;
+  }
 }
 
 .payment-panel-detail {
-    padding: 16px;
-    border: 1px solid $border;
-    border-radius: 12px;
-    background: #fafafa;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    animation: slideUp 0.2s ease;
+  padding: 16px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: slideUp 0.2s ease;
 }
 
 .payment-panel-detail-passenger {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 
-    .payment-panel-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 13px;
-    }
+  .payment-panel-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 13px;
+  }
 
-    .payment-panel-name {
-        font-size: 14px;
-        font-weight: 700;
-        color: $text-main;
-    }
+  .payment-panel-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-main;
+  }
 
-    .payment-panel-fare {
-        font-size: 12px;
-        color: $text-muted;
-        margin-top: 1px;
-    }
+  .payment-panel-fare {
+    font-size: 12px;
+    color: $text-muted;
+    margin-top: 1px;
+  }
 }
 
 .fare-badge {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    background: $primary-dark;
-    border: 1px solid rgba($accent-green, 0.25);
-    border-radius: 12px;
-    padding: 10px 22px;
-    font-size: 30px;
-    font-weight: 800;
-    color: $accent-green;
-    letter-spacing: 2px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: $primary-dark;
+  border: 1px solid rgba($accent-green, 0.25);
+  border-radius: 12px;
+  padding: 10px 22px;
+  font-size: 30px;
+  font-weight: 800;
+  color: $accent-green;
+  letter-spacing: 2px;
 }
 
 .fare-symbol {
-    font-size: 16px;
-    color: $accent-green;
+  font-size: 16px;
+  color: $accent-green;
 }
 
 .payment-actions {
-    display: flex;
-    gap: 10px;
-    width: 100%;
+  display: flex;
+  gap: 10px;
+  width: 100%;
 
-    .button-deny-payment {
-        flex: 1;
-        padding: 11px;
-        border: 1px solid rgba($danger, 0.5);
-        background: transparent;
-        color: $danger;
-        font-weight: 700;
-        font-size: 13px;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: background 0.15s;
+  .button-deny-payment {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid rgba($danger, 0.5);
+    background: transparent;
+    color: $danger;
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
 
-        &:hover {
-            background: rgba($danger, 0.06);
-        }
+    &:hover {
+      background: rgba($danger, 0.06);
     }
+  }
 
-    .button-confirm-payment {
-        flex: 2;
-        padding: 11px;
-        background: $accent-green;
-        color: $primary-dark;
-        font-weight: 700;
-        font-size: 13px;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: background 0.15s;
+  .button-confirm-payment {
+    flex: 2;
+    padding: 11px;
+    background: $accent-green;
+    color: $primary-dark;
+    font-weight: 700;
+    font-size: 13px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
 
-        &:hover {
-            background: $accent-hover;
-        }
+    &:hover {
+      background: $accent-hover;
     }
+  }
+}
+
+.waiting-passengers-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+
+  i {
+    color: #d97706;
+    font-size: 14px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
+.waiting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.waiting-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.waiting-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #b45309;
 }

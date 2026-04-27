@@ -44,7 +44,6 @@ export class AuthService {
         })
       );
   }
-
   
   register(data: RegisterRequest): Observable<void> {
     

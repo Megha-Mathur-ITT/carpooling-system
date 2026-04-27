@@ -135,7 +135,7 @@ export class PassengerPaymentPage implements OnInit, OnDestroy {
     this.isWaitingForDriver = true;
     this.isPaymentDenied = false;
     sessionStorage.setItem("payment_waiting", "true");
-
+    
     this.signalrService.notifyDriverPassengerPaid(
       this.driverId,
       this.rideRequestId,

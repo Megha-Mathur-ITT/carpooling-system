@@ -1,4 +1,11 @@
-import { Component, ChangeDetectorRef, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  ChangeDetectorRef,
+  OnInit,
+  OnDestroy,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MapComponent } from '../../../../shared/components/map/map';
 import { Router } from '@angular/router';
@@ -28,7 +35,7 @@ import { RideSessionService } from '../../services/ride-session';
     RideForm,
     RideRequestPopup,
     RideRequestPanel,
-    DriverActiveRidePanel
+    DriverActiveRidePanel,
   ],
   templateUrl: './driver-landing.html',
   styleUrl: './driver-landing.scss',
@@ -41,8 +48,8 @@ export class DriverLanding implements OnInit, OnDestroy {
   incomingRequest: any = null;
   pendingRequests: RideRequest[] = [];
 
-  currentDriverLat = 0;
-  currentDriverLng = 0;
+  currentDriverLatitude = 0;
+  currentDriverLongitude = 0;
 
   private sub!: Subscription;
   constructor(
@@ -52,8 +59,8 @@ export class DriverLanding implements OnInit, OnDestroy {
     private router: Router,
     private rideService: DriverRideService,
     public passengerRideService: PassengerRideService,
-    private rideSessionService: RideSessionService
-  ) { }
+    private rideSessionService: RideSessionService,
+  ) {}
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -74,22 +81,24 @@ export class DriverLanding implements OnInit, OnDestroy {
 
     this.signalrService.connect();
 
-    this.sub = this.signalrService.rideRequested$.subscribe(request => {
+    this.sub = this.signalrService.rideRequested$.subscribe((request) => {
       if (this.activeRide || !request) {
         this.incomingRequest = null;
         return;
       }
 
-      if (!request.pickupLat || !request.pickupLng || !request.destinationLat || !request.destinationLng) {
+      if (
+        !request.pickupLat ||
+        !request.pickupLng ||
+        !request.destinationLat ||
+        !request.destinationLng
+      ) {
         console.warn('[DriverLanding] Ignoring malformed ride request payload:', request);
         return;
       }
 
       if (request.sessionId && request.passengerName) {
-        this.rideSessionService.cachePassengerName(
-          request.sessionId,
-          request.passengerName
-        );
+        this.rideSessionService.cachePassengerName(request.sessionId, request.passengerName);
       }
 
       this.incomingRequest = {
@@ -100,24 +109,23 @@ export class DriverLanding implements OnInit, OnDestroy {
         pickup: {
           latitude: request.pickupLat,
           longitude: request.pickupLng,
-          name: request.pickupName
+          name: request.pickupName,
         },
         destination: {
           latitude: request.destinationLat,
           longitude: request.destinationLng,
-          name: request.destinationName
-        }
+          name: request.destinationName,
+        },
       };
       const incoming: RideRequest = this.incomingRequest;
 
-      const alreadyExists = this.pendingRequests.some(r => r.requestId === incoming.requestId);
+      const alreadyExists = this.pendingRequests.some((r) => r.requestId === incoming.requestId);
       if (!alreadyExists) {
         this.pendingRequests = [...this.pendingRequests, incoming];
       }
 
       this.changeDetectorRef.detectChanges();
     });
-
   }
 
   ngOnDestroy() {
@@ -130,9 +138,10 @@ export class DriverLanding implements OnInit, OnDestroy {
       passengerName: this.incomingRequest?.passengerName || this.pendingRequests[0]?.passengerName,
       passengerId: this.incomingRequest?.passengerId || this.pendingRequests[0]?.passengerId,
       pickupName: this.incomingRequest?.pickup?.name || this.pendingRequests[0]?.pickup?.name,
-      destinationName: this.incomingRequest?.destination?.name || this.pendingRequests[0]?.destination?.name,
+      destinationName:
+        this.incomingRequest?.destination?.name || this.pendingRequests[0]?.destination?.name,
       fare: event?.fare || this.passengerRideService.fare || 0,
-      distanceKm: event?.distanceKm || this.passengerRideService.distanceKm || 0
+      distanceKm: event?.distanceKm || this.passengerRideService.distanceKm || 0,
     };
 
     if (isPlatformBrowser(this.platformId)) {
@@ -157,8 +166,8 @@ export class DriverLanding implements OnInit, OnDestroy {
 
   onCurrentLocationDetected(location: SelectedLocation) {
     this.pickup = location;
-    this.currentDriverLat = location.latitude;
-    this.currentDriverLng = location.longitude;
+    this.currentDriverLatitude = location.latitude;
+    this.currentDriverLongitude = location.longitude;
     this.rideService.setPickup(location);
     this.changeDetectorRef.detectChanges();
   }
@@ -194,6 +203,11 @@ export class DriverLanding implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.removeItem('driver_active_ride');
       sessionStorage.removeItem('driver_payment_pending');
+      sessionStorage.removeItem('driver_pending_payments');
+      sessionStorage.removeItem('driver_confirmed_receipts');
+      sessionStorage.removeItem('driver_expected_payments');
+      sessionStorage.removeItem('boardedPassengers');
+      sessionStorage.removeItem('passengerIds');
     }
 
     this.activeRide = null;

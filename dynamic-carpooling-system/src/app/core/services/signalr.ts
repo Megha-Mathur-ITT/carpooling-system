@@ -4,41 +4,46 @@ import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Subject, ReplaySubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SignalrService {
-
   private connection: signalR.HubConnection | null = null;
   private readonly hubUrl = 'http://localhost:5091/hubs/ride';
 
-  connectionStatus$ = new BehaviorSubject<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
+  connectionStatus$ = new BehaviorSubject<'connected' | 'disconnected' | 'reconnecting'>(
+    'disconnected',
+  );
   rideRequested$ = new Subject<any>();
   rideAccepted$ = new BehaviorSubject<any>(null);
   rideRejected$ = new Subject<any>();
   requestCancelled$ = new BehaviorSubject<any>(null);
-
   paymentConfirmed$ = new Subject<any>();
   paymentDenied$ = new Subject<any>();
-  passengerPaid$ = new BehaviorSubject<any>(null);
-
+  passengerPaid$ = new Subject<any>();
   pinVerified$ = new Subject<{ success: boolean }>();
   driverRated$ = new Subject<void>();
-
-  public locationUpdate$ = new ReplaySubject<{ latitude: number, longitude: number }>(1);
+  public locationUpdate$ = new ReplaySubject<{ latitude: number; longitude: number }>(1);
   driverArrived$ = new Subject<void>();
+  private handlersRegistered: boolean = false;
+  rideOnHold$ = new Subject<void>();
+  rideCompleted$ = new Subject<void>();
+  rideResumed$ = new Subject<void>();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   async connect(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (this.connection !== null && this.connection.state === signalR.HubConnectionState.Connected) {
+    if (
+      this.connection !== null &&
+      this.connection.state === signalR.HubConnectionState.Connected
+    ) {
       console.warn('[SignalR] Already connected.');
       return;
     }
 
     if (this.connection !== null) {
-      await this.connection.stop().catch(() => { });
+      await this.connection.stop().catch(() => {});
       this.connection = null;
     }
 
@@ -50,7 +55,7 @@ export class SignalrService {
 
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
-        accessTokenFactory: () => token
+        accessTokenFactory: () => token,
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
@@ -72,6 +77,7 @@ export class SignalrService {
     if (this.connection) {
       await this.connection.stop();
       this.connection = null;
+      this.handlersRegistered = false;
       this.connectionStatus$.next('disconnected');
       console.log('[SignalR] Disconnected.');
     }
@@ -79,6 +85,9 @@ export class SignalrService {
 
   private registerHandlers(): void {
     if (!this.connection) return;
+
+    if (this.handlersRegistered) return;
+    this.handlersRegistered = true;
 
     this.connection.on('NewRideRequest', (data) => {
       console.log('[SignalR] NewRideRequest received:', data);
@@ -110,7 +119,6 @@ export class SignalrService {
     this.connection.onreconnected(() => {
       this.connectionStatus$.next('connected');
       console.log('[SignalR] Reconnected.');
-      this.passengerPaid$.next(null);
     });
 
     this.connection.onclose(() => {
@@ -129,9 +137,9 @@ export class SignalrService {
     });
 
     this.connection.on('PassengerPaid', (data) => {
-      console.log("[SignalR] PassengerPaid received:", data);
+      console.log('[SignalR] PassengerPaid received:', data);
       this.passengerPaid$.next(data);
-    })
+    });
 
     this.connection.on('PinVerified', (data) => {
       console.log('[SignalR] PinVerified received:', data);
@@ -151,6 +159,20 @@ export class SignalrService {
       console.log('[SignalR] DriverArrived received');
       this.driverArrived$.next();
     });
+
+    this.connection.on('RideOnHold', () => {
+      console.log('[SignalR] RideOnHold received');
+      this.rideOnHold$.next();
+    });
+
+    this.connection.on('RideReachedDestination', () => {
+      console.log('[SignalR] RideReachedDestination received');
+      this.rideCompleted$.next();
+    });
+
+    this.connection.on('RideResumed', () => {
+      this.rideResumed$.next();
+    });
   }
 
   notifyDriver(
@@ -158,7 +180,7 @@ export class SignalrService {
     rideRequestId: string,
     sessionId: string,
     pickup: any,
-    destination: any
+    destination: any,
   ): void {
     console.log('[SignalR] Inside notifyDriver.');
     if (!this.connection) {
@@ -166,19 +188,21 @@ export class SignalrService {
       return;
     }
 
-    this.connection.invoke('NotifyDriver', {
-      driverId,
-      rideRequestId,
-      sessionId,
-      pickupName: pickup.name,
-      pickupLat: pickup.latitude,
-      pickupLng: pickup.longitude,
-      destinationName: destination.name,
-      destinationLat: destination.latitude,
-      destinationLng: destination.longitude
-    }).catch(error => {
-      console.error('[SignalR] NotifyDriver failed:', error);
-    });
+    this.connection
+      .invoke('NotifyDriver', {
+        driverId,
+        rideRequestId,
+        sessionId,
+        pickupName: pickup.name,
+        pickupLat: pickup.latitude,
+        pickupLng: pickup.longitude,
+        destinationName: destination.name,
+        destinationLat: destination.latitude,
+        destinationLng: destination.longitude,
+      })
+      .catch((error) => {
+        console.error('[SignalR] NotifyDriver failed:', error);
+      });
   }
 
   resetRideState(): void {
@@ -186,39 +210,34 @@ export class SignalrService {
     this.rideRejected$.next(null);
   }
 
-  notifyCancelRequest(
-    rideRequestId: string,
-    driverId: string
-  ): void {
+  notifyCancelRequest(rideRequestId: string, driverId: string): void {
     if (!this.connection) {
       console.warn('[SignalR] Not connected. Cannot cancel ride.');
       return;
     }
 
-    this.connection.invoke('CancelRequest', {
-      rideRequestId,
-      driverId
-    })
-      .catch(error => {
+    this.connection
+      .invoke('CancelRequest', {
+        rideRequestId,
+        driverId,
+      })
+      .catch((error) => {
         console.error('[SignalR] CancelRequest failed:', error);
       });
   }
 
-  notifyPaymentConfirmed(
-    passengerId: string,
-    rideRequestId: string
-  ) {
+  notifyPaymentConfirmed(passengerId: string, rideRequestId: string) {
     if (!this.connection) {
       console.warn('[SignalR] Not connected. Cannot confirm payment.');
       return;
     }
 
-    this.connection.invoke('ConfirmPayment', {
-      passengerId,
-      rideRequestId
-    }).catch(error =>
-      console.error('[SignalR] ConfirmPayment failed:', error)
-    )
+    this.connection
+      .invoke('ConfirmPayment', {
+        passengerId,
+        rideRequestId,
+      })
+      .catch((error) => console.error('[SignalR] ConfirmPayment failed:', error));
   }
 
   notifyPaymentDenied(passengerId: string, rideRequestId: string): void {
@@ -227,31 +246,27 @@ export class SignalrService {
       return;
     }
 
-    this.connection.invoke('DenyPayment', {
-      passengerId,
-      rideRequestId
-    }).catch(error =>
-      console.error('[SignalR] DenyPayment failed:', error)
-    );
+    this.connection
+      .invoke('DenyPayment', {
+        passengerId,
+        rideRequestId,
+      })
+      .catch((error) => console.error('[SignalR] DenyPayment failed:', error));
   }
 
-  notifyDriverPassengerPaid(
-    driverId: string,
-    rideRequestId: string,
-    passengerId: string
-  ): void {
+  notifyDriverPassengerPaid(driverId: string, rideRequestId: string, passengerId: string): void {
     if (!this.connection) {
       console.warn('[SignalR] Not connected. Cannot deny payment.');
       return;
     }
 
-    this.connection.invoke("NotifyDriverPassengerPaid", {
-      driverId,
-      rideRequestId,
-      passengerId
-    }).catch(error =>
-      console.error('[SignalR] NotifyDriverPassengerPaid failed:', error)
-    );
+    this.connection
+      .invoke('NotifyDriverPassengerPaid', {
+        driverId,
+        rideRequestId,
+        passengerId,
+      })
+      .catch((error) => console.error('[SignalR] NotifyDriverPassengerPaid failed:', error));
   }
 
   notifyPassengerPinVerified(passengerId: string, success: boolean): void {
@@ -259,10 +274,12 @@ export class SignalrService {
       return;
     }
 
-    this.connection.invoke('NotifyPassengerPinVerified', {
-      passengerId,
-      success
-    }).catch(error => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
+    this.connection
+      .invoke('NotifyPassengerPinVerified', {
+        passengerId,
+        success,
+      })
+      .catch((error) => console.error('[SignalR] NotifyPassengerPinVerified failed:', error));
   }
 
   notifyPassengerRejected(passengerId: string, rideRequestId: string): void {
@@ -270,10 +287,12 @@ export class SignalrService {
       return;
     }
 
-    this.connection.invoke('NotifyPassengerRejected', {
-      passengerId,
-      rideRequestId
-    }).catch(err => console.error('[SignalR] NotifyPassengerRejected failed:', err));
+    this.connection
+      .invoke('NotifyPassengerRejected', {
+        passengerId,
+        rideRequestId,
+      })
+      .catch((err) => console.error('[SignalR] NotifyPassengerRejected failed:', err));
   }
 
   syncLocation(passengerIds: string[], latitude: number, longitude: number): void {
@@ -282,11 +301,13 @@ export class SignalrService {
     }
 
     for (const passengerId of passengerIds) {
-      this.connection.invoke('SyncDriverLocation', {
-        passengerId,
-        latitude,
-        longitude
-      }).catch(error => console.error("[SignalR] SyncDriverLocation failed:", error));
+      this.connection
+        .invoke('SyncDriverLocation', {
+          passengerId,
+          latitude,
+          longitude,
+        })
+        .catch((error) => console.error('[SignalR] SyncDriverLocation failed:', error));
     }
   }
 
@@ -300,10 +321,49 @@ export class SignalrService {
     }
 
     for (const passengerId of passengerIds) {
-      this.connection.invoke('NotifyPassengerDriverArrived', {
-        passengerId,
-        success: true
-      }).catch(err => console.error('[SignalR] NotifyPassengerDriverArrived failed:', err));
+      this.connection
+        .invoke('NotifyPassengerDriverArrived', {
+          passengerId,
+          success: true,
+        })
+        .catch((err) => console.error('[SignalR] NotifyPassengerDriverArrived failed:', err));
     }
   }
+
+  notifyPassengerRideOnHold(passengerIds: string[]): void {
+    if (!this.connection) {
+      return;
+    }
+
+    for (const passengerId of passengerIds) {
+      this.connection
+        .invoke('NotifyPassengerRideOnHold', { passengerId })
+        .catch((err) => console.error('[SignalR] NotifyPassengerRideOnHold failed:', err));
+    }
+  }
+
+  notifyPassengersRideReachedDestination(passengerIds: string[]): void {
+    if (!this.connection) return;
+    for (const passengerId of passengerIds) {
+      this.connection
+        .invoke('NotifyPassengerRideReachedDestination', {
+          passengerId,
+          success: true,
+        })
+        .catch((err) =>
+          console.error('[SignalR] NotifyPassengerRideReachedDestination failed:', err),
+        );
+    }
+  }
+
+  notifyPassengerRideResumed(passengerIds: string[]): void {
+  if (!this.connection) {
+    return;
+  }
+  
+  for (const passengerId of passengerIds) {
+    this.connection.invoke('NotifyPassengerRideResumed', { passengerId })
+      .catch(err => console.error('[SignalR] NotifyPassengerRideResumed failed:', err));
+  }
+}
 }

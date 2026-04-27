@@ -24,7 +24,7 @@
             <p>Driver hasn't received the payment yet. Please hand the cash directly and try again.</p>
         </div>
         }
-
+        
         <button class="button-confirm-payment" (click)="confirmPayment()" [disabled]="isWaitingForDriver"
             [class.isWaiting]="isWaitingForDriver">
             @if(isWaitingForDriver) {

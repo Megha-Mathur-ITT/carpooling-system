@@ -80,7 +80,7 @@ export class PassengerListComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.elRef.nativeElement.contains(event.target)) {
       this.isOpen = false;
     }
-  }
+  } 
 
   toggleDropdown(): void {
     this.isOpen = !this.isOpen;

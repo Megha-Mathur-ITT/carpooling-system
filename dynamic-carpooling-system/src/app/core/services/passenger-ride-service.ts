@@ -175,6 +175,13 @@ export class PassengerRideService {
     }
   }
 
+  setPassengerName(name: string): void {
+    this.passengerName = name;
+    if (this.isBrowser()) {
+      sessionStorage.setItem('passengerName', name);
+    }
+  }
+
   loadFromStorage() {
     if (!this.isBrowser()) {
       return;
@@ -198,6 +205,7 @@ export class PassengerRideService {
       this.bookingId = sessionStorage.getItem('bookingId') || '';
       this.pickupCompleted = sessionStorage.getItem('pickupCompleted') === 'true';
       this.passengerIds = JSON.parse(sessionStorage.getItem('passengerIds') || '[]');
+      this.passengerName = sessionStorage.getItem('passengerName') || '';
     } catch {
       this.clearAll();
     }
@@ -224,7 +232,9 @@ export class PassengerRideService {
     sessionStorage.removeItem("payment_waiting");
     sessionStorage.removeItem('pickupCompleted');
     sessionStorage.removeItem("passengerIds");
-
+    sessionStorage.removeItem('boardedPassengers');
+    sessionStorage.removeItem('passengerName');
+    
     this.pickup = null;
     this.destination = null;
     this.city = '';
@@ -239,5 +249,6 @@ export class PassengerRideService {
     this.bookingId = '';
     this.pickupCompleted = false;
     this.passengerIds = [];
+    this.passengerName = '';
   }
 }

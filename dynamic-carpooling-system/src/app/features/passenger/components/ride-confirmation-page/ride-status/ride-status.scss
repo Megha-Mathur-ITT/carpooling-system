@@ -130,3 +130,37 @@
     background: $primary-dark;
     color: $accent-green;
 }
+
+.ride-on-hold-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: black;
+  border: 1px solid rgba(#A5F50F, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 1rem;
+
+  .hold-icon {
+    font-size: 20px;
+    color: #A5F50F;
+    flex-shrink: 0;
+  }
+
+  .hold-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hold-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #9ef300;
+  }
+
+  .hold-subtitle {
+    font-size: 12px;
+    color: #c4fa5f;
+    margin-top: 2px;
+  }
+}

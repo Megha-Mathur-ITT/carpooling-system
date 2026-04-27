@@ -27,8 +27,8 @@ interface RequestItem {
 export class RideRequestPanel implements OnChanges, OnDestroy {
 
   @Input() requests: RideRequest[] = [];
-  @Input() currentDriverLat!: number;
-  @Input() currentDriverLng!: number;
+  @Input() currentDriverLatitude!: number;
+  @Input() currentDriverLongitude!: number;
 
   @Output() accepted = new EventEmitter<{ fare: number; distanceKm: number }>();
   @Output() allRejected = new EventEmitter<void>();
@@ -153,15 +153,15 @@ export class RideRequestPanel implements OnChanges, OnDestroy {
 
             this.passengerRideService.setPickup(item.request.pickup);
             this.passengerRideService.setDestination(item.request.destination);
-            this.passengerRideService.passengerName = acceptedBooking.passengerName;
+            this.passengerRideService.setPassengerName(acceptedBooking.passengerName);
             this.passengerRideService.setBookingResult(acceptedBooking.fare, acceptedBooking.pin);
             this.passengerRideService.bookingId = acceptedBooking.bookingId;
             this.passengerRideService.setPassengerId(item.request.passengerId);
             this.passengerRideService.setRideRequestId(item.request.requestId);
             this.passengerRideService.addPassengerId(item.request.passengerId);
             this.passengerRideService.selectedDriver = {
-              latitude: this.currentDriverLat,
-              longitude: this.currentDriverLng,
+              latitude: this.currentDriverLatitude,
+              longitude: this.currentDriverLongitude,
               driverName: 'You'
             };
             this.clearAll();

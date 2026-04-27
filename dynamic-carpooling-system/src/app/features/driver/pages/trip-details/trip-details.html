@@ -2,22 +2,39 @@
 
 <div class="trip-wrapper">
 
+  <div class="trip-phase-banner" *ngIf="rideData">
+    <ng-container *ngIf="!rideService.pickupCompleted && !isPickingUpPassenger">
+      <i class="bi bi-car-front-fill me-2"></i>
+      Driving to pickup - {{ rideService.passengerName }}
+    </ng-container>
+
+    <ng-container *ngIf="isPickingUpPassenger">
+      <i class="bi bi-car-front-fill me-2"></i>
+      Picking up - {{ rideService.passengerName }}
+    </ng-container>
+
+    <ng-container *ngIf="rideService.pickupCompleted && !isPickingUpPassenger">
+      <i class="bi bi-navigation-fill me-2"></i>
+       On the way to destination
+    </ng-container>
+  </div>
+
   <div class="trip-header" *ngIf="rideData">
-    <div class="trip-header__inner">
+    <div class="trip-header_inner">
 
       <div class="trip-stop">
-        <span class="trip-stop__dot trip-stop__dot--pickup"></span>
-        <div class="trip-stop__info">
-          <span class="trip-stop__label">Pickup</span>
-          <span class="trip-stop__name">{{ rideData.pickup?.name }}</span>
+        <span class="trip-stop_dot trip-stop_dot--pickup"></span>
+        <div class="trip-stop_info">
+          <span class="trip-stop_label">Pickup</span>
+          <span class="trip-stop_name">{{ rideData.pickup?.name }}</span>
         </div>
       </div>
 
       <div class="trip-stop">
-        <span class="trip-stop__dot trip-stop__dot--destination"></span>
-        <div class="trip-stop__info">
-          <span class="trip-stop__label">Destination</span>
-          <span class="trip-stop__name">{{ rideData.destination?.name }}</span>
+        <span class="trip-stop_dot trip-stop_dot--destination"></span>
+        <div class="trip-stop_info">
+          <span class="trip-stop_label">Destination</span>
+          <span class="trip-stop_name">{{ rideData.destination?.name }}</span>
         </div>
       </div>
 
@@ -27,31 +44,51 @@
       <div class="trip-stats d-flex gap-3 mt-3">
         <div class="trip-stat">
           <i class="bi bi-cash-coin me-1"></i>
-          <span>₹{{ rideService.fare }}</span>
+          <span>₹{{ boardedPassengers.length > 0 ? totalFare : rideService.fare }}</span>
         </div>
+
         <div class="trip-stat">
           <i class="bi bi-speedometer2 me-1"></i>
           <span>{{ rideService.distanceKm }} km</span>
         </div>
+
         <div class="trip-stat">
           <i class="bi bi-clock me-1"></i>
           <span>{{ rideService.durationMin }} min</span>
         </div>
+
         <div class="trip-stat">
           <i class="bi bi-person me-1"></i>
-          <span>{{ rideService.passengerName }}</span>
+          <span *ngIf="boardedPassengers.length === 0">{{ rideService.passengerName }}</span>
+          <span *ngIf="boardedPassengers.length > 0">{{ boardedPassengers.length }} passenger{{ boardedPassengers.length
+            > 1 ? 's' : '' }}</span>
         </div>
       </div>
-    </div>
-  </div> 
 
-  <app-ride-request-popup *ngIf="incomingRequest" [request]="incomingRequest" [currentDriverLat]="currentDriverLat"
-    [currentDriverLng]="currentDriverLng" (accepted)="onRequestAccepted()" (rejected)="onRequestRejected()">
+      <div class="passenger-chips mt-2" *ngIf="boardedPassengers.length > 0">
+        <span class="passenger-chip" *ngFor="let passenger of boardedPassengers">
+          <i class="bi bi-person-check-fill me-1"></i>{{ passenger.name }} - ₹{{ passenger.fare }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <app-ride-request-popup *ngIf="incomingRequest" [request]="incomingRequest"
+    [currentDriverLatitude]="currentDriverLatitude" [currentDriverLongitude]="currentDriverLongitude"
+    (accepted)="onRequestAccepted()" (rejected)="onRequestRejected()">
   </app-ride-request-popup>
 
   <div class="trip-map">
     <app-map *ngIf="rideData" [pickup]="rideData.pickup" [destination]="rideData.destination" [showRoute]="false">
     </app-map>
+  </div>
+
+  <div *ngIf="showPinVerification" class="pin-overlay">
+    <app-ride-pin-verify
+      [rideId]="rideService.bookingId"
+      [expectedPin]="rideService.pin"
+      (pinVerified)="onPinVerified($event)">
+    </app-ride-pin-verify>
   </div>
 
   <div class="trip-footer" *ngIf="hasReachedDestination">
@@ -70,7 +107,7 @@
   <div class="trip-footer" *ngIf="!hasReachedDestination">
     <div class="trip-in-progress">
       <span class="trip-pulse"></span>
-      <span>Ride in progress</span>
+      <span><span>{{ isPickingUpPassenger ? 'Picking up passenger...' : 'Ride in progress' }}</span></span>
     </div>
   </div>
 

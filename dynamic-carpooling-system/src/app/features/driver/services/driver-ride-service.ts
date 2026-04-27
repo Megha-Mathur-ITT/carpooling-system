@@ -102,6 +102,7 @@ export class DriverRideService {
     sessionStorage.removeItem('seatCount');
     sessionStorage.removeItem('driver_active_ride');
     sessionStorage.removeItem('driver_payment_pending');
+    sessionStorage.removeItem('driver_pending_payments');
     sessionStorage.removeItem('driver_ride_completed');
     sessionStorage.removeItem('distanceKm');
     sessionStorage.removeItem('driverFare');
@@ -114,5 +115,7 @@ export class DriverRideService {
     sessionStorage.removeItem('fare');
     sessionStorage.removeItem('durationMin');
     sessionStorage.removeItem('pin');
+    sessionStorage.removeItem('driver_confirmed_receipts');
+    sessionStorage.removeItem('receipt_state');
   }
 }

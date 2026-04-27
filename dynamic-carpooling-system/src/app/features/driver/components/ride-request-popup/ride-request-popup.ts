@@ -18,10 +18,10 @@ import { trimLocation } from '../../../../shared/utils/locationUtil';
   styleUrl: './ride-request-popup.scss',
 })
 export class RideRequestPopup implements OnChanges, OnDestroy {
-
+  
   @Input() request: RideRequest | null = null;
-  @Input() currentDriverLat!: number;
-  @Input() currentDriverLng!: number;
+  @Input() currentDriverLatitude!: number;
+  @Input() currentDriverLongitude!: number;
 
   @Output() accepted = new EventEmitter<{ fare: number; distanceKm: number }>();
   @Output() rejected = new EventEmitter<void>();
@@ -120,7 +120,8 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
 
             this.passengerRideService.setPickup(this.request!.pickup);
             this.passengerRideService.setDestination(this.request!.destination);
-            this.passengerRideService.passengerName = acceptedBooking.passengerName;
+            const passengerName = acceptedBooking.passengerNames?.[fareIndex] ?? '';
+            this.passengerRideService.setPassengerName(passengerName);
            
             const bookingFare = acceptedBooking.fares?.[fareIndex] ?? acceptedBooking.fare?.[fareIndex] ?? 0;
             const bookingPin = acceptedBooking.piNs?.[fareIndex] ?? acceptedBooking.pin?.[fareIndex] ?? '';
@@ -133,8 +134,8 @@ export class RideRequestPopup implements OnChanges, OnDestroy {
             this.passengerRideService.setPassengerId(this.request!.passengerId);
             this.passengerRideService.addPassengerId(this.request!.passengerId);
             this.passengerRideService.selectedDriver = {
-              latitude: this.currentDriverLat,
-              longitude: this.currentDriverLng,
+              latitude: this.currentDriverLatitude,
+              longitude: this.currentDriverLongitude,
               driverName: 'You'
             };
 

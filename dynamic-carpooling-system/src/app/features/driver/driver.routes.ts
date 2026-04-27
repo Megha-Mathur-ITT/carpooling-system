@@ -13,7 +13,6 @@ export const DRIVER_ROUTES: Routes = [
     children: [
       { path: 'landing', component: DriverLanding },
       { path: 'dashboard', component: DriverDashboard },
-      { path: 'ride-active', component: DriverRideActive },
       { path: 'trip-details', component: TripDetails },
     ]
   },

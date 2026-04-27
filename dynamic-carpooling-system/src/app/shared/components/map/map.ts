@@ -1,8 +1,21 @@
-import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Output, EventEmitter, NgZone, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  Inject,
+  PLATFORM_ID,
+  OnInit,
+  OnDestroy,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  Output,
+  EventEmitter,
+  NgZone,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { DriverActiveRidePanel } from '../../../features/driver/components/driver-active-ride-panel/driver-active-ride-panel';
 import { DriverAnimation } from '../../services/driver-animation';
-import { Location } from '../../../core/models/auth-model'
+import { Location } from '../../../core/models/auth-model';
 import { trimLocation } from '../../utils/locationUtil';
 
 @Component({
@@ -11,10 +24,9 @@ import { trimLocation } from '../../utils/locationUtil';
   imports: [CommonModule],
   templateUrl: './map.html',
   styleUrls: ['./map.scss'],
-  providers: [DriverAnimation]
+  providers: [DriverAnimation],
 })
 export class MapComponent implements OnInit, OnDestroy, OnChanges {
-
   map: any;
   L: any;
 
@@ -34,7 +46,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   private defaultPickup = {
     latitude: 26.9124,
     longitude: 75.7873,
-    name: 'Jaipur, Rajasthan, India'
+    name: 'Jaipur, Rajasthan, India',
   };
 
   @Input() pickup: any;
@@ -56,8 +68,8 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     @Inject(PLATFORM_ID) private platformId: Object,
     private ngZone: NgZone,
     private changeDetectorRef: ChangeDetectorRef,
-    private driverAnimation: DriverAnimation
-  ) { }
+    private driverAnimation: DriverAnimation,
+  ) {}
 
   async ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -73,31 +85,32 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
-      shadowSize: [41, 41]
+      shadowSize: [41, 41],
     });
 
     (window as any).L = this.L;
 
     await this.loadScriptOnce(
       'leaflet-routing-machine-script',
-      'https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js'
+      'https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js',
     );
 
     const mapContainer = this.L.DomUtil.get('map');
     if (mapContainer != null) mapContainer._leaflet_id = null;
 
     this.map = this.L.map('map').setView(
-      [this.defaultPickup.latitude, this.defaultPickup.longitude], 13
+      [this.defaultPickup.latitude, this.defaultPickup.longitude],
+      13,
     );
 
     this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(this.map);
 
-    this.pickupMarker = this.L.marker(
-      [this.defaultPickup.latitude, this.defaultPickup.longitude],
-      { icon: this.makePickupIcon(), title: 'Pickup' }
-    ).addTo(this.map);
+    this.pickupMarker = this.L.marker([this.defaultPickup.latitude, this.defaultPickup.longitude], {
+      icon: this.makePickupIcon(),
+      title: 'Pickup',
+    }).addTo(this.map);
     this.pickupMarker.bindPopup('<b>Pickup</b><br>Jaipur, Rajasthan').openPopup();
 
     this.mapReady = true;
@@ -105,7 +118,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       this.map,
       this.L,
       'assets/images/pickup-marker.png',
-      'assets/images/destination-marker.png'
+      'assets/images/destination-marker.png',
     );
 
     setTimeout(() => {
@@ -195,7 +208,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         this.isTracking = false;
         this.changeDetectorRef.markForCheck();
       },
-      { enableHighAccuracy: true, maximumAge: 5000 }
+      { enableHighAccuracy: true, maximumAge: 5000 },
     );
   }
 
@@ -220,7 +233,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
         box-shadow:0 0 0 3px rgba(37,99,235,0.3)">
       </div>`,
       iconSize: [16, 16],
-      iconAnchor: [8, 8]
+      iconAnchor: [8, 8],
     });
 
     if (this.liveMarker) {
@@ -229,18 +242,24 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       this.liveMarker = this.L.marker([lat, lng], {
         icon: blueIcon,
         zIndexOffset: 1000,
-        title: 'Your location'
+        title: 'Your location',
       }).addTo(this.map);
     }
   }
 
   setPickup(location: any) {
-    if (!this.mapReady) { this.pendingPickup = location; return; }
+    if (!this.mapReady) {
+      this.pendingPickup = location;
+      return;
+    }
     this.applyPickup(location);
   }
 
   setDestination(location: any) {
-    if (!this.mapReady) { this.pendingDestination = location; return; }
+    if (!this.mapReady) {
+      this.pendingDestination = location;
+      return;
+    }
     this.applyDestination(location);
   }
 
@@ -255,10 +274,10 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if (this.pickupMarker) {
       this.pickupMarker.setLatLng([latitude, longitude]);
     } else {
-      this.pickupMarker = this.L.marker(
-        [latitude, longitude],
-        { icon: this.makePickupIcon(), title: 'Pickup' }
-      ).addTo(this.map);
+      this.pickupMarker = this.L.marker([latitude, longitude], {
+        icon: this.makePickupIcon(),
+        title: 'Pickup',
+      }).addTo(this.map);
     }
 
     const popup = popupLabel ?? `<b>Pickup:</b> ${trimLocation(name)}`;
@@ -267,8 +286,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if (this.destinationMarker && !this.showRadiusCircle && this.showRoute) {
       this.fitMapToBothMarkers();
       this.createRoute();
-    }
-    else if (this.destinationMarker && this.showRoute) {
+    } else if (this.destinationMarker && this.showRoute) {
       this.createRoute();
     }
   }
@@ -284,10 +302,10 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if (this.destinationMarker) {
       this.destinationMarker.setLatLng([latitude, longitude]);
     } else {
-      this.destinationMarker = this.L.marker(
-        [latitude, longitude],
-        { icon: this.makeDestinationIcon(), title: 'Destination' }
-      ).addTo(this.map);
+      this.destinationMarker = this.L.marker([latitude, longitude], {
+        icon: this.makeDestinationIcon(),
+        title: 'Destination',
+      }).addTo(this.map);
     }
 
     this.destinationMarker.bindPopup(`<b>Destination</b><br>${trimLocation(name)}`).openPopup();
@@ -302,11 +320,8 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   private fitMapToBothMarkers() {
     if (this.pickupMarker && this.destinationMarker) {
       this.map.fitBounds(
-        this.L.latLngBounds([
-          this.pickupMarker.getLatLng(),
-          this.destinationMarker.getLatLng()
-        ]),
-        { padding: [60, 60] }
+        this.L.latLngBounds([this.pickupMarker.getLatLng(), this.destinationMarker.getLatLng()]),
+        { padding: [60, 60] },
       );
     }
   }
@@ -347,27 +362,25 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       lineOptions: {
         styles: [{ color: '#0074D9', weight: 5, opacity: 0.85 }],
         extendToWaypoints: true,
-        missingRouteTolerance: 0
+        missingRouteTolerance: 0,
       },
       createMarker: (i: number) => {
         if (i === 0) return this.pickupMarker;
         if (i === 1) return this.destinationMarker;
         return null;
-      }
+      },
     }).addTo(this.map);
 
     this.routingControl.on('routesfound', (e: any) => {
       const route = e.routes?.[0];
       if (route) {
-        this.routeCoordinates = route.coordinates.map(
-          (c: any) => ({ lat: c.lat, lng: c.lng })
-        );
+        this.routeCoordinates = route.coordinates.map((c: any) => ({ lat: c.lat, lng: c.lng }));
       }
       const distanceKm = route.summary.totalDistance / 1000;
       const durationMin = route.summary.totalTime / 60;
       this.routeInfo.emit({
         distanceKm: Number(distanceKm.toFixed(2)),
-        durationMin: Math.ceil(durationMin)
+        durationMin: Math.ceil(durationMin),
       });
 
       if (this.showRadiusCircle && this.pickup) {
@@ -377,9 +390,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
 
-    this.routingControl.on('routingerror', (e: any) =>
-      console.error('Routing error:', e.error)
-    );
+    this.routingControl.on('routingerror', (e: any) => console.error('Routing error:', e.error));
   }
 
   getRouteForBackend(): { lat: number; lng: number }[] {
@@ -396,13 +407,13 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       color: '#0074D9',
       fillColor: '#0074D9',
       fillOpacity: 0.08,
-      weight: 2
+      weight: 2,
     }).addTo(this.map);
   }
 
   private addDriverMarkers(drivers: any[]) {
-    this.driverMarkers.forEach(marker => {
-      this.map.removeLayer(marker)
+    this.driverMarkers.forEach((marker) => {
+      this.map.removeLayer(marker);
     });
 
     this.driverMarkers = [];
@@ -425,14 +436,14 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       className: '',
       iconSize: [32, 32],
       iconAnchor: [16, 16],
-      popupAnchor: [0, -16]
+      popupAnchor: [0, -16],
     });
 
-    drivers.forEach(driver => {
-      const marker = this.L.marker(
-        [driver.latitude, driver.longitude],
-        { icon: driverIcon, title: driver.driverName }
-      ).addTo(this.map);
+    drivers.forEach((driver) => {
+      const marker = this.L.marker([driver.latitude, driver.longitude], {
+        icon: driverIcon,
+        title: driver.driverName,
+      }).addTo(this.map);
 
       marker.bindPopup(`
       <b>${driver.driverName}</b><br>
@@ -446,7 +457,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   private fitToPickupArea(latitude: number, longitude: number) {
     const bounds = this.L.latLngBounds([
       [latitude - 0.02, longitude - 0.02],
-      [latitude + 0.02, longitude + 0.02]
+      [latitude + 0.02, longitude + 0.02],
     ]);
 
     this.map.fitBounds(bounds, { padding: [20, 20] });
@@ -474,7 +485,10 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
   private loadScriptOnce(id: string, src: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (document.getElementById(id)) { resolve(); return; }
+      if (document.getElementById(id)) {
+        resolve();
+        return;
+      }
       const script = document.createElement('script');
       script.id = id;
       script.src = src;
@@ -492,7 +506,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
-      shadowSize: [41, 41]
+      shadowSize: [41, 41],
     });
   }
 
@@ -504,7 +518,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
-      shadowSize: [41, 41]
+      shadowSize: [41, 41],
     });
   }
 
@@ -515,7 +529,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     passengerPickupAddress: string,
     passengerDestinationAddress: string,
     onDriveArrived?: () => void,
-    onStep?: (currentCoord: any) => void
+    onStep?: (currentCoord: any) => void,
   ): void {
     this.driverAnimation.startAnimation(
       driver,
@@ -524,7 +538,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       passengerPickupAddress,
       passengerDestinationAddress,
       onDriveArrived,
-      onStep
+      onStep,
     );
   }
 
@@ -537,9 +551,15 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     passengerDestination: Location,
     driverLocation: Location,
     onReachedDestination?: () => void,
-    onStep?: (currentCoord: any) => void
+    onStep?: (currentCoord: any) => void,
   ): void {
-    this.driverAnimation.startDestinationAnimation(passengerPickup, passengerDestination, driverLocation, onReachedDestination, onStep);
+    this.driverAnimation.startDestinationAnimation(
+      passengerPickup,
+      passengerDestination,
+      driverLocation,
+      onReachedDestination,
+      onStep,
+    );
   }
 
   public updateDriverMarker(latitude: number, longitude: number): void {
@@ -556,5 +576,21 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     this.driverAnimation.updateCarMarker(lat, lng);
+  }
+
+  public fitToShowDriverAndPickup(
+    driverLat: number,
+    driverLng: number,
+    pickupLat: number,
+    pickupLng: number,
+  ): void {
+    if (!this.mapReady) return;
+
+    const bounds = this.L.latLngBounds([
+      [driverLat, driverLng],
+      [pickupLat, pickupLng],
+    ]);
+
+    this.map.fitBounds(bounds, { padding: [60, 60] });
   }
 }
